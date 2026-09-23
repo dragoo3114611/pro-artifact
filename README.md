@@ -16,7 +16,7 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 - **Sozlamalar** — chapda boʻlimlar, oʻngda tanlangan boʻlim:
   - *Kompyuterlar*: jadval (qoʻshish/oʻchirish, guruh, IP qoʻlda, MAC avto yoki qoʻlda, Wake-on-LAN), *Guruhlar*, *Server ulanishi* (admin IP, port, ulanish kodi, klient xizmat paroli, vaqt sinxronizatsiyasi), *Xatti-harakat* (vaqt ochilganda avto yoqish, taymer oynachasi, vaqt tugaganda qulflash/oʻchirish, ogohlantirish, sichqoncha va klaviaturani bloklash).
   - *Qulf ekrani*: fon rasmi, 5 ta mavzu, joylashuv, qorongʻilashtirish, yozuvlar va ularning oʻlchami, oldindan koʻrish, kompyuterlarga (hammasi yoki guruh) yuborish.
-  - *Foydalanuvchilar va huquqlar*, *Server interfeysi* (shrift turi va oʻlchami, tema, jadval ustunlari va karta maʼlumotlarini tanlash va tartibini oʻzgartirish), *Backup* (papkaga avto backup, qoʻlda yuklab olish va tiklash).
+  - *Foydalanuvchilar va huquqlar*, *Server interfeysi* (shrift turi va oʻlchami, tema, jadval ustunlari va karta maʼlumotlarini tanlash va tartibini oʻzgartirish), *Backup* (papkaga avto backup, qoʻlda yuklab olish va tiklash), *Maʼlumotlarni tozalash* (kassa operatsiyalari, jurnal, qarz daftari, smenalar, ombor tarixi, klient soʻrovlari, foyda yozuvlari, ochiq seanslar, mijoz akkauntlari — boʻlimlab).
 - Qarz toʻlovida chegirma toʻlov oynasining oʻzida qoʻllanadi: berilgan summaga foiz qoʻshib qarzdan ayriladi.
 - **Mijoz ekrani** (Zal › «Mijoz ekrani») — klient kompyuter simulyatsiyasi: qulf ekrani, akkaunt bilan kirish, seans davomida taymer oynachasi va xabarlar.
 

@@ -218,6 +218,17 @@ svg.chart .gl{stroke:var(--line2)}
 .pl tr.sub td{font-weight:600}
 
 .kpi.hl{background:var(--accent-soft);border-color:var(--accent)}
+.cl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.cl{border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.cl-r{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line2)}
+.cl-r:last-child{border-bottom:0}
+.cl-r.off{opacity:.55}
+.cl-t{flex:1;min-width:0}
+.cl-t small{display:block;color:var(--muted);font-size:12px}
+.cl-t b.dz{color:var(--off)}
+.cl-n{color:var(--muted);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.btn.dng:disabled{opacity:.45}
+.btn.dngf{background:var(--off);border-color:var(--off);color:#fff}
 .kh table.t tr.tot td{background:var(--panel2);border-top:1px solid var(--line)}
 .kpis.k7{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
 .kpi .v{letter-spacing:-.01em}
@@ -687,6 +698,8 @@ function migrate(){
   st.debtDisc=Object.assign({on:true,pct:25},st.debtDisc||{});
   if(!st.ui.family)st.ui.family='Onest';
   if(!S.lockByGroup)S.lockByGroup={};
+  if(!S.stockLog)S.stockLog=[];
+  if(!S.requests)S.requests=[];
   if(!S.debtPays){S.debtPays=[];S.debts.forEach(d=>{(d.pays||[]).forEach(x=>S.debtPays.push({id:uid(),key:debtKey(d),clientId:d.clientId,name:d.name,t:x.t,amount:x.amount,disc:x.disc||0,pct:x.disc&&x.amount?Math.round(x.disc/x.amount*100):0,method:x.method}));delete d.pays;delete d.paid})}
   if(st.lock&&st.lock.sPc==null)st.lock.sPc=100;
   S.pcs.forEach(p=>{if(!p.group)p.group=S.groups[0].id;if(p.ip==null)p.ip='192.168.1.'+(200+p.n);if(p.mac==null)p.mac=(p.n>44||p.n===42)?'':macFor(p.n);if(!p.inbox)p.inbox=[];if(p.paired==null)p.paired=!!p.mac});
@@ -1085,7 +1098,7 @@ function productModal(id){
 }
 function stockInModal(id){const p=prod(id);
   modal({title:`Kirim: ${p.name}`,body:`<div class="frm"><div class="row2"><label>Soni<input id="ki-q" type="number" min="1" value="24"></label><label>Yangi tannarx (ixtiyoriy)<input id="ki-c" type="number" min="0" step="100" placeholder="${p.cost}"></label></div><div class="note">Hozirgi qoldiq: ${p.stock} ta</div></div>`,
-    actions:[{label:'Bekor qilish'},{label:'Kirim qilish',cls:'pri',run:()=>{const q=vn('ki-q');if(!q)return false;p.stock+=q;if(vn('ki-c'))p.cost=vn('ki-c');addLog('info',`Omborga kirim: ${p.name} +${q} ta (qoldiq ${p.stock})`);commit();toast('Kirim qilindi')}}]})}
+    actions:[{label:'Bekor qilish'},{label:'Kirim qilish',cls:'pri',run:()=>{const q=vn('ki-q');if(!q)return false;p.stock+=q;if(vn('ki-c'))p.cost=vn('ki-c');S.stockLog.push({id:uid(),t:Date.now(),pid:p.id,qty:q,cost:p.cost,user:S.user,src:'kirim'});addLog('info',`Omborga kirim: ${p.name} +${q} ta (qoldiq ${p.stock})`);commit();toast('Kirim qilindi')}}]})}
 function vBar(m){
   const today=sod(Date.now());const sales=S.ledger.filter(e=>e.kind==='bar'&&e.t>=today);
   const pend=S.pcs.filter(p=>p.session&&p.session.bar.length).reduce((a,p)=>a+barTotal(p.session),0);
@@ -1344,7 +1357,7 @@ function cashOutModal(){
     actions:[{label:'Bekor qilish'},{label:'Chiqimni saqlash',cls:'pri',run:()=>{const a=vn('co-a'),cat=v('co-c'),m=v('co-m');if(!a)return $('#co-e').textContent='Summani kiriting',false;
       const e={id:uid(),t:Date.now(),cat,amount:a,note:v('co-n').trim(),src:'kassa',method:m,user:S.user};
       const p=cat==='Bar xaridi'&&prod(v('co-p')),q=vn('co-q');
-      if(p){if(!q)return $('#co-e').textContent='Sonini kiriting',false;p.stock+=q;p.cost=Math.round(a/q);e.pid=p.id;e.qty=q;if(!e.note)e.note=`${p.name} × ${q}`}
+      if(p){if(!q)return $('#co-e').textContent='Sonini kiriting',false;p.stock+=q;p.cost=Math.round(a/q);S.stockLog.push({id:uid(),t:Date.now(),pid:p.id,qty:q,cost:p.cost,user:S.user,src:'chiqim'});e.pid=p.id;e.qty=q;if(!e.note)e.note=`${p.name} × ${q}`}
       S.expenses.push(e);addLog('warn',`Kassadan chiqim: ${som(a)} (${METHODS[m]}) · ${cat}${e.note?' · '+e.note:''}${p?` · omborga +${q} (qoldiq ${p.stock})`:''}`);commit();toast('Chiqim saqlandi')}}],
     onMount:ov=>{const u=()=>{const isBar=v('co-c')==='Bar xaridi';$('#co-pw').hidden=!isBar;const p=isBar&&prod(v('co-p')),a=vn('co-a'),q=vn('co-q');
       $('#co-s').innerHTML=`<div class="ln big"><span>Chiqim</span><span>${som(a)}</span></div>${p&&q?`<div class="ln muted"><span>Birlik tannarxi</span><span>${som(Math.round(a/q))}</span></div><div class="ln muted"><span>Ombor qoldigʻi</span><span>${p.stock} → ${p.stock+q} ta</span></div>`:''}<div class="ln muted"><span>${v('co-m')==='cash'?'Kassadagi naqddan ayriladi':'Naqdsiz hisobdan'}</span></div>`;$('#co-e').textContent=''};
@@ -1480,7 +1493,7 @@ function vTariffs(m){
 }
 
 /* =================== SOZLAMALAR =================== */
-const SSEC=[['pcs','Kompyuterlar'],['lock','Qulf ekrani'],['klub','Klub'],['users','Foydalanuvchilar va huquqlar',1],['ui','Server interfeysi'],['data','Backup',1]];
+const SSEC=[['pcs','Kompyuterlar'],['lock','Qulf ekrani'],['klub','Klub'],['users','Foydalanuvchilar va huquqlar',1],['ui','Server interfeysi'],['data','Backup',1],['clean','Maʼlumotlarni tozalash',1]];
 function vSettings(m){
   if(!can('sozlamalar'))return vZal(m);
   let sec=SSEC.find(x=>x[0]===ui.setSec)||SSEC[0];
@@ -1490,7 +1503,7 @@ function vSettings(m){
     <nav class="set-nav box" aria-label="Sozlamalar boʻlimlari">${SSEC.map(([k,l,a])=>`<button type="button" data-ss="${k}" class="${ui.setSec===k?'on':''}"${a&&!isAdmin()?' disabled title="Faqat admin uchun"':''}>${l}</button>`).join('')}</nav>
     <div class="set-body" id="setb"></div></div></div>`;
   $$('[data-ss]',m).forEach(b=>b.onclick=()=>{ui.setSec=b.dataset.ss;vSettings(m)});
-  ({pcs:setPcs,lock:setLock,klub:setKlub,users:setUsers,disc:setDisc,tarif:setTarif,ui:setUi,data:setData}[ui.setSec])($('#setb'));
+  ({pcs:setPcs,lock:setLock,klub:setKlub,users:setUsers,disc:setDisc,tarif:setTarif,ui:setUi,data:setData,clean:setClean}[ui.setSec])($('#setb'));
 }
 const sw=(id,on,label)=>`<span class="sw"><input type="checkbox" id="${id}"${on?' checked':''}${label?` aria-label="${esc(label)}"`:''}></span>`;
 
@@ -1827,6 +1840,51 @@ function ordEditor(box,list,order,vis,fixTxt){
   };draw();
 }
 
+/* ---------- Maʼlumotlarni tozalash ---------- */
+const CLEAN=[
+  {k:'cash',t:'Kassa operatsiyalari',d:'Seanslar, vaqt sotuvi, bar sotuvi, balans toʻldirish, chiqimlar — hisobot va kassa summalari nolga tushadi',
+    n:()=>S.ledger.length+S.history.length+S.expenses.filter(e=>e.src==='kassa').length,run:()=>{S.ledger=[];S.history=[];S.expenses=S.expenses.filter(e=>e.src!=='kassa')}},
+  {k:'log',t:'Jurnal',d:'Barcha hodisalar tarixi (Zal ostidagi xabarlar, kompyuter tarixi)',n:()=>S.log.length,run:()=>{S.log=[]}},
+  {k:'debt',t:'Qarz daftari',d:'Barcha qarzdorlar, qarz va toʻlov yozuvlari',n:()=>S.debts.length+S.debtPays.length,run:()=>{S.debts=[];S.debtPays=[]}},
+  {k:'shift',t:'Smenalar tarixi',d:'Yopilgan smenalar. Hozir ochiq smena qoladi',n:()=>S.shifts.filter(x=>x.closeAt).length,run:()=>{S.shifts=S.shifts.filter(x=>!x.closeAt)}},
+  {k:'stock',t:'Ombor tarixi',d:'Kirim yozuvlari. Mahsulot qoldigʻi oʻzgarmaydi',n:()=>S.stockLog.length,run:()=>{S.stockLog=[]}},
+  {k:'req',t:'Klient soʻrovlari',d:'Kompyuterlardan kelgan soʻrovlar roʻyxati',n:()=>S.requests.length,run:()=>{S.requests=[]}},
+  {k:'profit',t:'Foyda hisob-kitobi',d:'Xarajat yozuvlari (ijara, internet, ish haqi va boshqalar)',n:()=>S.expenses.filter(e=>e.src!=='kassa').length,run:()=>{S.expenses=S.expenses.filter(e=>e.src==='kassa')}},
+  {k:'sess',t:'Ochiq seanslar',d:'Hamma band kompyuterlar pul hisoblanmasdan boʻshatiladi',danger:1,n:()=>S.pcs.filter(p=>p.session).length,
+    run:()=>{S.pcs.forEach(p=>{if(p.session){p.session=null;p.status='free';p.offAt=null}});ui.sel.clear()}},
+  {k:'cli',t:'Mijoz akkauntlari',d:'Barcha mijozlar va ularning balansi oʻchiriladi',danger:1,n:()=>S.clients.length,
+    run:()=>{S.pcs.forEach(p=>{const s=p.session;if(s&&s.clientId){s.guest=who(s);if(s.mode==='balance'){s.mode='post'}s.clientId=null}});S.clients=[]}}
+];
+function setClean(b){
+  ui.clean=ui.clean||new Set();
+  const cnt={};CLEAN.forEach(c=>{cnt[c.k]=c.n();if(!cnt[c.k])ui.clean.delete(c.k)});
+  const avail=CLEAN.filter(c=>cnt[c.k]);
+  b.innerHTML=`<div class="box"><h2>Maʼlumotlarni tozalash</h2><div class="boxb">
+    <p class="note" style="margin-top:0">Sinovdan keyin yoki yangi davr boshlanganda keraksiz yozuvlarni boʻlimlab tozalang. Sozlamalar, kompyuterlar, tariflar, mahsulotlar va operatorlar oʻchmaydi. Tozalashdan oldin <b>Backup</b> boʻlimida nusxa olib qoʻyish tavsiya etiladi.</p>
+    <div class="cl-top"><label class="ck2"><input type="checkbox" id="cl-all"${avail.length&&avail.every(c=>ui.clean.has(c.k))?' checked':''}${avail.length?'':' disabled'}>Hammasini belgilash</label>
+      <button class="btn dng" type="button" id="cl-go"${ui.clean.size?'':' disabled'}>Tanlanganlarni tozalash${ui.clean.size?` (${ui.clean.size})`:''}</button></div>
+    <div class="cl">${CLEAN.map(c=>`<div class="cl-r${cnt[c.k]?'':' off'}"><input type="checkbox" data-cl="${c.k}"${ui.clean.has(c.k)?' checked':''}${cnt[c.k]?'':' disabled'} aria-label="${c.t}">
+      <div class="cl-t"><b${c.danger?' class="dz"':''}>${c.t}</b><small>${c.d}</small></div><span class="cl-n">${num(cnt[c.k])} ta</span>
+      <button class="btn sm" type="button" data-clone="${c.k}"${cnt[c.k]?'':' disabled'}>Tozalash</button></div>`).join('')}</div>
+  </div></div>`;
+  $$('[data-cl]',b).forEach(x=>x.onchange=()=>{x.checked?ui.clean.add(x.dataset.cl):ui.clean.delete(x.dataset.cl);setClean(b)});
+  $('#cl-all').onchange=e=>{ui.clean=new Set(e.target.checked?avail.map(c=>c.k):[]);setClean(b)};
+  $$('[data-clone]',b).forEach(x=>x.onclick=()=>cleanRun([x.dataset.clone],b));
+  $('#cl-go').onclick=()=>cleanRun([...ui.clean],b);
+}
+function cleanRun(keys,b){
+  const items=CLEAN.filter(c=>keys.includes(c.k)&&c.n());if(!items.length)return;
+  const danger=items.some(c=>c.danger);
+  modal({title:'Maʼlumotlarni tozalash',body:`<div class="frm"><div class="sumbox">${items.map(c=>`<div class="ln"><span${c.danger?' style="color:var(--off);font-weight:600"':''}>${c.t}</span><span>${num(c.n())} ta</span></div>`).join('')}</div>
+    <p class="note" style="margin:0">Bu amalni ortga qaytarib boʻlmaydi. Kerak boʻlsa, avval Backup boʻlimida nusxa oling.</p>
+    ${danger?`<label class="ck" style="color:var(--off)"><input type="checkbox" id="cl-ok">${items.filter(c=>c.danger).map(c=>c.t.toLowerCase()).join(' va ')} ham oʻchishini tushunaman</label>`:''}<div class="err" id="cl-e"></div></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Tozalash',cls:'pri dngf',run:()=>{
+      if(danger&&!$('#cl-ok').checked)return $('#cl-e').textContent='Davom etish uchun belgilang',false;
+      const txt=items.map(c=>`${c.t} (${num(c.n())} ta)`).join(', ');
+      items.forEach(c=>{c.run();ui.clean.delete(c.k)});
+      addLog('warn',`Maʼlumotlar tozalandi: ${txt} — ${me().name}`);commit();toast('Tozalandi: '+items.map(c=>c.t).join(', '))}}]});
+}
+
 /* ---------- Backup ---------- */
 const bk={dir:null,t:null,err:'',timer:null};
 const bkName=()=>(S.settings.name||'KLUB').replace(/[^A-Za-z0-9ʻ'-]+/g,'-').replace(/^-+|-+$/g,'').toUpperCase()+'-backup.json';
@@ -1896,7 +1954,7 @@ function renderShell(){
     const t=S.tariffs.find(x=>x.type==='hour'&&applies(x)&&grpAllows(p.group,x));if(!t)return er.textContent='Hozir amal qiladigan tarif yoʻq — administratorga murojaat qiling';
     if(c.balance<t.price/60)return er.textContent=`Balans yetarli emas (${som(c.balance)}). Administratorda toʻldiring.`;
     startSession(p.n,{clientId:c.id,mode:'balance',tariffId:t.id,note:'Qulf ekranidan kirdi'});save();renderNav();if(ui.view==='zal')renderGrid();renderShell()};
-  if($('#tw-req'))$('#tw-req').onclick=()=>{addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);save();pushInbox(p,'Soʻrovingiz administratorga yuborildi.','Tizim');updateShell()};
+  if($('#tw-req'))$('#tw-req').onclick=()=>{S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s.clientId,name:who(s),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);save();pushInbox(p,'Soʻrovingiz administratorga yuborildi.','Tizim');updateShell()};
   updateShell();
 }
 function updateShell(){
