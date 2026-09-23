@@ -158,6 +158,9 @@ table.lgt td{padding:3px 8px;border-bottom:1px solid var(--line2);vertical-align
 table.lgt td.nw{white-space:nowrap;color:var(--muted)}
 table.lgt td.ic{width:1%;padding-right:0}
 table.lgt td.pc{white-space:nowrap;font-weight:600;text-align:right}
+table.lgt td.am{white-space:nowrap;text-align:right;font-weight:600}
+table.lgt td.am small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
+table.lgt td.in{color:var(--ok)}table.lgt td.out{color:var(--off)}
 table.lgt tr.lg:hover td{background:var(--hover)}
 table.lgt tr.lg.sel td{background:var(--accent-soft)}
 table.lgt tr.lg.sel td:first-child{box-shadow:inset 3px 0 0 var(--busy)}
@@ -549,7 +552,7 @@ function applies(t,date=new Date()){
   return true;
 }
 function led(kind,amount,method,extra){if(amount>0)S.ledger.push(Object.assign({id:uid(),t:Date.now(),kind,amount,method},extra||{}))}
-function addLog(type,text,t){S.log.push({t:t||Date.now(),type,text});if(S.log.length>3000)S.log.splice(0,S.log.length-3000);if(ui.view==='zal')renderLog('append')}
+function addLog(type,text,t,x){const e={t:t||Date.now(),type,text};if(x){if(x.in>0)e.in=x.in;if(x.out>0)e.out=x.out;if(x.m)e.m=x.m}S.log.push(e);if(S.log.length>3000)S.log.splice(0,S.log.length-3000);if(ui.view==='zal')renderLog('append')}
 
 function startSession(n,o){
   const pc=pcBy(n),t=tariff(o.tariffId),now=Date.now();
@@ -566,13 +569,15 @@ function startSession(n,o){
   pc.status='busy';pc.session=s;
   const L=limitMs(s);
   addLog('info',`Seans boshlandi PC ${n} >> (${dstr(now)} ${hms(now)}${L!=null?' – '+hms(now+L):''}) ${MODES[s.mode]} / ${t.name} / ${who(s)}`+
-    (o.mode==='pre'?` / Toʻlandi ${som(s.paid)} (${METHODS[o.method]})`:'')+(o.mode==='balance'?` / Balans ${som(client(s.clientId).balance)}`:''));
+    (o.mode==='pre'?` / Toʻlandi ${som(s.paid)} (${METHODS[o.method]})`:'')+(o.mode==='balance'?` / Balans ${som(client(s.clientId).balance)}`:''),0,o.mode==='pre'?{in:s.paid,m:o.method}:null);
 }
-function finishSession(n,method,auto){
+function finishSession(n,method,auto,refund){
   const pc=pcBy(n),s=pc.session,now=Date.now();
   const mins=Math.max(1,Math.ceil(elapsed(s,now)/MIN));
   let pcCost=s.mode==='pre'?s.paid:r100(s.rate*mins/60);
   const bt=barTotal(s);
+  // qaytarish: oldindan toʻlangan, ishlatilmagan vaqt puli (manfiy yozuv — hisobot va kassadan avtomatik ayriladi)
+  let back=0;if(refund&&s.mode==='pre'){back=Math.max(0,Math.min(refund.amount,s.paid-timeCost(s,now)));if(back>0){S.ledger.push({id:uid(),t:now,kind:'pc',amount:-back,method:refund.method,pc:n,clientId:s.clientId,refund:true});pcCost-=back}}
   if(s.mode==='balance'){
     const c=client(s.clientId);const take=Math.min(pcCost,c?c.balance:0);
     if(c)c.balance-=take;pcCost=take;led('pc',take,'balance',{pc:n,clientId:s.clientId});
@@ -584,8 +589,9 @@ function finishSession(n,method,auto){
   if(m==='debt')S.debts.push({id:uid(),clientId:s.clientId,name:who(s),amount:due,t:now,note:`Seans: PC ${n}`+(auto?' (vaqt tugadi, avtomatik)':'')});
   S.history.push({id:uid(),pc:n,clientId:s.clientId,start:s.start,end:now,minutes:mins,pcCost,barCost:bt,total:pcCost+bt,method:m,mode:s.mode});
   pc.status='free';pc.session=null;
-  const tail=due>0?(m==='debt'?`Qarz daftariga yozildi ${som(due)}`:`Mijozdan olindi ${som(due)} (${METHODS[m]})`):'Qoʻshimcha toʻlov yoʻq';
-  addLog(due>0?'warn':'info',`Seans yakunlandi PC ${n} >> ${dstr(now)} ${hms(now)} / ${s.tname} / ${who(s)} / ${som(pcCost+bt)} / ${durTxt(mins)} / ${tail}`+(auto?' / avtomatik':''));
+  const tail=due>0?(m==='debt'?`Qarz daftariga yozildi ${som(due)}`:`Mijozdan olindi ${som(due)} (${METHODS[m]})`):(back?'':'Qoʻshimcha toʻlov yoʻq');
+  const ret=back?`${tail?' / ':''}Mijozga qaytarildi ${som(back)} (${METHODS[refund.method]})`:'';
+  addLog(due>0||back?'warn':'info',`Seans yakunlandi PC ${n} >> ${dstr(now)} ${hms(now)} / ${s.tname} / ${who(s)} / ${som(pcCost+bt)} / ${durTxt(mins)} / ${tail}${ret}`+(auto?' / avtomatik':''),0,{in:due>0&&m!=='debt'?due:0,out:back,m:due>0&&m!=='debt'?m:back?refund.method:''});
 }
 
 /* =================== Namuna maʼlumotlar =================== */
@@ -634,9 +640,10 @@ function seed(){
       bar.forEach(b=>S.ledger.push({id:uid(),t:end,kind:'bar',amount:b.price,method:pm==='balance'?mw():pm,pid:b.pid,qty:1,cost:b.cost,pc:pcN,clientId:c?c.id:null}));
       S.history.push({id:uid(),pc:pcN,clientId:c?c.id:null,start,end,minutes:mins,pcCost,barCost:bt,total:pcCost+bt,method:pm,mode});
       if(end>now-30*3600e3){
-        S.log.push({t:start,type:'info',text:`Seans boshlandi PC ${pcN} >> (${dstr(start)} ${hms(start)}) ${MODES[mode]} / CYBER / ${c?c.name:'Mehmon'}`});
+        S.log.push(Object.assign({t:start,type:'info',text:`Seans boshlandi PC ${pcN} >> (${dstr(start)} ${hms(start)}) ${MODES[mode]} / CYBER / ${c?c.name:'Mehmon'}`+(mode==='pre'?` / Toʻlandi ${som(pcCost)}`:'')},mode==='pre'?{in:pcCost,m:method}:{}));
         if(bar.length)S.log.push({t:start+Math.floor(mins/2)*MIN,type:'info',text:`Bar: ${prod(bar[0].pid).name}, soni=1, summa=${som(bar[0].price)} seans hisobiga PC ${pcN} / ${c?c.name:'Mehmon'}`});
-        S.log.push({t:end,type:mode==='pre'&&!bt?'info':'warn',text:`Seans yakunlandi PC ${pcN} >> ${dstr(end)} ${hms(end)} / CYBER / ${c?c.name:'Mehmon'} / ${som(pcCost+bt)} / ${durTxt(mins)} / `+
+        const gin=pm==='debt'?0:mode==='pre'||mode==='balance'?bt:pcCost+bt;
+        S.log.push({t:end,in:gin||undefined,m:gin?pm:undefined,type:mode==='pre'&&!bt?'info':'warn',text:`Seans yakunlandi PC ${pcN} >> ${dstr(end)} ${hms(end)} / CYBER / ${c?c.name:'Mehmon'} / ${som(pcCost+bt)} / ${durTxt(mins)} / `+
           (mode==='pre'&&!bt?'Qoʻshimcha toʻlov yoʻq':pm==='debt'?'Qarz daftariga yozildi':`Mijozdan olindi ${som(mode==='pre'?bt:mode==='balance'?bt:pcCost+bt)}`)});
       }
     }
@@ -670,7 +677,7 @@ function seed(){
       if(R()<.35){const p=pick(products);s.bar.push({pid:p.id,qty:1,price:p.price,cost:p.cost,t:now-Math.floor(ago/2)})}
       pc.status=R()<.08?'pause':'busy';if(pc.status==='pause'){s.pausedAt=now-5*MIN}
       pc.session=s;
-      S.log.push({t:s.start,type:'info',text:`Seans boshlandi PC ${n} >> (${dstr(s.start)} ${hms(s.start)}) ${MODES[mode]} / CYBER / ${who(s)}`+(mode==='pre'?` / Toʻlandi ${som(s.paid)}`:'')});
+      S.log.push(Object.assign({t:s.start,type:'info',text:`Seans boshlandi PC ${n} >> (${dstr(s.start)} ${hms(s.start)}) ${MODES[mode]} / CYBER / ${who(s)}`+(mode==='pre'?` / Toʻlandi ${som(s.paid)}`:'')},mode==='pre'?{in:s.paid,m:'cash'}:{}));
     }
   }
   S.log.push({t:now-40*MIN,type:'msg',text:'Xabar yuborildi → PC 12, PC 13: "Vaqtingiz 5 daqiqadan soʻng tugaydi"'});
@@ -1002,6 +1009,7 @@ function startModal(n){
 function stopModal(n){
   const p=pcBy(n),s=p.session,now=Date.now();const el=elapsed(s,now);const tc=s.mode==='pre'?s.paid:timeCost(s,now);const bt=barTotal(s);
   const due=(s.mode==='post'?tc:0)+bt;
+  const unused=s.mode==='pre'?Math.max(0,s.paid-timeCost(s,now)):0;
   let bal='';if(s.mode==='balance'){const c=client(s.clientId);bal=`<div class="ln"><span>Balansdan yechiladi</span><span>${som(Math.min(tc,c.balance))}</span></div>`}
   const body=`<div class="frm"><div class="sumbox">
     <div class="ln"><span>Mijoz</span><b>${esc(who(s))}</b></div>
@@ -1011,11 +1019,15 @@ function stopModal(n){
     <div class="ln"><span>Kompyuter vaqti</span><span>${som(tc)}${s.mode==='pre'?' (oldindan toʻlangan)':''}</span></div>${bal}
     ${s.bar.map(b=>`<div class="ln muted"><span>${esc(prod(b.pid)?prod(b.pid).name:'Mahsulot')} × ${b.qty}</span><span>${som(b.price*b.qty)}</span></div>`).join('')}
     <div class="ln big"><span>Toʻlash kerak</span><span>${som(due)}</span></div></div>
-    ${due>0?`<label>Toʻlov usuli<select id="sp-m">${methodOpts('cash')}</select></label>`:'<div class="note">Mijoz hammasini oldindan toʻlagan — qoʻshimcha toʻlov yoʻq.</div>'}</div>`;
+    ${due>0?`<label>Toʻlov usuli<select id="sp-m">${methodOpts('cash')}</select></label>`:'<div class="note">Mijoz hammasini oldindan toʻlagan — qoʻshimcha toʻlov yoʻq.</div>'}
+    ${unused>0?`<div class="sumbox"><label class="ck"><input type="checkbox" id="sp-rf">Ishlatilmagan vaqt pulini mijozga qaytarish</label>
+      <div class="row2"><label>Qaytariladigan summa<input id="sp-ra" type="number" min="0" max="${unused}" step="100" value="${unused}"></label><label>Qanday qaytariladi<select id="sp-rm">${methodOpts('cash')}</select></label></div>
+      <div class="note">Toʻlangan ${som(s.paid)}, ishlatilgan ${som(s.paid-unused)} → qaytarish mumkin: ${som(unused)}</div></div>`:''}</div>`;
   const acts=[{label:'Bekor qilish'}];
-  if(due>0)acts.push({label:'Qarzga yozish',cls:'dng',run:()=>{finishSession(n,'debt');commit();toast(`${who(s)}: ${som(due)} qarz daftariga yozildi`)}});
-  acts.push({label:due>0?'Toʻlandi, yakunlash':'Seansni yakunlash',cls:'pri',run:()=>{finishSession(n,due>0?v('sp-m'):'none');commit();toast(`PC ${n}: seans yakunlandi`)}});
-  modal({title:`Seansni yakunlash — PC ${n}`,body,actions:acts});
+  const rf=()=>{const c=$('#sp-rf');return c&&c.checked&&vn('sp-ra')>0?{amount:Math.min(unused,vn('sp-ra')),method:v('sp-rm')}:null};
+  if(due>0)acts.push({label:'Qarzga yozish',cls:'dng',run:()=>{finishSession(n,'debt',false,rf());commit();toast(`${who(s)}: ${som(due)} qarz daftariga yozildi`)}});
+  acts.push({label:due>0?'Toʻlandi, yakunlash':'Seansni yakunlash',cls:'pri',run:()=>{const r=rf();finishSession(n,due>0?v('sp-m'):'none',false,r);commit();toast(`PC ${n}: seans yakunlandi`+(r?` · qaytarildi ${som(r.amount)}`:''))}});
+  modal({title:`Seansni yakunlash — PC ${n}`,body,actions:acts,onMount:ov=>{const c=$('#sp-rf',ov);if(!c)return;const u=()=>{$('#sp-ra').disabled=!c.checked;$('#sp-rm').disabled=!c.checked};c.onchange=u;u()}});
 }
 function stopMany(sel){
   const now=Date.now();const rows=sel.map(p=>{const s=p.session;return {n:p.n,s,due:(s.mode==='post'?timeCost(s,now):0)+barTotal(s)}});
@@ -1033,7 +1045,7 @@ function addTimeModal(n){
     <div class="qk">${[30,60,120].map(x=>`<button type="button" class="btn sm" data-qm="${x}">+${durTxt(x)}</button>`).join('')}</div>
     <label>Toʻlov usuli<select id="ad-m">${methodOpts('cash')}</select></label><div class="note">Soatiga ${som(s.rate)} · hozir qolgan: ${durS(limitMs(s)-elapsed(s))}</div></div>`,
     actions:[{label:'Bekor qilish'},{label:'Qoʻshish',cls:'pri',run:()=>{const m=vn('ad-min'),a=vn('ad-amt');if(!m)return false;
-      s.paidMin+=m;s.paid+=a;led('pc',a,v('ad-m'),{pc:n,clientId:s.clientId});addLog('info',`Vaqt qoʻshildi PC ${n} +${durTxt(m)} / ${som(a)} (${METHODS[v('ad-m')]}) / ${who(s)}`);commit();toast(`PC ${n}: +${durTxt(m)}`)}}],
+      s.paidMin+=m;s.paid+=a;led('pc',a,v('ad-m'),{pc:n,clientId:s.clientId});addLog('info',`Vaqt qoʻshildi PC ${n} +${durTxt(m)} / ${som(a)} (${METHODS[v('ad-m')]}) / ${who(s)}`,0,{in:a,m:v('ad-m')});commit();toast(`PC ${n}: +${durTxt(m)}`)}}],
     onMount:ov=>{let src='min';const upd=()=>{if(src==='min')$('#ad-amt').value=r100(s.rate*vn('ad-min')/60);else $('#ad-min').value=Math.floor(vn('ad-amt')/s.rate*60)};
       $('#ad-min').oninput=()=>{src='min';upd()};$('#ad-amt').oninput=()=>{src='amt';upd()};$$('[data-qm]',ov).forEach(b=>b.onclick=()=>{src='min';$('#ad-min').value=b.dataset.qm;upd()});upd()}});
 }
@@ -1058,10 +1070,10 @@ function renderLog(mode){
   const atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-10;const prevH=box.scrollHeight,prevT=box.scrollTop;
   const list=filteredLog(),shown=list.slice(-ui.logLimit),more=list.length-shown.length;
   const TL={info:['Maʼlumot','p-mut'],warn:['Diqqat','p-pause'],msg:['Xabar','p-acc']};
-  box.innerHTML=`<table class="lgt"><thead><tr><th></th><th>Sana</th><th>Vaqt</th><th>Turi</th><th style="text-align:right">PC</th><th>Xabar</th></tr></thead><tbody>
-    <tr><td colspan="6" class="lgmore">${more>0?`↑ Yuqoriga suring — yana ${more} ta eski xabar`:'Jurnal boshi'}</td></tr>`+
+  box.innerHTML=`<table class="lgt"><thead><tr><th></th><th>Sana</th><th>Vaqt</th><th>Turi</th><th style="text-align:right">PC</th><th style="text-align:right">Olindi</th><th style="text-align:right">Qaytarildi</th><th>Xabar</th></tr></thead><tbody>
+    <tr><td colspan="8" class="lgmore">${more>0?`↑ Yuqoriga suring — yana ${more} ta eski xabar`:'Jurnal boshi'}</td></tr>`+
     shown.map(l=>{const k=l.t+'|'+l.text.length,tl=TL[l.type]||TL.info,pc=(l.text.match(/PC (\d+)/)||[])[1];
-      return `<tr class="lg lg-${l.type}${ui.logSel===k?' sel':''}" data-k="${k}"><td class="ic">${LOGI[l.type]||LOGI.info}</td><td class="nw">${dmy(l.t).slice(0,10)}</td><td class="nw">${hms(l.t)}</td><td class="nw"><span class="pill ${tl[1]}">${tl[0]}</span></td><td class="pc">${pc||''}</td><td>${esc(l.text)}</td></tr>`}).join('')+'</tbody></table>';
+      return `<tr class="lg lg-${l.type}${ui.logSel===k?' sel':''}" data-k="${k}"><td class="ic">${LOGI[l.type]||LOGI.info}</td><td class="nw">${dmy(l.t).slice(0,10)}</td><td class="nw">${hms(l.t)}</td><td class="nw"><span class="pill ${tl[1]}">${tl[0]}</span></td><td class="pc">${pc||''}</td><td class="am in">${l.in?num(l.in):''}${l.in&&l.m&&METHODS[l.m]?`<small>${METHODS[l.m]}</small>`:''}</td><td class="am out">${l.out?num(l.out):''}${l.out&&l.m&&METHODS[l.m]&&!l.in?`<small>${METHODS[l.m]}</small>`:''}</td><td>${esc(l.text)}</td></tr>`}).join('')+'</tbody></table>';
   $('#lgc').textContent=`${list.length} ta yozuv`;
   if(mode==='keep')box.scrollTop=box.scrollHeight-prevH+prevT;
   else if(mode==='bottom'||atBottom)box.scrollTop=box.scrollHeight;
@@ -1082,7 +1094,7 @@ function barSellModal(pcN){
       const p=prod(v('bs-p')),q=vn('bs-q'),d=+v('bs-d');if(!q)return false;if(q>p.stock)return $('#bs-e').textContent=`Omborda faqat ${p.stock} ta qolgan`,false;
       p.stock-=q;
       if(d){const s=pcBy(d).session;s.bar.push({pid:p.id,qty:q,price:p.price,cost:p.cost,t:Date.now()});addLog('info',`Bar: ${p.name}, soni=${q}, summa=${som(p.price*q)} seans hisobiga PC ${d} / ${who(s)}`)}
-      else{led('bar',p.price*q,v('bs-m'),{pid:p.id,qty:q,cost:p.cost*q});addLog('info',`Bar: ${p.name}, soni=${q}, summa=${som(p.price*q)} / toʻlandi (${METHODS[v('bs-m')]})`)}
+      else{led('bar',p.price*q,v('bs-m'),{pid:p.id,qty:q,cost:p.cost*q});addLog('info',`Bar: ${p.name}, soni=${q}, summa=${som(p.price*q)} / toʻlandi (${METHODS[v('bs-m')]})`,0,{in:p.price*q,m:v('bs-m')})}
       if(p.stock<=p.min)addLog('warn',`Omborda kam qoldi: ${p.name} — ${p.stock} ta`);
       commit();toast(`${p.name} × ${q} sotildi`)}}],
     onMount:ov=>{const upd=()=>{const p=prod(v('bs-p'));$('#bs-mw').hidden=v('bs-d')!=='0';$('#bs-s').innerHTML=`<div class="ln big"><span>Summa</span><span>${som(p.price*vn('bs-q'))}</span></div>`;$('#bs-e').textContent=''};ov.addEventListener('input',upd);ov.addEventListener('change',upd);upd()}});
@@ -1145,7 +1157,7 @@ function topupModal(id){
     <div class="qk">${[20000,50000,100000,200000].map(x=>`<button type="button" class="btn sm" data-qa="${x}">${num(x)}</button>`).join('')}</div>
     <label>Toʻlov usuli<select id="tp-m">${methodOpts('cash')}</select></label><div class="sumbox" id="tp-s"></div></div>`,
     actions:[{label:'Bekor qilish'},{label:'Toʻldirish',cls:'pri',run:()=>{const a=vn('tp-a');if(!a)return false;
-      c.balance+=a;led('topup',a,v('tp-m'),{clientId:id});addLog('info',`Balans toʻldirildi: ${c.name} +${som(a)} (${METHODS[v('tp-m')]}) → ${som(c.balance)}`);commit();toast('Balans toʻldirildi')}}],
+      c.balance+=a;led('topup',a,v('tp-m'),{clientId:id});addLog('info',`Balans toʻldirildi: ${c.name} +${som(a)} (${METHODS[v('tp-m')]}) → ${som(c.balance)}`,0,{in:a,m:v('tp-m')});commit();toast('Balans toʻldirildi')}}],
     onMount:ov=>{const upd=()=>{const a=vn('tp-a');$('#tp-s').innerHTML=`<div class="ln"><span>Hozirgi balans</span><span>${som(c.balance)}</span></div><div class="ln big"><span>Yangi balans</span><span>${som(c.balance+a)}</span></div>`};
       $$('[data-qa]',ov).forEach(x=>x.onclick=()=>{$('#tp-a').value=x.dataset.qa;upd()});ov.addEventListener('input',upd);upd()}});
 }
@@ -1250,7 +1262,7 @@ function debtPayModal(key){
       const lid=uid(),now=Date.now();S.ledger.push({id:lid,t:now,kind:'debtpay',amount:r.a,method:m,clientId:x.clientId});
       S.debtPays.push({id:uid(),key,clientId:x.clientId,name:x.name,t:now,amount:r.a,disc:r.disc,pct:r.disc?r.p:0,method:m,ledgerId:lid});
       const nl=left-r.ded;
-      addLog('info',`Qarz toʻlandi: ${x.name} ${som(r.a)} (${METHODS[m]})${r.disc?` + chegirma ${r.p}% (${som(r.disc)}) → qarzdan ${som(r.ded)} ayrildi`:''}${nl>0?` · qoldiq ${som(nl)}`:' · qarz yopildi'}`);
+      addLog('info',`Qarz toʻlandi: ${x.name} ${som(r.a)} (${METHODS[m]})${r.disc?` + chegirma ${r.p}% (${som(r.disc)}) → qarzdan ${som(r.ded)} ayrildi`:''}${nl>0?` · qoldiq ${som(nl)}`:' · qarz yopildi'}`,0,{in:r.a,m});
       commit();toast(nl>0?'Qisman toʻlov qabul qilindi':'Qarz toʻliq yopildi')}}],
     onMount:ov=>{const u=()=>{const r=calc();$('#dp-p').disabled=!$('#dp-dc').checked;
       $('#dp-s').innerHTML=`<div class="ln"><span>Mijoz beradi</span><span>${som(r.a)}</span></div>${r.p?`<div class="ln"><span>Chegirma ${r.p}%</span><span>+${som(r.disc)}</span></div>`:''}<div class="ln big"><span>Qarzdan ayriladi</span><span>${som(r.ded)}</span></div><div class="ln muted"><span>Qolgan qarz</span><span>${som(left-r.ded)}</span></div>${r.g>r.a?`<div class="ln" style="color:var(--warn)"><span>Qarzni yopish uchun ${som(r.a)} yetarli</span></div>`:''}`;$('#dp-e').textContent=''};
