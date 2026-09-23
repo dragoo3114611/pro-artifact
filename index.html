@@ -107,13 +107,31 @@ table.pcs td.neg{color:var(--off)}
 table.pcs td.low{color:var(--off);font-weight:600}
 table.pcs tr.s-off td{color:var(--muted)}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:12px;user-select:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:12px;user-select:none;align-items:start}
 .card{--stc:var(--ok);border:1px solid var(--line);border-top:4px solid var(--stc);border-radius:8px;background:var(--panel);padding:9px 10px 10px;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:112px}
 .card:hover{background:var(--hover)}
 .card.sel{outline:2px solid var(--accent);outline-offset:1px}
 .card.s-busy{--stc:var(--busy)}.card.s-pause{--stc:var(--warn)}.card.s-off{--stc:var(--off);opacity:.72}
 .card .top{display:flex;justify-content:space-between;align-items:center}
-.card .pn{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.card .pn{font-size:1.45em;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.card .ct{font-size:1.6em;font-weight:700;color:var(--warn);font-variant-numeric:tabular-nums;line-height:1.1;margin-top:2px}
+.card .ct.low{color:var(--off)}
+.card .ct.muted{color:var(--muted);opacity:.6}
+.card .cm{font-size:.9em;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--line2)}
+.card .kv{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:.93em;padding-top:4px}
+.card .kv span{color:var(--muted);white-space:nowrap}
+.card .kv b{white-space:nowrap}
+.card .kv b{text-align:right;font-variant-numeric:tabular-nums}
+.card .blue,table.pcs td.blue{color:var(--busy)}
+.ord{display:flex;flex-direction:column;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:var(--panel)}
+.ord-r{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 10px;border-bottom:1px solid var(--line2);color:var(--text);font-size:13.5px}
+.ord-r:last-child{border-bottom:0}
+.ord-r.dragging{opacity:.4}.ord-r.over{box-shadow:inset 0 2px 0 var(--accent)}
+.ord-r .hd{cursor:grab;color:var(--muted);user-select:none;letter-spacing:-2px}
+.ord-r label{display:flex;align-items:center;gap:8px;flex:1;cursor:pointer}
+.ord-r .btn{padding:2px 8px}
+.ord-r .btn+.btn{margin-left:2px}
+.ord-fix{color:var(--muted);font-size:12.5px;padding:6px 10px;background:var(--panel2);border-bottom:1px solid var(--line2)}
 .card .who{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card .tm{font:500 16px/1.2 "JetBrains Mono",ui-monospace,monospace}
 .card .tm.low{color:var(--off)}
@@ -411,7 +429,13 @@ const DEF_GAMES=[{id:'gm1',name:'Counter-Strike 2',cat:'Shooter',path:'C:\\Games
   {id:'gm7',name:'Fortnite',cat:'Battle royale',path:'C:\\Games\\Fortnite\\FortniteLauncher.exe',color:'#8a5cf6'},{id:'gm8',name:'Discord',cat:'Dasturlar',path:'C:\\Apps\\Discord\\Update.exe',color:'#5865f2'},
   {id:'gm9',name:'Steam',cat:'Dasturlar',path:'C:\\Program Files (x86)\\Steam\\steam.exe',color:'#3d6a8a'}];
 const ZCOLS=[['grp','Guruh','',true],['tarif','Tarif','',true],['bal','Balans','',true],['start','Boshlanish','start',true],['end','Tugash','',true],['vaqt','Vaqt','',true],
-  ['left','Qoldi','left',true],['bar','Bar','',true],['sum','Summa','sum',true],['client','Mijoz','',true],['mode','Toʻlov turi','',true],['note','Izoh','',true],['ip','IP','',false]];
+  ['left','Qoldi','left',true],['bar','Bar','',true],['sum','Summa','sum',true],['played','Oʻynagan pul','played',true],['client','Mijoz','',true],['mode','Toʻlov turi','',true],['note','Izoh','',true],['ip','IP','',false]];
+const CROWS=[['open','Ochildi',true],['end','Tugaydi',true],['sum','Hisob',true],['vaqt','Oʻynadi',true],['played','Oʻynagan pul',true],
+  ['left','Qoldi',false],['client','Mijoz',false],['tarif','Tarif',false],['bar','Bar',false],['grp','Guruh',false]];
+const CMODE={pre:'Oldindan toʻlangan',post:'Keyin toʻlov',balance:'Balansdan'};
+const hhmm=ms=>{ms=Math.max(0,ms);const m=Math.floor(ms/MIN);return p2(Math.floor(m/60))+':'+p2(m%60)};
+function played(s,now){const c=timeCost(s,now);return s.mode==='pre'?Math.min(s.paid,c):c}
+function ordered(list,order,vis){const by=Object.fromEntries(list.map(x=>[x[0],x]));return order.map(k=>by[k]).filter(x=>x&&vis[x[0]])}
 const IP_RE=/^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
 const normMac=x=>{const h=String(x).replace(/[^0-9a-f]/gi,'');return h.length===12?h.toUpperCase().match(/../g).join('-'):''};
 const macFor=n=>[0x74,0x56,0x3C,0x85,(n*37)&255,(n*91+17)&255].map(x=>x.toString(16).toUpperCase().padStart(2,'0')).join('-');
@@ -628,6 +652,10 @@ function migrate(){
   if(!st.warn)st.warn={on:true,mins:[5,1],text:'Vaqtingiz {min} daqiqadan soʻng tugaydi'};
   st.ui=Object.assign({font:15,zalDefault:'table',cols:{}},st.ui||{});
   ZCOLS.forEach(c=>{if(!(c[0] in st.ui.cols))st.ui.cols[c[0]]=c[3]});
+  const fixOrd=(o,list)=>{if(!o||!o.length)return list.map(x=>x[0]);o=o.filter(k=>list.some(x=>x[0]===k));list.forEach(x=>{if(!o.includes(x[0])){const i=o.indexOf('sum');x[0]==='played'&&i>=0?o.splice(i+1,0,x[0]):o.push(x[0])}});return o};
+  st.ui.order=fixOrd(st.ui.order,ZCOLS);
+  st.ui.crows=st.ui.crows||{};CROWS.forEach(c=>{if(!(c[0] in st.ui.crows))st.ui.crows[c[0]]=c[2]});
+  st.ui.corder=fixOrd(st.ui.corder,CROWS);
   if(!S.groups||!S.groups.length)S.groups=[{id:'g1',name:'General',tariffs:[],note:'Asosiy zal',color:'#0a8bb0'}];
   S.perms=Object.assign({},DEF_PERMS,S.perms||{});
   if(!st.lock)st.lock=Object.assign({},LK_DEF);
@@ -794,7 +822,7 @@ function visiblePcs(){
   if(q)list=list.filter(p=>String(p.n)===q||(p.session&&who(p.session).toLowerCase().includes(q)));
   const now=Date.now(),{k,d}=ui.sort,ord={busy:0,pause:1,free:2,off:3};
   const key={n:p=>p.n,st:p=>ord[p.status]*100+p.n,left:p=>{const L=p.session&&limitMs(p.session);return L!=null&&p.session?L-elapsed(p.session,now):9e15},
-    sum:p=>p.session?accrued(p.session,now):-1,start:p=>p.session?p.session.start:9e15}[k]||(p=>p.n);
+    sum:p=>p.session?accrued(p.session,now):-1,played:p=>p.session?played(p.session,now):-1,start:p=>p.session?p.session.start:9e15}[k]||(p=>p.n);
   return list.slice().sort((a,b)=>(key(a)-key(b))*d||a.n-b.n);
 }
 function renderGrid(){
@@ -806,18 +834,22 @@ function renderGrid(){
   const list=visiblePcs();const sc=g.scrollTop;
   if(ui.zalMode==='table'){
     const ar=k=>ui.sort.k===k?`<span class="ar">${ui.sort.d>0?'▲':'▼'}</span>`:'';
-    const cols=ZCOLS.filter(c=>S.settings.ui.cols[c[0]]);
+    const cols=ordered(ZCOLS,S.settings.ui.order,S.settings.ui.cols);
     g.innerHTML=`<table class="pcs" style="font-size:${S.settings.ui.font}px"><thead><tr><th data-k="n">№ ${ar('n')}</th><th data-k="st" colspan="2">Holat ${ar('st')}</th>${cols.map(c=>`<th${c[2]?` data-k="${c[2]}"`:''}>${c[1]}${c[2]?' '+ar(c[2]):''}</th>`).join('')}</tr></thead><tbody>${
       list.map(p=>{const s=p.session;const sel=ui.sel.has(p.n)?' sel':'';
         return `<tr data-pc="${p.n}" class="s-${p.status}${sel}"><td class="n">${p.n}</td><td class="stc"><span class="st st-${p.status}"></span></td><td>${STATUS[p.status]}</td>${cols.map(c=>{const [h,cl]=zcell(c[0],p,s,now);return `<td${cl?` class="${cl}"`:''}>${h}</td>`}).join('')}</tr>`}).join('')}</tbody></table>`;
   }else{
-    g.innerHTML=`<div class="cards">${list.map(p=>{const s=p.session;const sel=ui.sel.has(p.n)?' sel':'';
-      if(!s)return `<div class="card s-${p.status}${sel}" data-pc="${p.n}"><div class="top"><span class="pn">${p.n}</span><span class="pill p-${p.status}">${STATUS[p.status]}</span></div><div class="who">${p.status==='off'?'Kompyuter oʻchiq':'Mijoz kutilmoqda'}</div></div>`;
-      const L=limitMs(s),el=elapsed(s,now),left=L!=null?L-el:null;const pct=L?Math.min(100,el/L*100):0;
-      return `<div class="card s-${p.status}${sel}" data-pc="${p.n}"><div class="top"><span class="pn">${p.n}</span><span class="pill p-${p.status}">${STATUS[p.status]}</span></div>
-        <div class="who">${esc(who(s))} · ${MODES[s.mode]}</div>
-        <div class="tm${left!=null&&left<5*MIN?' low':''}">${left!=null?durS(left):durS(el)}</div>
-        <div class="sm muted">${left!=null?'qoldi':'oʻtdi'} · ${som(accrued(s,now))}</div>
+    const rows=ordered(CROWS,S.settings.ui.corder,S.settings.ui.crows);
+    g.innerHTML=`<div class="cards" style="font-size:${Math.max(13,S.settings.ui.font-1)}px">${list.map(p=>{const s=p.session;const sel=ui.sel.has(p.n)?' sel':'';
+      const head=`<div class="top"><span class="pn">${p2(p.n)}</span><span class="pill p-${p.status}">${STATUS[p.status]}</span></div>`;
+      if(!s)return `<div class="card s-${p.status}${sel}" data-pc="${p.n}">${head}<div class="ct muted">${p.status==='off'?'--:--':'00:00'}</div><div class="cm">${p.status==='off'?'Kompyuter oʻchiq':'Boʻsh — mijoz kutilmoqda'}</div></div>`;
+      const L=limitMs(s),el=elapsed(s,now),left=L!=null?L-el:null,pct=L?Math.min(100,el/L*100):0,e=endAt(s,now);
+      const val={open:[hm(s.start)],end:[e?hm(e):'—'],sum:[som(accrued(s,now))],vaqt:[hhmm(el),'blue'],played:[som(played(s,now)),'blue'],
+        left:[left!=null?hhmm(left):'—'],client:[esc(who(s))],tarif:[esc(s.tname)],bar:[s.bar.length?som(barTotal(s)):'—'],grp:[esc(grpName(p.group))]};
+      return `<div class="card s-${p.status}${sel}" data-pc="${p.n}">${head}
+        <div class="ct${left!=null&&left<5*MIN?' low':''}">${left!=null?hhmm(left):hhmm(el)}</div>
+        <div class="cm">${p.status==='pause'?'Pauza · ':''}${CMODE[s.mode]}</div>
+        ${rows.length?`<div class="kv">${rows.map(r=>`<span>${r[1]}</span><b class="${val[r[0]][1]||''}">${val[r[0]][0]}</b>`).join('')}</div>`:''}
         ${L!=null?`<div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>`:''}</div>`}).join('')}</div>`;
   }
   if(!list.length)g.innerHTML='<div class="empty">Bu filtr boʻyicha kompyuter topilmadi.</div>';
@@ -837,6 +869,7 @@ function zcell(k,p,s,now){
     case 'left':return [left!=null?durS(left):'',left!=null&&left<5*MIN?'low':''];
     case 'bar':return [s.bar.length?num(barTotal(s)):''];
     case 'sum':return [num(accrued(s,now))];
+    case 'played':return [num(played(s,now)),'blue'];
     case 'client':return [esc(who(s))];
     case 'mode':return [MODES[s.mode]];
     case 'note':return [esc(s.note)];
@@ -1277,8 +1310,7 @@ function vTariffs(m){
 }
 
 /* =================== SOZLAMALAR =================== */
-const SSEC=[['pcs','Kompyuterlar'],['lock','Qulf ekrani'],['klub','Klub'],['users','Foydalanuvchilar va huquqlar',1],['disc','Chegirmalar'],
-  ['tarif','Tariflar va xizmatlar'],['ui','Server interfeysi'],['data','Backup',1]];
+const SSEC=[['pcs','Kompyuterlar'],['lock','Qulf ekrani'],['klub','Klub'],['users','Foydalanuvchilar va huquqlar',1],['ui','Server interfeysi'],['data','Backup',1]];
 function vSettings(m){
   if(!can('sozlamalar'))return vZal(m);
   let sec=SSEC.find(x=>x[0]===ui.setSec)||SSEC[0];
@@ -1596,15 +1628,33 @@ function setUi(b){
     <div class="sumbox" id="ui-pv" style="font-size:15px">Namuna: PC 16 · Band · 22:06:07 · 12 600 soʻm · Oʻzbekcha harflar: Oʻ oʻ Gʻ gʻ</div>
     <div class="row2"><label>Zal ochilganda<select id="ui-z"><option value="table"${u.zalDefault==='table'?' selected':''}>Jadval</option><option value="cards"${u.zalDefault==='cards'?' selected':''}>Kartalar</option></select></label>
     <label>Tema<select id="ui-t"><option value="system">Tizim boʻyicha</option><option value="light">Yorugʻ</option><option value="dark">Qorongʻu</option></select></label></div>
-    <div class="flabel">Zal jadvalida koʻrinadigan ustunlar <span class="muted">(№ va Holat har doim koʻrinadi)</span><div class="days">${ZCOLS.map(c=>`<label><input type="checkbox" data-col="${c[0]}"${u.cols[c[0]]?' checked':''}>${c[1]}</label>`).join('')}</div></div>
-  </div></div></div><div class="note">Oʻzgarishlar darhol saqlanadi. Tanlangan shrift kompyuterda oʻrnatilgan boʻlishi kerak, aks holda oʻxshash shrift ishlatiladi.</div>`;
+  </div></div></div>
+  <div class="cols"><div class="box"><h2>Jadval ustunlari<small>belgilang va tartibni oʻzgartiring</small></h2><div class="boxb"><div class="ord" id="ord-cols"></div></div></div>
+    <div class="box"><h2>Karta maʼlumotlari<small>Kartalar koʻrinishida</small></h2><div class="boxb"><div class="ord" id="ord-card"></div></div></div></div><div class="note">Oʻzgarishlar darhol saqlanadi. Tanlangan shrift kompyuterda oʻrnatilgan boʻlishi kerak, aks holda oʻxshash shrift ishlatiladi.</div>`;
   const pvf=()=>{const f=FONTS.find(x=>x[0]===u.family)||FONTS[0];$('#ui-pv').style.fontFamily=f[2];$('#ui-pv').style.fontSize=u.font+'px'};pvf();
   $('#ui-t').value=S.settings.theme;
   $('#ui-ff').onchange=e=>{u.family=e.target.value;applyFont();save();pvf()};
   $('#ui-f').onchange=e=>{u.font=+e.target.value;save();pvf()};
   $('#ui-z').onchange=e=>{u.zalDefault=e.target.value;ui.zalMode=e.target.value;saveUI();save()};
   $('#ui-t').onchange=e=>{S.settings.theme=e.target.value;applyTheme();save();renderNav()};
-  $$('[data-col]',b).forEach(x=>x.onchange=()=>{u.cols[x.dataset.col]=x.checked;save()});
+  ordEditor($('#ord-cols',b),ZCOLS,u.order,u.cols,'№ va Holat har doim birinchi turadi');
+  ordEditor($('#ord-card',b),CROWS,u.corder,u.crows,'PC raqami, qolgan vaqt va toʻlov turi har doim tepada');
+}
+
+function ordEditor(box,list,order,vis,fixTxt){
+  const lab=Object.fromEntries(list.map(x=>[x[0],x[1]]));let drag=null;
+  const draw=()=>{box.innerHTML=`<div class="ord-fix">${fixTxt}</div>`+order.map((k,i)=>`<div class="ord-r" draggable="true" data-k="${k}"><span class="hd" aria-hidden="true">⋮⋮</span>
+    <label><input type="checkbox" data-v="${k}"${vis[k]?' checked':''}>${lab[k]}</label>
+    <button class="btn sm" type="button" data-m="-1" data-k="${k}"${i===0?' disabled':''} aria-label="${lab[k]} — yuqoriga">↑</button><button class="btn sm" type="button" data-m="1" data-k="${k}"${i===order.length-1?' disabled':''} aria-label="${lab[k]} — pastga">↓</button></div>`).join('');
+    $$('[data-v]',box).forEach(x=>x.onchange=()=>{vis[x.dataset.v]=x.checked;save()});
+    $$('[data-m]',box).forEach(x=>x.onclick=()=>{const i=order.indexOf(x.dataset.k),j=i+ +x.dataset.m;if(j<0||j>=order.length)return;[order[i],order[j]]=[order[j],order[i]];save();draw();const f=$(`[data-m="${x.dataset.m}"][data-k="${x.dataset.k}"]`,box);if(f&&!f.disabled)f.focus()});
+    $$('.ord-r',box).forEach(r=>{
+      r.ondragstart=e=>{drag=r.dataset.k;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',drag)}catch(err){}};
+      r.ondragend=()=>{drag=null;$$('.ord-r',box).forEach(x=>x.classList.remove('dragging','over'))};
+      r.ondragover=e=>{if(!drag)return;e.preventDefault();$$('.ord-r',box).forEach(x=>x.classList.toggle('over',x===r))};
+      r.ondrop=e=>{e.preventDefault();if(!drag||drag===r.dataset.k)return;const from=order.indexOf(drag);order.splice(from,1);order.splice(order.indexOf(r.dataset.k),0,drag);save();draw()};
+    });
+  };draw();
 }
 
 /* ---------- Backup ---------- */
