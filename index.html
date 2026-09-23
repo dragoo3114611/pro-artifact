@@ -158,9 +158,6 @@ table.lgt td{padding:3px 8px;border-bottom:1px solid var(--line2);vertical-align
 table.lgt td.nw{white-space:nowrap;color:var(--muted)}
 table.lgt td.ic{width:1%;padding-right:0}
 table.lgt td.pc{white-space:nowrap;font-weight:600;text-align:right}
-table.lgt td.am{white-space:nowrap;text-align:right;font-weight:600}
-table.lgt td.am small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
-table.lgt td.in{color:var(--ok)}table.lgt td.out{color:var(--off)}
 table.lgt tr.lg:hover td{background:var(--hover)}
 table.lgt tr.lg.sel td{background:var(--accent-soft)}
 table.lgt tr.lg.sel td:first-child{box-shadow:inset 3px 0 0 var(--busy)}
@@ -1070,10 +1067,10 @@ function renderLog(mode){
   const atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-10;const prevH=box.scrollHeight,prevT=box.scrollTop;
   const list=filteredLog(),shown=list.slice(-ui.logLimit),more=list.length-shown.length;
   const TL={info:['Maʼlumot','p-mut'],warn:['Diqqat','p-pause'],msg:['Xabar','p-acc']};
-  box.innerHTML=`<table class="lgt"><thead><tr><th></th><th>Sana</th><th>Vaqt</th><th>Turi</th><th style="text-align:right">PC</th><th style="text-align:right">Olindi</th><th style="text-align:right">Qaytarildi</th><th>Xabar</th></tr></thead><tbody>
-    <tr><td colspan="8" class="lgmore">${more>0?`↑ Yuqoriga suring — yana ${more} ta eski xabar`:'Jurnal boshi'}</td></tr>`+
+  box.innerHTML=`<table class="lgt"><thead><tr><th></th><th>Sana</th><th>Vaqt</th><th>Turi</th><th style="text-align:right">PC</th><th>Xabar</th></tr></thead><tbody>
+    <tr><td colspan="6" class="lgmore">${more>0?`↑ Yuqoriga suring — yana ${more} ta eski xabar`:'Jurnal boshi'}</td></tr>`+
     shown.map(l=>{const k=l.t+'|'+l.text.length,tl=TL[l.type]||TL.info,pc=(l.text.match(/PC (\d+)/)||[])[1];
-      return `<tr class="lg lg-${l.type}${ui.logSel===k?' sel':''}" data-k="${k}"><td class="ic">${LOGI[l.type]||LOGI.info}</td><td class="nw">${dmy(l.t).slice(0,10)}</td><td class="nw">${hms(l.t)}</td><td class="nw"><span class="pill ${tl[1]}">${tl[0]}</span></td><td class="pc">${pc||''}</td><td class="am in">${l.in?num(l.in):''}${l.in&&l.m&&METHODS[l.m]?`<small>${METHODS[l.m]}</small>`:''}</td><td class="am out">${l.out?num(l.out):''}${l.out&&l.m&&METHODS[l.m]&&!l.in?`<small>${METHODS[l.m]}</small>`:''}</td><td>${esc(l.text)}</td></tr>`}).join('')+'</tbody></table>';
+      return `<tr class="lg lg-${l.type}${ui.logSel===k?' sel':''}" data-k="${k}"><td class="ic">${LOGI[l.type]||LOGI.info}</td><td class="nw">${dmy(l.t).slice(0,10)}</td><td class="nw">${hms(l.t)}</td><td class="nw"><span class="pill ${tl[1]}">${tl[0]}</span></td><td class="pc">${pc||''}</td><td>${esc(l.text)}</td></tr>`}).join('')+'</tbody></table>';
   $('#lgc').textContent=`${list.length} ta yozuv`;
   if(mode==='keep')box.scrollTop=box.scrollHeight-prevH+prevT;
   else if(mode==='bottom'||atBottom)box.scrollTop=box.scrollHeight;
