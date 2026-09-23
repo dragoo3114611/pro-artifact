@@ -1633,8 +1633,12 @@ function setData(b){
     catch(e){if(e&&e.name==='AbortError')return;toast('Papkaga ruxsat berilmadi: '+(e.message||e),'err')}};
   if($('#bk-now'))$('#bk-now').onclick=async()=>{await bkWrite();toast(bk.err?'Saqlab boʻlmadi':'Backup saqlandi',bk.err?'err':'')};
   if($('#bk-off'))$('#bk-off').onclick=()=>{bk.dir=null;S.settings.backupDir='';save();setData(b);toast('Avto backup oʻchirildi')};
-  $('#bk-dl').onclick=()=>{try{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-    const d=new Date();a.download=bkName().replace('.json',`-${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}.json`);document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  $('#bk-dl').onclick=async()=>{const d=new Date(),fname=bkName().replace('.json',`-${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}.json`),json=JSON.stringify(S,null,1);
+    // claude.ai havolasida brauzer yuklab olishni faqat "downloads" orqali ruxsat beradi; oddiy faylda odatiy havola ishlaydi
+    let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){dl=null}
+    if(dl){try{await dl.save({filename:fname,data:json});toast('Backup fayli saqlandi')}catch(e){if(e&&e.code!=='declined')toast('Saqlab boʻlmadi: '+((e&&e.message)||'xato')+'. «JSON nusxasini koʻrsatish» dan foydalaning.','err')}return}
+    try{const blob=new Blob([json],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
     toast('Yuklab olish boshlandi. Fayl chiqmasa, «JSON nusxasini koʻrsatish» dan foydalaning.')}catch(e){toast('Yuklab olib boʻlmadi','err')}};
   $('#bk-js').onclick=()=>modal({title:'Backup (JSON)',wide:true,body:`<div class="frm"><textarea id="bk-ta" rows="12" readonly class="mono" style="font-size:11.5px">${esc(JSON.stringify(S))}</textarea><div class="note">Matnni toʻliq nusxalab, .json fayl sifatida saqlang.</div></div>`,
     actions:[{label:'Yopish'},{label:'Nusxalash',cls:'pri',run:()=>{const ta=$('#bk-ta');try{navigator.clipboard.writeText(ta.value).then(()=>toast('Nusxalandi'),()=>{ta.select();toast('Belgilandi — Ctrl+C bosing')})}catch(e){ta.select();toast('Belgilandi — Ctrl+C bosing')}return false}}]});
