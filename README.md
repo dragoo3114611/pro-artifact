@@ -13,7 +13,12 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 - **Hisobot** — tushum, bandlik, top mijozlar, top ichimliklar, toʻlov usullari.
 - **Foyda hisob-kitobi** (faqat admin) — xarajatlar va sof foyda.
 - **Tariflar** — soatbay va paket tariflari, kun va vaqt boʻyicha. CYBER tarifi: 10 000 soʻm/soat.
-- **Sozlamalar** (faqat admin) — klub nomi, ish vaqti, tema, xodimlar.
+- **Sozlamalar** — GameClass uslubida: chapda boʻlimlar, oʻngda tanlangan boʻlim.
+  - *Kompyuterlar*: qoʻshish va oʻchirish, guruh, IP (qoʻlda), MAC (klient ulanganda avto, boʻlmasa qoʻlda), Wake-on-LAN bilan yoqish. *Guruhlar* yorligʻi: qoʻlda yaratiladi, guruhga tarif biriktiriladi.
+  - *Foydalanuvchilar*, *Huquqlar* (operator uchun belgilash bilan), *Chegirmalar* (darajalar va bonus foizlari), *Tariflar va xizmatlar*.
+  - *Ogohlantirishlar*: vaqt tugashiga 5 va 1 daqiqa qolganda mijozga avtomatik xabar.
+  - *Qobiq (RunPad)*: qobiqdagi oʻyinlar roʻyxati. *Server interfeysi*: jadval shrifti, ustunlar, tema.
+- **Mijoz ekrani** (Zal › «Mijoz ekrani») — RunPad Shell simulyatsiyasi: seans boʻlmasa qulf ekrani (akkaunt bilan kirish), vaqt qoʻshilganda qobiq ochiladi va oʻyinlar ishga tushiriladi.
 
 Prototip parollari: `admin` / `admin`, `operator` / `1111`.
 
