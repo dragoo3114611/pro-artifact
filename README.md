@@ -7,10 +7,10 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
   Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati.
   Toʻlov turlari: oldindan toʻlov, keyin toʻlov, mijoz balansidan. Pastda xabarlar jurnali bor: yuqoriga sursangiz eski yozuvlar yuklanadi, balandligini ham oʻzgartirish mumkin.
 - **Mijozlar** — akkaunt (login/parol), balans, bonus darajalari, tashriflar tarixi.
-- **Bar** — ichimliklar, yangi mahsulot qoʻshish, kirim, qoldiq ogohlantirishi, seans hisobiga yoki darhol sotish.
-- **Qarz daftari** — avtomatik va qoʻlda yoziladi, qisman toʻlash mumkin, limit yoʻq.
+- **Bar** — ichimliklar, yangi mahsulot qoʻshish, kirim, qoldiq ogohlantirishi, seans hisobiga yoki darhol sotish, «Chiqim kiritish» (kassadan chiqim; bar xaridi omborga kirim ham qiladi).
+- **Qarz daftari** — har bir qarzdor bitta hisobda (qarzlar va toʻlovlar), qidiruv (ism yoki telefon), toʻlanganlarni koʻrsatish, Excelga eksport, qarzdor tarixi (har bir yozuvni tahrirlash va oʻchirish), toʻlovda chegirma.
 - **Smena** — ochish va yopish, kassa sanash, toʻlov usullari (naqd, karta, Click, Payme).
-- **Hisobot** — tushum, bandlik, top mijozlar, top ichimliklar, toʻlov usullari.
+- **Hisobot** — davr (Bugun, Kecha, Shu hafta, Shu oy yoki Dan–Gacha sana va vaqt); kartalar: Jami ishlandi, Kompyuterlar, Bar, Qarz boʻldi, Qarz toʻlandi, Kassadan chiqim, Kassada naqd; grafiklar va toplar.
 - **Foyda hisob-kitobi** (faqat admin) — xarajatlar va sof foyda.
 - **Tariflar** — soatbay va paket tariflari, kun va vaqt boʻyicha. CYBER tarifi: 10 000 soʻm/soat.
 - **Sozlamalar** — chapda boʻlimlar, oʻngda tanlangan boʻlim:
