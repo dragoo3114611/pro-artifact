@@ -5,12 +5,12 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 ## Boʻlimlar
 - **Zal** — 50 ta kompyuter, GameClass uslubidagi jadval va kartalar koʻrinishi. Holatlar: Boʻsh, Band, Pauza, Oʻchiq.
   Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati.
-  Toʻlov turlari: oldindan toʻlov, keyin toʻlov, mijoz balansidan. Pastda xabarlar jurnali bor: yuqoriga sursangiz eski yozuvlar yuklanadi, balandligini ham oʻzgartirish mumkin.
+  Toʻlov turlari: oldindan toʻlov, keyin toʻlov, mijoz balansidan. Pastda xabarlar jurnali jadval koʻrinishida (sana, vaqt, turi, PC, xabar): yuqoriga sursangiz eski yozuvlar yuklanadi, balandligini ham oʻzgartirish mumkin.
 - **Mijozlar** — akkaunt (login/parol), balans, bonus darajalari, tashriflar tarixi.
-- **Bar** — ichimliklar, yangi mahsulot qoʻshish, kirim, qoldiq ogohlantirishi, seans hisobiga yoki darhol sotish, «Chiqim kiritish» (kassadan chiqim; bar xaridi omborga kirim ham qiladi).
+- **Bar** — ichimliklar (tannarx va ustama faqat tahrirlash oynasida), yangi mahsulot qoʻshish, kirim, qoldiq ogohlantirishi, seans hisobiga yoki darhol sotish, «Chiqim kiritish» (kassadan chiqim; bar xaridi omborga kirim ham qiladi).
 - **Qarz daftari** — har bir qarzdor bitta hisobda (qarzlar va toʻlovlar), qidiruv (ism yoki telefon), toʻlanganlarni koʻrsatish, Excelga eksport, qarzdor tarixi (har bir yozuvni tahrirlash va oʻchirish), toʻlovda chegirma.
 - **Smena** — ochish va yopish, kassa sanash, toʻlov usullari (naqd, karta, Click, Payme).
-- **Hisobot** — davr (Bugun, Kecha, Shu hafta, Shu oy yoki Dan–Gacha sana va vaqt); kartalar: Jami ishlandi, Kompyuterlar, Bar, Qarz boʻldi, Qarz toʻlandi, Kassadan chiqim, Kassada naqd; grafiklar va toplar.
+- **Hisobot** — davr (Bugun, Kecha, Shu hafta, Shu oy yoki Dan–Gacha sana va vaqt); kartalar: Jami ishlandi, Kompyuterlar, Bar, Qarz boʻldi, Qarz toʻlandi, Kassadan chiqim, Kassada naqd; «Kassa harakati (naqd)» jadvali; grafiklar va toplar.
 - **Foyda hisob-kitobi** (faqat admin) — xarajatlar va sof foyda.
 - **Tariflar** — soatbay va paket tariflari, kun va vaqt boʻyicha. CYBER tarifi: 10 000 soʻm/soat.
 - **Sozlamalar** — chapda boʻlimlar, oʻngda tanlangan boʻlim:
