@@ -13,12 +13,11 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 - **Hisobot** — tushum, bandlik, top mijozlar, top ichimliklar, toʻlov usullari.
 - **Foyda hisob-kitobi** (faqat admin) — xarajatlar va sof foyda.
 - **Tariflar** — soatbay va paket tariflari, kun va vaqt boʻyicha. CYBER tarifi: 10 000 soʻm/soat.
-- **Sozlamalar** — GameClass uslubida: chapda boʻlimlar, oʻngda tanlangan boʻlim.
-  - *Kompyuterlar*: qoʻshish va oʻchirish, guruh, IP (qoʻlda), MAC (klient ulanganda avto, boʻlmasa qoʻlda), Wake-on-LAN bilan yoqish. *Guruhlar* yorligʻi: qoʻlda yaratiladi, guruhga tarif biriktiriladi.
-  - *Foydalanuvchilar*, *Huquqlar* (operator uchun belgilash bilan), *Chegirmalar* (darajalar va bonus foizlari), *Tariflar va xizmatlar*.
-  - *Ogohlantirishlar*: vaqt tugashiga 5 va 1 daqiqa qolganda mijozga avtomatik xabar.
-  - *Qobiq (RunPad)*: qobiqdagi oʻyinlar roʻyxati. *Server interfeysi*: jadval shrifti, ustunlar, tema.
-- **Mijoz ekrani** (Zal › «Mijoz ekrani») — RunPad Shell simulyatsiyasi: seans boʻlmasa qulf ekrani (akkaunt bilan kirish), vaqt qoʻshilganda qobiq ochiladi va oʻyinlar ishga tushiriladi.
+- **Sozlamalar** — chapda boʻlimlar, oʻngda tanlangan boʻlim:
+  - *Kompyuterlar*: jadval (qoʻshish/oʻchirish, guruh, IP qoʻlda, MAC avto yoki qoʻlda, Wake-on-LAN), *Guruhlar*, *Server ulanishi* (admin IP, port, ulanish kodi, klient xizmat paroli, vaqt sinxronizatsiyasi), *Xatti-harakat* (vaqt ochilganda avto yoqish, taymer oynachasi, vaqt tugaganda qulflash/oʻchirish, ogohlantirish, sichqoncha va klaviaturani bloklash).
+  - *Qulf ekrani*: fon rasmi, 5 ta mavzu, joylashuv, qorongʻilashtirish, yozuvlar va ularning oʻlchami, oldindan koʻrish, kompyuterlarga (hammasi yoki guruh) yuborish.
+  - *Foydalanuvchilar va huquqlar*, *Chegirmalar* (qarz toʻlovida: berilgan summaga foiz qoʻshib qarzdan ayriladi), *Tariflar va xizmatlar*, *Server interfeysi* (shrift turi, oʻlchami, ustunlar, tema), *Backup* (papkaga avto backup, qoʻlda yuklab olish va tiklash).
+- **Mijoz ekrani** (Zal › «Mijoz ekrani») — klient kompyuter simulyatsiyasi: qulf ekrani, akkaunt bilan kirish, seans davomida taymer oynachasi va xabarlar.
 
 Prototip parollari: `admin` / `admin`, `operator` / `1111`.
 
