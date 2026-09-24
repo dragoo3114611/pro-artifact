@@ -25,8 +25,10 @@ Namuna maʼlumotlarda parol yoʻq — dastur parolsiz ochiladi. Parol oʻrnatils
 
 Ishga tushirish: `index.html` faylini brauzerda oching.
 
-## Windows ilovasi (.exe)
-`desktop/` papkasida Electron loyihasi bor: `index.html` oddiy Windows dasturi sifatida ochiladi (menyusiz oyna, F11 — toʻliq ekran), maʼlumotlar foydalanuvchi profilida saqlanadi.
-- Yigʻish: `cd desktop && npm install && npm run dist` → `desktop/dist/KlubPult-<versiya>-portable.exe` (oʻrnatishsiz ishlaydi).
-- Sinash: `cd desktop && npm start`.
-- GitHub Actions: `index.html` yoki `desktop/` oʻzgarganda «Windows exe» workflow exe faylni yigʻib, *Artifacts* ga qoʻyadi.
+## Klub Pult Server — admin kompyuter uchun Windows ilovasi
+`admin/` papkasida Electron loyihasi: `index.html` oddiy Windows dasturi sifatida ochiladi va ichida **server** ishlaydi — klient kompyuterlar LAN orqali WebSocket bilan ulanadi (standart port 7777, Sozlamalar › Kompyuterlar › Server).
+- Juftlash: klient PC raqami va ulanish kodini yuboradi → server kalit (token) beradi, keyingi safar kodsiz ulanadi. IP va MAC avtomatik yoziladi.
+- Server har bir ulangan PC ga holatini yuboradi: qulf ekrani sozlamalari, seans (qolgan vaqt, tarif, balans), pauza, xabarlar. Klientdan akkaunt bilan kirish, «Vaqt soʻrash», akkauntdan chiqish, xabar oʻqilgani keladi.
+- Wake-on-LAN haqiqiy UDP paket bilan yuboriladi. Birinchi ishga tushishda namuna maʼlumotlarsiz, toza baza bilan ochiladi.
+- Yigʻish: `cd admin && npm install && npm run dist` → `admin/dist/` (oʻrnatuvchi `setup.exe` — Windows Firewall qoidasini ham qoʻshadi, va `portable.exe`).
+- GitHub Actions: «Windows exe» workflow exe fayllarni yigʻib, *Artifacts* ga qoʻyadi.

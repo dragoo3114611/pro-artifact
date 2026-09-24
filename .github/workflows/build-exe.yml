@@ -2,7 +2,7 @@ name: Windows exe
 
 on:
   push:
-    paths: ['index.html', 'desktop/**', '.github/workflows/build-exe.yml']
+    paths: ['index.html', 'admin/**', '.github/workflows/build-exe.yml']
   workflow_dispatch:
 
 jobs:
@@ -14,12 +14,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: desktop/package-lock.json
+          cache-dependency-path: admin/package-lock.json
       - run: npm ci
-        working-directory: desktop
+        working-directory: admin
       - run: npm run dist
-        working-directory: desktop
+        working-directory: admin
       - uses: actions/upload-artifact@v4
         with:
-          name: KlubPult-windows
-          path: desktop/dist/*.exe
+          name: KlubPult-Server-windows
+          path: admin/dist/*.exe
