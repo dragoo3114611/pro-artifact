@@ -4,7 +4,7 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 
 ## Boʻlimlar
 - **Zal** — 50 ta kompyuter, GameClass uslubidagi jadval va kartalar koʻrinishi. Holatlar: Boʻsh, Band, Pauza, Oʻchiq.
-  Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati, Jarayonlar (bir yoki bir nechta kompyuterda qaysi ilova ochiq, tugatish, tozalash; «Saqlansin» belgilangan ilova tozalashda yopilmaydi), Mijoz ekrani. Klaviatura: bitta yoki Shift/Ctrl bilan bir nechta PC belgilab *Enter* — seansni boshlash oynasi, *Delete* — seansni yakunlash oynasi.
+  Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati, Jarayonlar (bir yoki bir nechta kompyuterda qaysi ilova ochiq, tugatish, tozalash; «Saqlansin» belgilangan ilova tozalashda yopilmaydi), Mijoz ekrani. Klaviatura: strelkalar bilan yurish, Shift+strelka yoki Shift+bosish bilan oraliqni belgilash (cheklovsiz), Ctrl+A — hammasi; bitta yoki bir nechta PC belgilab *Enter* — seansni boshlash oynasi, *Delete* — seansni yakunlash oynasi.
   Toʻlov turlari: oldindan toʻlov, keyin toʻlov, mijoz balansidan. Pastda xabarlar jurnali jadval koʻrinishida (sana, vaqt, turi, PC, xabar): yuqoriga sursangiz eski yozuvlar yuklanadi, balandligini ham oʻzgartirish mumkin.
 - **Mijozlar** — akkaunt (login/parol), balans, bonus darajalari, tashriflar tarixi.
 - **Bar** — ikki yorliq. *Sotuv*: mahsulot kartalari, savat, «Kimga yoziladi» (kassa yoki PC seansi), Chiqim kiritish, Mahsulot sotish. *Ombor*: tan narxi, sotuv narxidagi qiymat, foyda/dona, qoldiq va chegara, Tovar kirimi (yetkazuvchi, kassadan toʻlash), Sanash, kirim va sanash tarixi.

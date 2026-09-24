@@ -910,7 +910,7 @@ function vZal(m){
     <div class="subbar">
       <div class="tabs"><button type="button" data-zm="table">Kompyuterlar</button><button type="button" data-zm="cards">Kartalar</button></div>
       <div class="chips" id="stchips"></div>
-      <span class="note kbd-h">Shift/Ctrl bilan belgilang · <kbd>Enter</kbd> seansni boshlash · <kbd>Delete</kbd> seansni yakunlash</span>
+      <span class="note kbd-h">Shift/Ctrl bilan belgilang · <kbd>Shift</kbd>+<kbd>↑↓</kbd> belgilash · <kbd>Enter</kbd> seansni boshlash · <kbd>Delete</kbd> seansni yakunlash</span>
       <input id="pcq" type="search" placeholder="PC raqami yoki mijoz…" value="${esc(ui.pcq)}" aria-label="Qidirish">
     </div>
     <div class="gridwrap" id="grid"></div>
@@ -935,9 +935,10 @@ function vZal(m){
     const th=e.target.closest('th[data-k]');
     if(th){const k=th.dataset.k;ui.sort=ui.sort.k===k?{k,d:-ui.sort.d}:{k,d:1};renderGrid();return}
     const el=e.target.closest('[data-pc]');if(!el)return;const n=+el.dataset.pc;
-    if(e.ctrlKey||e.metaKey){ui.sel.has(n)?ui.sel.delete(n):ui.sel.add(n)}
-    else if(e.shiftKey&&ui.last){const ids=visiblePcs().map(p=>p.n);const a=ids.indexOf(ui.last),b=ids.indexOf(n);if(a>=0&&b>=0){ui.sel=new Set(ids.slice(Math.min(a,b),Math.max(a,b)+1))}}
-    else ui.sel=new Set([n]);
+    const ae=document.activeElement;if(ae&&ae!==document.body&&ae.blur)ae.blur(); // klaviatura (strelka, Enter, Delete) jadvalga ishlashi uchun
+    if(e.shiftKey&&(ui.anchor||ui.last)){selRange(ui.anchor||ui.last,n,e.ctrlKey||e.metaKey)}
+    else if(e.ctrlKey||e.metaKey){ui.sel.has(n)?ui.sel.delete(n):ui.sel.add(n);ui.anchor=n;ui.base=new Set(ui.sel)}
+    else{ui.sel=new Set([n]);ui.anchor=n;ui.base=new Set()}
     ui.last=n;
     const now=Date.now();if(ui.lc&&ui.lc.n===n&&now-ui.lc.t<420&&!e.ctrlKey&&!e.shiftKey){ui.lc=null;primary(n)}else ui.lc={n,t:now};
     renderGrid();updateToolbar();
@@ -1019,6 +1020,14 @@ function zcell(k,p,s,now){
   }
   return [''];
 }
+// Shift bilan oraliq: langar (anchor) joyida qoladi; Ctrl+Shift oldingi belgilanganlarni saqlaydi
+function selRange(a,b,keep){const ids=visiblePcs().map(p=>p.n);let i=ids.indexOf(a),j=ids.indexOf(b);if(i<0)i=j;if(j<0)return;
+  const r=ids.slice(Math.min(i,j),Math.max(i,j)+1);ui.sel=new Set([...(keep?(ui.base||[]):[]),...r])}
+function gridCols(){if(ui.zalMode!=='cards')return 1;const c=$$('#grid .card');if(c.length<2)return 1;const t=c[0].offsetTop;let k=0;for(const x of c){if(x.offsetTop!==t)break;k++}return Math.max(1,k)}
+function moveSel(step,shift,ctrl){const ids=visiblePcs().map(p=>p.n);if(!ids.length)return;
+  let i=ids.indexOf(ui.last);if(i<0)i=step>0?-1:ids.length;const j=Math.max(0,Math.min(ids.length-1,i+step)),n=ids[j];
+  if(shift){if(!ui.anchor)ui.anchor=ui.last||n;selRange(ui.anchor,n,ctrl)}else{ui.sel=new Set([n]);ui.anchor=n;ui.base=new Set()}
+  ui.last=n;renderGrid();updateToolbar();const el=$(`#grid [data-pc="${n}"]`);if(el)el.scrollIntoView({block:'nearest',inline:'nearest'})}
 function selPcs(){return [...ui.sel].map(n=>pcBy(n)).filter(Boolean)}
 function updateToolbar(){
   const sel=selPcs(),one=sel.length===1?sel[0]:null;
@@ -1131,7 +1140,12 @@ function bulkOffModal(sel){
 }
 document.addEventListener('keydown',e=>{
   if(ui.view!=='zal'||modals.length||popEl||$('#shell'))return;
-  const tg=e.target;if(tg&&(/INPUT|SELECT|TEXTAREA|BUTTON|A/.test(tg.tagName)||tg.isContentEditable))return;
+  const tg=e.target;if(tg&&(/^(INPUT|SELECT|TEXTAREA|BUTTON|A)$/.test(tg.tagName)||tg.isContentEditable))return;
+  const arrows={ArrowDown:1,ArrowUp:-1,ArrowRight:1,ArrowLeft:-1};
+  if(e.key in arrows){if(ui.zalMode!=='cards'&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))return;e.preventDefault();
+    const k=(e.key==='ArrowDown'||e.key==='ArrowUp')?gridCols():1;return moveSel(arrows[e.key]*k,e.shiftKey,e.ctrlKey||e.metaKey)}
+  if(e.key==='Home'||e.key==='End'){e.preventDefault();return moveSel(e.key==='Home'?-1e6:1e6,e.shiftKey,e.ctrlKey||e.metaKey)}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='a'||e.key==='A')){e.preventDefault();const ids=visiblePcs().map(p=>p.n);ui.sel=new Set(ids);ui.anchor=ids[0];ui.last=ids[ids.length-1];renderGrid();updateToolbar();return}
   const sel=selPcs();if(!sel.length)return;
   if(e.key==='Enter'){e.preventDefault();
     const fr=sel.filter(p=>p.status==='free'||(p.status==='off'&&S.settings.beh.autoWake&&p.mac));
