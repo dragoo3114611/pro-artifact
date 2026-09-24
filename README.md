@@ -4,7 +4,7 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 
 ## Boʻlimlar
 - **Zal** — 50 ta kompyuter, GameClass uslubidagi jadval va kartalar koʻrinishi. Holatlar: Boʻsh, Band, Pauza, Oʻchiq.
-  Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati.
+  Amallar: Start, Qoʻshimcha vaqt, Stop, Koʻchirish, Pauza, Qayta yuklash, Oʻchirish, Yoqish, Xabar yuborish, Bar xizmati, Jarayonlar (kompyuterda qaysi ilova ochiq, tugatish), Tozalash (foydalanuvchi ilovalarini yopish), Mijoz ekrani.
   Toʻlov turlari: oldindan toʻlov, keyin toʻlov, mijoz balansidan. Pastda xabarlar jurnali jadval koʻrinishida (sana, vaqt, turi, PC, xabar): yuqoriga sursangiz eski yozuvlar yuklanadi, balandligini ham oʻzgartirish mumkin.
 - **Mijozlar** — akkaunt (login/parol), balans, bonus darajalari, tashriflar tarixi.
 - **Bar** — ichimliklar (tannarx va ustama faqat tahrirlash oynasida), yangi mahsulot qoʻshish, kirim, qoldiq ogohlantirishi, seans hisobiga yoki darhol sotish, «Chiqim kiritish» (kassadan chiqim; bar xaridi omborga kirim ham qiladi).
@@ -16,10 +16,10 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 - **Sozlamalar** — chapda boʻlimlar, oʻngda tanlangan boʻlim:
   - *Kompyuterlar*: jadval (qoʻshish/oʻchirish, guruh, IP qoʻlda, MAC avto yoki qoʻlda, Wake-on-LAN), *Guruhlar*, *Server ulanishi* (admin IP, port, ulanish kodi, klient xizmat paroli, vaqt sinxronizatsiyasi), *Xatti-harakat* (vaqt ochilganda avto yoqish, taymer oynachasi, vaqt tugaganda qulflash/oʻchirish, ogohlantirish, sichqoncha va klaviaturani bloklash).
   - *Qulf ekrani*: fon rasmi, 5 ta mavzu, joylashuv, qorongʻilashtirish, yozuvlar va ularning oʻlchami, oldindan koʻrish, kompyuterlarga (hammasi yoki guruh) yuborish.
-  - *Foydalanuvchilar va huquqlar*, *Server interfeysi* (shrift turi va oʻlchami, tema, jadval ustunlari va karta maʼlumotlarini tanlash va tartibini oʻzgartirish), *Backup* (papkaga avto backup, qoʻlda yuklab olish va tiklash), *Maʼlumotlarni tozalash* (kassa operatsiyalari, jurnal, qarz daftari, smenalar, ombor tarixi, klient soʻrovlari, foyda yozuvlari, ochiq seanslar, mijoz akkauntlari — boʻlimlab).
+  - *Foydalanuvchilar va huquqlar* (har bir operatorning oʻz ruxsatlari, parol, bloklash; ruxsat yoʻq amalda administrator paroli soʻraladi), *Server interfeysi* (shrift turi va oʻlchami, tema, jadval ustunlari va karta maʼlumotlarini tanlash va tartibini oʻzgartirish), *Backup* (papkaga avto backup, qoʻlda yuklab olish va tiklash), *Maʼlumotlarni tozalash* (kassa operatsiyalari, jurnal, qarz daftari, smenalar, ombor tarixi, klient soʻrovlari, foyda yozuvlari, ochiq seanslar, mijoz akkauntlari — boʻlimlab).
 - Qarz toʻlovida chegirma toʻlov oynasining oʻzida qoʻllanadi: berilgan summaga foiz qoʻshib qarzdan ayriladi.
 - **Mijoz ekrani** (Zal › «Mijoz ekrani») — klient kompyuter simulyatsiyasi: qulf ekrani, akkaunt bilan kirish, seans davomida taymer oynachasi va xabarlar.
 
-Prototip parollari: `admin` / `admin`, `operator` / `1111`.
+Namuna maʼlumotlarda parol yoʻq — dastur parolsiz ochiladi. Parol oʻrnatilsa, ochilganda kirish oynasi chiqadi.
 
 Ishga tushirish: `index.html` faylini brauzerda oching.

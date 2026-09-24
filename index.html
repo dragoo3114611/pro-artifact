@@ -218,6 +218,25 @@ svg.chart .gl{stroke:var(--line2)}
 .pl tr.sub td{font-weight:600}
 
 .kpi.hl{background:var(--accent-soft);border-color:var(--accent)}
+.pop{position:fixed;z-index:70;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:var(--shadow);padding:6px;min-width:230px;display:flex;flex-direction:column}
+.pop button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:8px 10px;border-radius:7px;text-align:left;cursor:pointer;color:var(--text);font:inherit;font-size:13.5px}
+.pop button:hover:not(:disabled),.pop button:focus-visible{background:var(--hover)}
+.pop button.dz{color:var(--off)}
+.pop button:disabled{opacity:.45;cursor:not-allowed}
+.pop hr{border:0;border-top:1px solid var(--line2);margin:4px 2px}
+.pop .pi{width:16px;display:inline-flex;justify-content:center;color:var(--muted)}
+.pop button.dz .pi{color:var(--off)}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.info{background:var(--busy-soft);border-radius:8px;padding:10px 12px;font-size:13px}
+.boxh{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 16px 0;flex-wrap:wrap}
+.h2i{font-size:15px;margin:0}
+.hid{letter-spacing:2px;color:var(--muted)}
+.dleft{color:var(--off);font-weight:800;font-size:1.05em}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;margin-top:2px}
+.pgrid label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;cursor:pointer;background:var(--panel)}
+.pgrid label input{width:auto;margin-top:2px}
+.pgrid small{display:block;color:var(--muted);font-size:11.5px}
+.set-nav button[data-lock]{opacity:.55}
 .cl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .cl{border:1px solid var(--line2);border-radius:10px;overflow:hidden}
 .cl-r{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line2)}
@@ -452,20 +471,23 @@ const MONL=['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Senta
 const WD=['Ya','Du','Se','Ch','Pa','Ju','Sh'];
 const EXP_CATS=['Ijara','Elektr energiya','Internet','Ish haqi','Taʼmirlash','Boshqa'];
 const DEF_LEVELS=[{n:'Bronze',min:0,b:0},{n:'Silver',min:500000,b:3},{n:'Gold',min:2000000,b:5},{n:'Platinum',min:5000000,b:7}];
-const PERMS=[['hisobot','Hisobotni koʻrish'],['foyda','Foyda hisob-kitobini koʻrish','Tushum, xarajat va sof foyda'],
-  ['sozlamalar','Sozlamalarni ochish','Kompyuterlar, guruhlar, ogohlantirishlar, interfeys. Foydalanuvchilar va huquqlar baribir faqat admin uchun'],
-  ['tarifEdit','Tariflarni qoʻshish va narxini oʻzgartirish'],['prodEdit','Bar mahsulotini qoʻshish va tahrirlash'],['prodDelete','Bar mahsulotini oʻchirish'],
-  ['debtDelete','Qarz yozuvini oʻchirish'],['pcPower','Kompyuterlarni oʻchirish, yoqish, qayta yuklash']];
-const DEF_PERMS={hisobot:true,foyda:false,sozlamalar:false,tarifEdit:false,prodEdit:true,prodDelete:false,debtDelete:false,pcPower:true};
+const PERMS=[['kassa','Kassa summasini koʻrish','Smena va hisobotdagi «Kassada boʻlishi kerak» summasi','Kassa summasi'],
+  ['chiqim','Chiqim kiritish','Bar › Chiqim kiritish','Chiqim'],['chegirma','Qarz toʻlovida chegirma berish','','Chegirma'],
+  ['hisobot','Hisobotni koʻrish','','Hisobot'],['foyda','Foyda hisob-kitobini koʻrish','Tushum, xarajat va sof foyda','Foyda'],
+  ['sozlamalar','Sozlamalarni ochish','Kompyuterlar, qulf ekrani, interfeys. Foydalanuvchilar, backup va tozalash baribir admin uchun','Sozlamalar'],
+  ['tarifEdit','Tariflarni qoʻshish va oʻzgartirish','','Tariflar'],['prodEdit','Bar mahsulotini qoʻshish va tahrirlash','','Mahsulot'],
+  ['prodDelete','Bar mahsulotini oʻchirish','','Mahsulot oʻchirish'],['debtDelete','Qarz yozuvlarini tahrirlash va oʻchirish','','Qarz tahriri'],
+  ['pcPower','Kompyuterlarni oʻchirish, yoqish, qayta yuklash','','Quvvat'],['procs','Jarayonlarni tugatish va tozalash','','Jarayonlar']];
+const DEF_PERMS={kassa:true,chiqim:true,chegirma:true,hisobot:true,foyda:false,sozlamalar:false,tarifEdit:false,prodEdit:true,prodDelete:false,debtDelete:false,pcPower:true,procs:true};
 const DEF_GAMES=[{id:'gm1',name:'Counter-Strike 2',cat:'Shooter',path:'C:\\Games\\CS2\\cs2.exe',color:'#e8a33d'},{id:'gm2',name:'Dota 2',cat:'MOBA',path:'C:\\Games\\Dota 2\\dota2.exe',color:'#c23c2a'},
   {id:'gm3',name:'PUBG: Battlegrounds',cat:'Battle royale',path:'C:\\Games\\PUBG\\TslGame.exe',color:'#d9a441'},{id:'gm4',name:'Valorant',cat:'Shooter',path:'C:\\Riot Games\\VALORANT\\VALORANT.exe',color:'#ff4655'},
   {id:'gm5',name:'EA SPORTS FC 25',cat:'Sport',path:'C:\\Games\\FC25\\FC25.exe',color:'#1fc27a'},{id:'gm6',name:'GTA V',cat:'Action',path:'C:\\Games\\GTAV\\PlayGTAV.exe',color:'#5aa0e6'},
   {id:'gm7',name:'Fortnite',cat:'Battle royale',path:'C:\\Games\\Fortnite\\FortniteLauncher.exe',color:'#8a5cf6'},{id:'gm8',name:'Discord',cat:'Dasturlar',path:'C:\\Apps\\Discord\\Update.exe',color:'#5865f2'},
   {id:'gm9',name:'Steam',cat:'Dasturlar',path:'C:\\Program Files (x86)\\Steam\\steam.exe',color:'#3d6a8a'}];
 const ZCOLS=[['grp','Guruh','',true],['tarif','Tarif','',true],['bal','Balans','',true],['start','Boshlanish','start',true],['end','Tugash','',true],['vaqt','Vaqt','',true],
-  ['left','Qoldi','left',true],['bar','Bar','',true],['sum','Summa','sum',true],['played','Oʻynagan pul','played',true],['client','Mijoz','',true],['mode','Toʻlov turi','',true],['note','Izoh','',true],['ip','IP','',false]];
+  ['left','Qoldi','left',true],['bar','Bar','',true],['sum','Summa','sum',true],['played','Oʻynagan pul','played',true],['client','Mijoz','',true],['app','Ilova','',true],['mode','Toʻlov turi','',true],['note','Izoh','',true],['ip','IP','',false]];
 const CROWS=[['open','Ochildi',true],['end','Tugaydi',true],['sum','Hisob',true],['vaqt','Oʻynadi',true],['played','Oʻynagan pul',true],
-  ['left','Qoldi',false],['client','Mijoz',false],['tarif','Tarif',false],['bar','Bar',false],['grp','Guruh',false]];
+  ['left','Qoldi',false],['client','Mijoz',false],['tarif','Tarif',false],['bar','Bar',false],['grp','Guruh',false],['app','Ilova',true]];
 const CMODE={pre:'Oldindan toʻlangan',post:'Keyin toʻlov',balance:'Balansdan'};
 const hhmm=ms=>{ms=Math.max(0,ms);const m=Math.floor(ms/MIN);return p2(Math.floor(m/60))+':'+p2(m%60)};
 function played(s,now){const c=timeCost(s,now);return s.mode==='pre'?Math.min(s.paid,c):c}
@@ -516,7 +538,9 @@ const levels=()=>S.settings.levels;
 const grpName=id=>{const g=S.groups.find(x=>x.id===id);return g?g.name:'—'};
 const grpAllows=(gid,t)=>{const g=S.groups.find(x=>x.id===gid);return !g||!g.tariffs.length||g.tariffs.includes(t.id)};
 const isAdmin=()=>me().role==='admin';
-const can=k=>isAdmin()||!!(S.perms&&S.perms[k]);
+const elevated=()=>(ui.elev||0)>Date.now();
+const adminish=()=>isAdmin()||elevated();
+const can=k=>adminish()||!!((me().perms||{})[k]);
 const who=s=>s.clientId&&client(s.clientId)?client(s.clientId).name:(s.guest||'Mehmon');
 const active=p=>p.status==='busy'||p.status==='pause';
 const curShift=()=>S.shifts.find(s=>!s.closeAt);
@@ -609,7 +633,7 @@ function seed(){
     {id:'t3',name:'Tungi paket',type:'package',price:0,minutes:600,days:[0,1,2,3,4,5,6],from:'22:00',to:'08:00',active:true},
     {id:'t4',name:'Dam olish kuni',type:'hour',price:0,minutes:0,days:[0,6],from:'',to:'',active:true}];
   const st={v:1,settings:{name:'CYBER ZAL',open:'00:00',close:'00:00',h24:true,theme:'system'},
-    users:[{login:'admin',name:'Admin',role:'admin',pass:'admin'},{login:'operator',name:'Operator',role:'operator',pass:'1111'}],
+    users:[{login:'admin',name:'Admin',role:'admin',pass:'',active:true},{login:'operator',name:'Operator',role:'operator',pass:'',active:true,perms:Object.assign({},DEF_PERMS)}],
     user:'operator',tariffs,clients,products,pcs:[],history:[],ledger:[],debts:[],shifts:[],expenses:[],log:[]};
   S=st;
   // Tarix: oʻtgan oyning 1-sanasidan bugungacha
@@ -703,6 +727,7 @@ function migrate(){
   if(!st.ui.family)st.ui.family='Onest';
   if(!S.lockByGroup)S.lockByGroup={};
   if(!S.stockLog)S.stockLog=[];
+  S.users.forEach(u=>{if(u.active==null)u.active=true;if(u.role!=='admin'){u.perms=Object.assign({},DEF_PERMS,S.perms||{},u.perms||{})}});
   if(!S.requests)S.requests=[];
   if(!S.debtPays){S.debtPays=[];S.debts.forEach(d=>{(d.pays||[]).forEach(x=>S.debtPays.push({id:uid(),key:debtKey(d),clientId:d.clientId,name:d.name,t:x.t,amount:x.amount,disc:x.disc||0,pct:x.disc&&x.amount?Math.round(x.disc/x.amount*100):0,method:x.method}));delete d.pays;delete d.paid})}
   if(st.lock&&st.lock.sPc==null)st.lock.sPc=100;
@@ -735,24 +760,50 @@ function levelOf(sp){const L=levels();let l=L[0];for(const x of L)if(sp>=x.min)l
 /* =================== UI: umumiy =================== */
 function toast(msg,kind){const t=document.createElement('div');t.className='toast'+(kind==='err'?' err':'');t.textContent=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),kind==='err'?4200:2600)}
 const modals=[];
-function modal({title,body,wide,actions,onMount}){
+function modal({title,body,wide,actions,onMount,locked}){
   const ov=document.createElement('div');ov.className='ov';
-  ov.innerHTML=`<div class="dlg${wide?' wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dlg-h"><h3>${esc(title)}</h3><button class="x" type="button" data-x aria-label="Yopish">×</button></div><div class="dlg-b">${body}</div><div class="dlg-f"></div></div>`;
+  ov.innerHTML=`<div class="dlg${wide?' wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dlg-h"><h3>${esc(title)}</h3>${locked?'':'<button class="x" type="button" data-x aria-label="Yopish">×</button>'}</div><div class="dlg-b">${body}</div><div class="dlg-f"></div></div>`;
   const f=$('.dlg-f',ov);
-  const close=()=>{ov.remove();const i=modals.indexOf(close);if(i>=0)modals.splice(i,1)};
+  let escFn;const close=()=>{ov.remove();const i=modals.indexOf(escFn);if(i>=0)modals.splice(i,1)};escFn=locked?()=>{}:close;
   (actions||[{label:'Yopish'}]).forEach(a=>{const b=document.createElement('button');b.type='button';b.className='btn '+(a.cls||'');b.textContent=a.label;if(a.id)b.id=a.id;
     b.onclick=()=>{if(a.run&&a.run(ov)===false)return;close()};f.appendChild(b)});
-  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
-  $('[data-x]',ov).onclick=close;
-  document.body.appendChild(ov);modals.push(close);
+  if(!locked){ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});$('[data-x]',ov).onclick=close}
+  document.body.appendChild(ov);modals.push(escFn);
   if(onMount)onMount(ov,close);
   const first=$('input:not([disabled]),select,textarea',ov);if(first)first.focus();
   return {ov,close};
 }
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(modals.length)modals[modals.length-1]();else if($('#shell'))closeShell()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(popEl)return closePop();if(modals.length)modals[modals.length-1]();else if($('#shell'))closeShell()});
 function confirmM(title,text,yes,label){modal({title,body:`<p style="margin:0">${text}</p>`,actions:[{label:'Bekor qilish'},{label:label||'Ha',cls:'pri',run:()=>{yes()}}]})}
 const methodOpts=(sel)=>Object.entries(METHODS).map(([k,l])=>`<option value="${k}"${k===sel?' selected':''}>${l}</option>`).join('');
 function commit(){save();renderNav();render()}
+function guard(k,label,fn){if(k?can(k):adminish())return fn();adminPrompt(label,fn)}
+function adminPrompt(label,fn){
+  const admins=S.users.filter(u=>u.role==='admin'&&u.active!==false);
+  modal({title:'Administrator ruxsati',body:`<div class="frm"><p style="margin:0">«${esc(label)}» uchun ruxsatingiz yoʻq. Administrator paroli kiritilsa, 5 daqiqa davomida ruxsat beriladi.</p>
+    ${admins.length>1?`<label>Administrator<select id="ap-u">${admins.map(u=>`<option value="${esc(u.login)}">${esc(u.name)}</option>`).join('')}</select></label>`:''}
+    <label>Administrator paroli<input id="ap-p" type="password" autocomplete="off"></label><div class="err" id="ap-e"></div></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Ruxsat berish',cls:'pri',run:()=>{const a=admins.length>1?admins.find(u=>u.login===v('ap-u')):admins[0];
+      if(!a||(a.pass||'')!==v('ap-p'))return $('#ap-e').textContent='Parol notoʻgʻri',false;
+      ui.elev=Date.now()+5*MIN;addLog('warn',`Admin ruxsati bilan: ${label} — ${me().name} (tasdiqladi: ${a.name})`);setTimeout(fn,0)}}],
+    onMount:ov=>$('#ap-p',ov).addEventListener('keydown',e=>{if(e.key==='Enter')$('.dlg-f .pri',ov).click()})});
+}
+let popEl=null;
+const MI={hist:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  edit:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 13l1-3 6.5-6.5 2 2L6 12z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+  del:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 5h8l-.7 8H4.7zM3 5h10M6.5 5V3.5h3V5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+  key:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="5.5" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 8h6M12 8v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  lock:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'};
+function closePop(){if(popEl){popEl.remove();popEl=null;document.removeEventListener('mousedown',popOut,true)}}
+function popOut(e){if(popEl&&!popEl.contains(e.target))closePop()}
+function popMenu(anchor,items){
+  closePop();const r=anchor.getBoundingClientRect(),m=document.createElement('div');m.className='pop';m.setAttribute('role','menu');
+  m.innerHTML=items.map((it,i)=>it==='-'?'<hr>':`<button type="button" role="menuitem" data-i="${i}" class="${it.danger?'dz':''}"${it.disabled?' disabled':''}><span class="pi">${it.icon||''}</span>${esc(it.label)}</button>`).join('');
+  document.body.appendChild(m);const w=m.offsetWidth,h=m.offsetHeight;
+  m.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';m.style.top=(r.bottom+6+h>innerHeight-8?Math.max(8,r.top-h-6):r.bottom+6)+'px';
+  m.onclick=e=>{const b=e.target.closest('[data-i]');if(!b||b.disabled)return;closePop();items[+b.dataset.i].run()};
+  popEl=m;setTimeout(()=>document.addEventListener('mousedown',popOut,true),0);const f=$('button:not([disabled])',m);if(f)f.focus();
+}
 
 /* =================== Navigatsiya =================== */
 const NAV=[['zal','Zal'],['mijozlar','Mijozlar'],['bar','Bar'],['qarz','Qarz daftari'],['smena','Smena'],['hisobot','Hisobot','hisobot'],['foyda','Foyda hisob-kitobi','foyda'],['tariflar','Tariflar']];
@@ -773,7 +824,7 @@ function renderNav(){
 }
 function viewOk(view){const it=[...NAV,['sozlamalar','','sozlamalar']].find(x=>x[0]===view);return !it||!it[2]||can(it[2])}
 function go(view){
-  if(!viewOk(view)){toast('Bu boʻlimga ruxsat yoʻq. Admin sifatida kiring yoki admin Sozlamalar › Huquqlar boʻlimida ruxsat bersin.','err');return}
+  if(!viewOk(view)){const it=[...NAV,['sozlamalar','Sozlamalar','sozlamalar']].find(x=>x[0]===view);return guard(it[2],`«${it[1]}» boʻlimini ochish`,()=>{ui.view=view;renderNav();render()})}
   ui.view=view;renderNav();render();
 }
 function applyTheme(){const t=S.settings.theme;if(t==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);if(S.settings.ui)applyFont()}
@@ -795,10 +846,12 @@ const IC={
   shutdown:'<path d="M12 6.3v4.2" stroke="var(--off)" stroke-width="2" stroke-linecap="round"/><path d="M9.2 8.1a4 4 0 1 0 5.6 0" stroke="var(--off)" stroke-width="2" fill="none" stroke-linecap="round"/>',
   wake:'<path d="M12 6.3v4.2" stroke="var(--ok)" stroke-width="2" stroke-linecap="round"/><path d="M9.2 8.1a4 4 0 1 0 5.6 0" stroke="var(--ok)" stroke-width="2" fill="none" stroke-linecap="round"/>',
   msg:'<rect x="7" y="7" width="10" height="7" rx="1" stroke="var(--busy)" stroke-width="1.7" fill="none"/><path d="M7.5 7.8 12 11l4.5-3.2" stroke="var(--busy)" stroke-width="1.7" fill="none" stroke-linejoin="round"/>',
+  procs:'<path d="M7.2 7.6h9.6M7.2 10h9.6M7.2 12.4h6" stroke="var(--busy)" stroke-width="1.6" stroke-linecap="round"/>',
+  clean:'<path d="M11.5 6.3l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z" fill="var(--c4)"/><path d="M15.4 11l.45 1.1 1.1.45-1.1.45-.45 1.1-.45-1.1-1.1-.45 1.1-.45z" fill="var(--c4)"/>',
   shell:'<path d="M7.5 7h3.6v3.3H7.5zM12.9 7h3.6v3.3h-3.6zM7.5 11.6h3.6v3H7.5zM12.9 11.6h3.6v3h-3.6z" fill="var(--c3)"/>',
   bar:'<path d="M9 6.5h6l-.8 8.5h-4.4z" stroke="var(--c2)" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M9.3 9.5h5.4" stroke="var(--c2)" stroke-width="1.5"/>'
 };
-const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['shutdown','Oʻchirish'],['wake','Yoqish'],0,['msg','Xabar'],['bar','Bar xizmati'],['shell','Mijoz ekrani']];
+const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['shutdown','Oʻchirish'],['wake','Yoqish'],0,['msg','Xabar'],['bar','Bar xizmati'],['procs','Jarayonlar'],['clean','Tozalash'],['shell','Mijoz ekrani']];
 const LOGI={info:'<svg class="li" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="var(--busy)"/><path d="M8 7v4.5M8 4.6v.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
   warn:'<svg class="li" viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="var(--warn)"/><path d="M8 6v4M8 12v.2" stroke="#1a1a1a" stroke-width="1.7" stroke-linecap="round"/></svg>',
   msg:'<svg class="li" viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="1.5" fill="var(--c3)"/><path d="M2.5 4.5 8 8.5l5.5-4" stroke="#fff" stroke-width="1.4" fill="none"/></svg>'};
@@ -819,6 +872,7 @@ function vZal(m){
     <div class="logp" id="logp" style="height:${ui.logH}px">
       <div class="logh"><b>Xabarlar</b>
         <select id="lgf" aria-label="Xabar turi"><option value="all">Hammasi</option><option value="info">Maʼlumot</option><option value="warn">Diqqat (toʻlov, qarz)</option><option value="msg">Yuborilgan xabarlar</option></select>
+        <input id="lgpc" type="search" inputmode="numeric" placeholder="PC №" value="${esc(ui.logPc||'')}" style="width:76px" aria-label="PC raqami boʻyicha">
         <input id="lgq" type="search" placeholder="Jurnaldan qidirish" value="${esc(ui.logQ)}">
         <span class="muted" id="lgc"></span>
       </div>
@@ -848,6 +902,7 @@ function vZal(m){
   box.addEventListener('click',e=>{const r=e.target.closest('.lg');if(!r)return;$$('.lg.sel',box).forEach(x=>x.classList.remove('sel'));r.classList.add('sel');ui.logSel=r.dataset.k});
   $('#lgf').onchange=e=>{ui.logF=e.target.value;ui.logLimit=150;renderLog('bottom')};
   $('#lgq').oninput=e=>{ui.logQ=e.target.value;ui.logLimit=150;renderLog('bottom')};
+  $('#lgpc').oninput=e=>{ui.logPc=e.target.value.replace(/\D/g,'');ui.logLimit=150;renderLog('bottom')};
   // Oʻlcham
   const rsz=$('#rsz');
   rsz.addEventListener('pointerdown',e=>{rsz.setPointerCapture(e.pointerId);const y0=e.clientY,h0=$('#logp').offsetHeight,max=m.clientHeight-220;
@@ -886,7 +941,7 @@ function renderGrid(){
       if(!s)return `<div class="card s-${p.status}${sel}" data-pc="${p.n}">${head}<div class="ct muted">${p.status==='off'?'--:--':'00:00'}</div><div class="cm">${p.status==='off'?'Kompyuter oʻchiq':'Boʻsh — mijoz kutilmoqda'}</div></div>`;
       const L=limitMs(s),el=elapsed(s,now),left=L!=null?L-el:null,pct=L?Math.min(100,el/L*100):0,e=endAt(s,now);
       const val={open:[hm(s.start)],end:[e?hm(e):'—'],sum:[som(accrued(s,now))],vaqt:[hhmm(el),'blue'],played:[som(played(s,now)),'blue'],
-        left:[left!=null?hhmm(left):'—'],client:[esc(who(s))],tarif:[esc(s.tname)],bar:[s.bar.length?som(barTotal(s)):'—'],grp:[esc(grpName(p.group))]};
+        left:[left!=null?hhmm(left):'—'],client:[esc(who(s))],tarif:[esc(s.tname)],bar:[s.bar.length?som(barTotal(s)):'—'],grp:[esc(grpName(p.group))],app:[esc(mainApp(p)||'—')]};
       return `<div class="card s-${p.status}${sel}" data-pc="${p.n}">${head}
         <div class="ct${left!=null&&left<5*MIN?' low':''}">${left!=null?hhmm(left):hhmm(el)}</div>
         <div class="cm">${p.status==='pause'?'Pauza · ':''}${CMODE[s.mode]}</div>
@@ -899,6 +954,7 @@ function renderGrid(){
 function zcell(k,p,s,now){
   if(k==='grp')return [esc(grpName(p.group))];
   if(k==='ip')return [esc(p.ip||'')];
+  if(k==='app')return [p.status==='off'?'':esc(mainApp(p))];
   if(!s)return [''];
   const L=limitMs(s),left=L!=null?L-elapsed(s,now):null;
   switch(k){
@@ -921,7 +977,7 @@ function selPcs(){return [...ui.sel].map(n=>pcBy(n)).filter(Boolean)}
 function updateToolbar(){
   const sel=selPcs(),one=sel.length===1?sel[0]:null;
   const en={start:one&&(one.status==='free'||(one.status==='off'&&S.settings.beh.autoWake)),add:one&&active(one),stop:sel.length>0&&sel.every(active),move:one&&active(one),pause:one&&active(one),
-    restart:sel.some(p=>p.status!=='off'),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),shell:!!one};
+    restart:sel.some(p=>p.status!=='off'),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),procs:one&&one.status!=='off',clean:sel.some(p=>p.status!=='off'),shell:!!one};
   $$('.tb').forEach(b=>{b.disabled=!en[b.dataset.act]});
   const pb=$('.tb[data-act="pause"]');if(pb&&one)pb.lastChild.textContent=one.status==='pause'?'Davom etish':'Pauza';
 }
@@ -937,7 +993,9 @@ function zalAction(a){
   if(a==='bar')return barSellModal(one.n);
   if(a==='msg')return msgModal(sel.filter(p=>p.status!=='off'));
   if(a==='shell')return openShell(one.n);
-  if(['restart','shutdown','wake'].includes(a)&&!can('pcPower'))return toast('Kompyuterlarni boshqarishga ruxsat yoʻq','err');
+  if(['restart','shutdown','wake'].includes(a)&&!can('pcPower'))return guard('pcPower','Kompyuter quvvatini boshqarish',()=>zalAction(a));
+  if(a==='procs')return procsModal(one.n);
+  if(a==='clean'){const l=sel.filter(p=>p.status!=='off');return guard('procs','Jarayonlarni tozalash',()=>confirmM('Jarayonlarni tozalash',`${l.map(p=>'PC '+p.n).join(', ')} — barcha foydalanuvchi ilovalari (oʻyin, brauzer va boshqalar) yopiladi. Tizim jarayonlari qoladi.`,()=>cleanProcs(l),'Tozalash'))}
   if(a==='pause'){const s=one.session,now=Date.now();
     if(one.status==='busy'){one.status='pause';s.pausedAt=now;addLog('info',`Seans pauza qilindi PC ${one.n} / ${who(s)}`)}
     else{s.pausedTotal+=now-s.pausedAt;s.pausedAt=null;one.status='busy';addLog('info',`Seans davom ettirildi PC ${one.n} / ${who(s)}`)}
@@ -947,6 +1005,43 @@ function zalAction(a){
     l.forEach(p=>p.status='off');if(l.length)addLog('info',`Oʻchirildi → ${l.map(p=>'PC '+p.n).join(', ')}`);
     if(skip)toast(`${skip} ta kompyuterda seans ochiq — avval seansni yakunlang`,'err');return commit()}
   if(a==='wake'){wake(sel);return commit()}
+}
+
+/* ---------- Jarayonlar (klient agentidan) ---------- */
+const PSYS=[['Klient agenti','agent.exe',38,0.3],['Explorer','explorer.exe',64,0.2],['Ish stoli oynalari','dwm.exe',92,0.9],['Windows Defender','MsMpEng.exe',118,0.4],['Audio xizmati','audiodg.exe',14,0.1]];
+const PGAMES=[['Counter-Strike 2','cs2.exe',2800,32],['Dota 2','dota2.exe',3100,28],['PUBG: Battlegrounds','TslGame.exe',5200,44],['Valorant','VALORANT.exe',2400,26],['EA SPORTS FC 25','FC25.exe',3600,31],['GTA V','GTA5.exe',4100,37]];
+const PAPPS=[['Google Chrome','chrome.exe',950,3],['Discord','Discord.exe',340,2],['Steam','steam.exe',290,1],['Telegram Desktop','Telegram.exe',310,1],['OBS Studio','obs64.exe',420,6]];
+const procs={};
+function hashS(x){let h=7;for(const c of String(x))h=(h*31+c.charCodeAt(0))>>>0;return h}
+function procList(p){
+  const sid=p.status==='off'?'off':p.session?p.session.id:'idle';let st=procs[p.n];
+  if(!st||st.sid!==sid){const list=[];
+    if(sid!=='off'){PSYS.forEach(x=>list.push({name:x[0],exe:x[1],mem:x[2],cpu:x[3],sys:true}));
+      if(p.session){const h=hashS(sid),g=PGAMES[h%PGAMES.length];list.unshift({name:g[0],exe:g[1],mem:g[2],cpu:g[3],game:true});
+        for(let i=0,k=1+(h>>>3)%3;i<k;i++){const a=PAPPS[((h>>>5)+i*2)%PAPPS.length];if(!list.some(y=>y.name===a[0]))list.splice(1,0,{name:a[0],exe:a[1],mem:a[2],cpu:a[3]})}}}
+    st=procs[p.n]={sid,list}}
+  return st.list;
+}
+function mainApp(p){const g=procList(p).find(x=>!x.sys);return g?g.name:''}
+function cleanProcs(list){let tot=0;
+  list.forEach(p=>{const l=procList(p),k=l.filter(x=>!x.sys);tot+=k.length;procs[p.n].list=l.filter(x=>x.sys);if(k.length)addLog('info',`Jarayonlar tozalandi PC ${p.n}: ${k.map(x=>x.name).join(', ')} yopildi — ${me().name}`)});
+  save();if(ui.view==='zal')renderGrid();toast(tot?`${tot} ta ilova yopildi (${list.length} ta kompyuter)`:'Yopiladigan ilova yoʻq');
+}
+function procsModal(n){const p=pcBy(n);
+  modal({title:`Jarayonlar — PC ${n}`,wide:true,body:`<div id="pm-h"></div><div class="box" style="margin-top:12px"><div class="tbl"><table class="t"><thead><tr><th>Nomi</th><th>Holat</th><th class="r">CPU</th><th class="r">Xotira</th><th class="r">Disk</th><th class="r">Tarmoq</th><th></th></tr></thead><tbody id="pm-b"></tbody></table></div></div>
+    <p class="note" style="margin:10px 0 0">Maʼlumot klient agentidan har 2 soniyada yangilanadi. Tizim jarayonlarini tugatib boʻlmaydi.</p>`,
+    actions:[{label:'Yopish'},{label:'Ilovalarni tozalash',cls:'dngf',run:()=>{guard('procs','Jarayonlarni tozalash',()=>cleanProcs([p]))}}],
+    onMount:ov=>{let iv=0;const draw=()=>{if(!ov.isConnected)return clearInterval(iv);
+      const l=procList(p),j=x=>Math.max(0,x*(0.85+Math.random()*0.3));let cpu=0,mem=0;
+      const rows=l.map(x=>{const c=j(x.cpu),mm=j(x.mem);cpu+=c;mem+=mm;return {x,c,mm,d:x.game?j(3):j(0.1),nt:x.game?j(4):/Chrome|Discord|Telegram/.test(x.name)?j(1.2):0}});
+      $('#pm-h',ov).innerHTML=`<div class="kpis"><div class="kpi"><div class="l">CPU</div><div class="v">${Math.min(99,Math.round(cpu))}%</div></div><div class="kpi"><div class="l">Xotira</div><div class="v">${(mem/1024).toFixed(1)} GB</div><div class="s">16 GB dan</div></div>
+        <div class="kpi"><div class="l">Ochiq ilovalar</div><div class="v">${l.filter(x=>!x.sys).length}</div><div class="s">${p.session?esc(who(p.session)):'seans yoʻq — qulf ekrani'}</div></div></div>`;
+      $('#pm-b',ov).innerHTML=rows.map(r=>`<tr><td><b>${esc(r.x.name)}</b><small>${esc(r.x.exe)}</small></td><td>${r.x.sys?'<span class="pill p-mut">Tizim</span>':r.x.game?'<span class="pill p-busy">Oʻyin</span>':'<span class="pill p-acc">Ilova</span>'}</td>
+        <td class="r">${r.c.toFixed(1)}%</td><td class="r">${num(r.mm)} MB</td><td class="r">${r.d.toFixed(1)} MB/s</td><td class="r">${r.nt.toFixed(1)} Mbit/s</td>
+        <td class="act">${r.x.sys?'':`<button class="btn sm dng" type="button" data-kill="${esc(r.x.name)}">Tugatish</button>`}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Kompyuter oʻchiq</td></tr>';
+      $$('[data-kill]',ov).forEach(b=>b.onclick=()=>{const nm=b.dataset.kill;guard('procs','Jarayonni tugatish',()=>{const st=procs[p.n],x=st.list.find(y=>y.name===nm);st.list=st.list.filter(y=>y.name!==nm);
+        addLog('info',`Jarayon tugatildi PC ${p.n}: ${nm}${x?` (${x.exe})`:''} — ${me().name}`);save();draw();if(ui.view==='zal')renderGrid()})});
+    };draw();iv=setInterval(draw,2000)}});
 }
 
 /* ---------- Start ---------- */
@@ -1061,7 +1156,7 @@ function msgModal(list){
 }
 
 /* ---------- Jurnal ---------- */
-function filteredLog(){const q=ui.logQ.trim().toLowerCase();return S.log.filter(l=>(ui.logF==='all'||l.type===ui.logF)&&(!q||l.text.toLowerCase().includes(q)))}
+function filteredLog(){const q=ui.logQ.trim().toLowerCase(),pn=(ui.logPc||'').replace(/\D/g,''),re=pn?new RegExp('PC '+pn+'(?!\\d)'):null;return S.log.filter(l=>(ui.logF==='all'||l.type===ui.logF)&&(!q||l.text.toLowerCase().includes(q))&&(!re||re.test(l.text)))}
 function renderLog(mode){
   const box=$('#log');if(!box)return;
   const atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-10;const prevH=box.scrollHeight,prevT=box.scrollTop;
@@ -1113,7 +1208,7 @@ function vBar(m){
   const pend=S.pcs.filter(p=>p.session&&p.session.bar.length).reduce((a,p)=>a+barTotal(p.session),0);
   const low=S.products.filter(p=>p.stock<=p.min);
   const outs=S.expenses.filter(e=>e.src==='kassa'&&e.t>=today).sort((a,b)=>b.t-a.t);
-  m.innerHTML=`<div class="page"><div class="ph"><h1>Bar</h1><button class="btn" type="button" id="b-out">Chiqim kiritish</button><button class="btn" type="button" id="b-sell">Sotish</button>${can('prodEdit')?'<button class="btn pri" type="button" id="b-new">Yangi mahsulot</button>':''}</div>
+  m.innerHTML=`<div class="page"><div class="ph"><h1>Bar</h1><button class="btn" type="button" id="b-out">Chiqim kiritish</button><button class="btn" type="button" id="b-sell">Sotish</button><button class="btn pri" type="button" id="b-new">Yangi mahsulot</button></div>
   <div class="kpis"><div class="kpi"><div class="l">Bugungi sotuv</div><div class="v">${som(sales.reduce((a,e)=>a+e.amount,0))}</div><div class="s">${sales.reduce((a,e)=>a+(e.qty||1),0)} dona</div></div>
     <div class="kpi"><div class="l">Bugungi chiqim</div><div class="v">${som(outs.reduce((a,e)=>a+e.amount,0))}</div><div class="s">${outs.length} ta chiqim</div></div>
     <div class="kpi"><div class="l">Ochiq seanslar hisobida</div><div class="v">${som(pend)}</div><div class="s">seans yakunida toʻlanadi</div></div>
@@ -1122,18 +1217,18 @@ function vBar(m){
   <div class="box"><h2>Ichimliklar <small>Ogohlantirish chegarasiga yetganlari qizil bilan belgilanadi</small></h2><div class="tbl"><table class="t"><thead><tr><th>Mahsulot</th><th class="r">Narx</th><th class="r">Qoldiq</th><th></th></tr></thead><tbody>
   ${S.products.map(p=>`<tr><td>${esc(p.name)}</td><td class="r">${som(p.price)}</td>
     <td class="r">${p.stock<=p.min?`<span class="pill p-off">${p.stock} ta</span>`:p.stock+' ta'}</td>
-    <td class="act"><button class="btn sm" type="button" data-sell="${p.id}"${p.stock?'':' disabled'}>Sotish</button><button class="btn sm" type="button" data-in="${p.id}">Kirim</button>${can('prodEdit')?`<button class="btn sm" type="button" data-ed="${p.id}">Tahrirlash</button>`:''}${can('prodDelete')?`<button class="btn sm dng" type="button" data-del="${p.id}">Oʻchirish</button>`:''}</td></tr>`).join('')}
+    <td class="act"><button class="btn sm" type="button" data-sell="${p.id}"${p.stock?'':' disabled'}>Sotish</button><button class="btn sm" type="button" data-in="${p.id}">Kirim</button><button class="btn sm" type="button" data-ed="${p.id}">Tahrirlash</button><button class="btn sm dng" type="button" data-del="${p.id}">Oʻchirish</button></td></tr>`).join('')}
   </tbody></table></div></div>
   ${outs.length?`<div class="box"><h2>Bugungi chiqimlar<small>hisobotda «Kassadan chiqim» boʻlib chiqadi</small></h2><div class="tbl"><table class="t"><thead><tr><th>Vaqt</th><th>Turi</th><th>Izoh</th><th>Qayerdan</th><th class="r">Summa</th></tr></thead><tbody>${outs.map(e=>`<tr><td>${hm(e.t)}</td><td>${esc(e.cat)}</td><td class="muted">${esc(e.note)}</td><td>${METHODS[e.method]||'—'}</td><td class="r">${som(e.amount)}</td></tr>`).join('')}</tbody></table></div></div>`:''}
   <div class="box"><h2>Bugungi sotuvlar</h2><div class="tbl">${sales.length?`<table class="t"><thead><tr><th>Vaqt</th><th>Mahsulot</th><th class="r">Soni</th><th class="r">Summa</th><th>Qayerda</th><th>Toʻlov</th></tr></thead><tbody>
     ${sales.slice(-25).reverse().map(e=>`<tr><td>${hm(e.t)}</td><td>${esc(prod(e.pid)?prod(e.pid).name:'—')}</td><td class="r">${e.qty||1}</td><td class="r">${som(e.amount)}</td><td>${e.pc?'PC '+e.pc:'Bar peshtaxtasi'}</td><td>${METHODS[e.method]||(e.method==='debt'?'Qarz':'—')}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Bugun hali sotuv boʻlmadi</div>'}</div></div></div>`;
   $('#b-sell').onclick=()=>barSellModal(null);
-  $('#b-out').onclick=cashOutModal;
-  if($('#b-new'))$('#b-new').onclick=()=>productModal(null);
+  $('#b-out').onclick=()=>guard('chiqim','Chiqim kiritish',cashOutModal);
+  $('#b-new').onclick=()=>guard('prodEdit','Mahsulot qoʻshish',()=>productModal(null));
   $$('[data-sell]',m).forEach(b=>b.onclick=()=>{barSellModal(null);setTimeout(()=>{const s=$('#bs-p');if(s){s.value=b.dataset.sell;s.dispatchEvent(new Event('change',{bubbles:true}))}})});
   $$('[data-in]',m).forEach(b=>b.onclick=()=>stockInModal(b.dataset.in));
-  $$('[data-ed]',m).forEach(b=>b.onclick=()=>productModal(b.dataset.ed));
-  $$('[data-del]',m).forEach(b=>b.onclick=()=>{const p=prod(b.dataset.del);confirmM('Mahsulotni oʻchirish',`«${esc(p.name)}» roʻyxatdan oʻchirilsinmi? Sotuv tarixi saqlanib qoladi.`,()=>{S.products=S.products.filter(x=>x!==p);commit()},'Oʻchirish')});
+  $$('[data-ed]',m).forEach(b=>b.onclick=()=>guard('prodEdit','Mahsulotni tahrirlash',()=>productModal(b.dataset.ed)));
+  $$('[data-del]',m).forEach(b=>b.onclick=()=>guard('prodDelete','Mahsulotni oʻchirish',()=>{const p=prod(b.dataset.del);confirmM('Mahsulotni oʻchirish',`«${esc(p.name)}» roʻyxatdan oʻchirilsinmi? Sotuv tarixi saqlanib qoladi.`,()=>{S.products=S.products.filter(x=>x!==p);commit()},'Oʻchirish')}));
 }
 
 /* =================== MIJOZLAR =================== */
@@ -1190,7 +1285,7 @@ function vShift(m){
   if(sh){const st=shiftStats(sh.openAt,now+1);const exp=sh.openCash+st.m.cash-st.outCash;
     cur=`<div class="kpis"><div class="kpi"><div class="l">Smena</div><div class="v">${esc(uname(sh.user))}</div><div class="s">${dstr(sh.openAt)} ${hm(sh.openAt)} dan · ${dur(now-sh.openAt)} soat</div></div>
       <div class="kpi"><div class="l">Kassaga tushgan</div><div class="v">${som(st.total)}</div><div class="s">${st.sessions} ta seans yakunlandi</div></div>
-      <div class="kpi"><div class="l">Kassada naqd boʻlishi kerak</div><div class="v">${som(exp)}</div><div class="s">boshida ${som(sh.openCash)} + naqd ${som(st.m.cash)}${st.outCash?` − chiqim ${som(st.outCash)}`:''}</div></div>
+      <div class="kpi"><div class="l">Kassada naqd boʻlishi kerak</div><div class="v">${can('kassa')?som(exp):`<span class="hid">••••••</span> <button class="btn sm" type="button" data-unhide>Koʻrsatish</button>`}</div><div class="s">${can('kassa')?`boshida ${som(sh.openCash)} + naqd ${som(st.m.cash)}${st.outCash?` − chiqim ${som(st.outCash)}`:''}`:'ruxsat kerak'}</div></div>
       <div class="kpi bad"><div class="l">Qarzga berildi</div><div class="v">${som(st.debt)}</div><div class="s">qarz qaytdi: ${som(st.debtpay)}</div></div></div>
     <div class="cols"><div class="box"><h2>Toʻlov usullari boʻyicha</h2><div class="tbl"><table class="t"><tbody>${Object.entries(METHODS).map(([k,l])=>`<tr><td>${l}</td><td class="r"><b>${som(st.m[k])}</b></td></tr>`).join('')}<tr><td><b>Jami</b></td><td class="r"><b>${som(st.total)}</b></td></tr></tbody></table></div></div>
       <div class="box"><h2>Nimadan tushdi</h2><div class="tbl"><table class="t"><tbody><tr><td>Kompyuter vaqti</td><td class="r">${som(st.pc)}</td></tr><tr><td>Bar</td><td class="r">${som(st.bar)}</td></tr><tr><td>Balans toʻldirish</td><td class="r">${som(st.topup)}</td></tr><tr><td>Qarz qaytarilishi</td><td class="r">${som(st.debtpay)}</td></tr><tr><td class="muted">Balansdan yechilgan (kassaga kirmaydi)</td><td class="r muted">${som(S.ledger.filter(e=>e.t>=sh.openAt&&e.method==='balance').reduce((a,e)=>a+e.amount,0))}</td></tr></tbody></table></div></div></div>`}
@@ -1202,11 +1297,12 @@ function vShift(m){
   if($('#sh-open'))$('#sh-open').onclick=()=>modal({title:'Smenani ochish',body:`<div class="frm"><label>Xodim<input value="${esc(me().name)}" disabled></label><label>Kassadagi naqd pul (soʻm)<input id="so-c" type="number" min="0" step="1000" value="500000"></label></div>`,
     actions:[{label:'Bekor qilish'},{label:'Ochish',cls:'pri',run:()=>{S.shifts.push({id:uid(),user:S.user,openAt:Date.now(),openCash:vn('so-c'),closeAt:null});addLog('info',`Smena ochildi: ${me().name}, kassa ${som(vn('so-c'))}`);commit();toast('Smena ochildi')}}]});
   if($('#sh-close'))$('#sh-close').onclick=()=>{const st=shiftStats(sh.openAt,Date.now()+1),exp=sh.openCash+st.m.cash-st.outCash;
-    modal({title:'Smenani yopish',body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Boshlangʻich kassa</span><span>${som(sh.openCash)}</span></div><div class="ln"><span>Naqd tushum</span><span>${som(st.m.cash)}</span></div>${st.outCash?`<div class="ln"><span>Kassadan chiqim</span><span>−${som(st.outCash)}</span></div>`:''}<div class="ln big"><span>Kutilgan naqd</span><span>${som(exp)}</span></div></div>
-      <label>Kassada sanalgan naqd pul<input id="sc-c" type="number" min="0" step="1000" value="${exp}"></label><div class="sumbox" id="sc-d"></div>
+    modal({title:'Smenani yopish',body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Boshlangʻich kassa</span><span>${som(sh.openCash)}</span></div>${can('kassa')?`<div class="ln"><span>Naqd tushum</span><span>${som(st.m.cash)}</span></div>${st.outCash?`<div class="ln"><span>Kassadan chiqim</span><span>−${som(st.outCash)}</span></div>`:''}<div class="ln big"><span>Kutilgan naqd</span><span>${som(exp)}</span></div>`:'<div class="ln muted"><span>Kutilgan summa yashirin — kassani sanab kiriting</span></div>'}</div>
+      <label>Kassada sanalgan naqd pul<input id="sc-c" type="number" min="0" step="1000" value="${can('kassa')?exp:''}"></label><div class="sumbox" id="sc-d"></div>
       ${S.pcs.some(active)?`<div class="note">${S.pcs.filter(active).length} ta seans ochiq — ular keyingi smenaga oʻtadi.</div>`:''}</div>`,
       actions:[{label:'Bekor qilish'},{label:'Yopish',cls:'pri',run:()=>{sh.closeAt=Date.now();sh.counted=vn('sc-c');sh.expected=exp;addLog(sh.counted===exp?'info':'warn',`Smena yopildi: ${uname(sh.user)} · tushum ${som(st.total)} · farq ${num(sh.counted-exp)}`);commit();toast('Smena yopildi')}}],
-      onMount:ov=>{const u=()=>{const df=vn('sc-c')-exp;$('#sc-d').innerHTML=`<div class="ln big"><span>Farq</span><span style="color:${df<0?'var(--off)':df>0?'var(--warn)':'var(--ok)'}">${df>0?'+':''}${som(df)}</span></div>`};ov.addEventListener('input',u);u()}})};
+      onMount:ov=>{const u=()=>{if(!can('kassa'))return $('#sc-d').hidden=true;const df=vn('sc-c')-exp;$('#sc-d').innerHTML=`<div class="ln big"><span>Farq</span><span style="color:${df<0?'var(--off)':df>0?'var(--warn)':'var(--ok)'}">${df>0?'+':''}${som(df)}</span></div>`};ov.addEventListener('input',u);u()}})};
+  $$('[data-unhide]',m).forEach(b=>b.onclick=()=>guard('kassa','Kassa summasini koʻrish',()=>render()));
 }
 
 /* =================== HISOBOT =================== */
@@ -1227,8 +1323,8 @@ const dmy=t=>{const d=new Date(t);return p2(d.getDate())+'.'+p2(d.getMonth()+1)+
 function debtors(){
   const m={};
   const get=(key,src)=>m[key]||(m[key]={key,clientId:src.clientId||null,name:src.name,phone:src.phone||'',debt:0,paid:0,left:0,last:0,n:0});
-  S.debts.forEach(d=>{const x=get(debtKey(d),d);x.debt+=d.amount;x.n++;x.last=Math.max(x.last,d.t);if(d.phone&&!x.phone)x.phone=d.phone});
-  S.debtPays.forEach(p=>{const x=get(p.key,p);x.paid+=p.amount+(p.disc||0);x.last=Math.max(x.last,p.t)});
+  S.debts.forEach(d=>{const x=get(debtKey(d),d);x.debt+=d.amount;x.n++;if(d.t>=x.last){x.last=d.t;x.le={k:'qarz',a:d.amount}}if(d.phone&&!x.phone)x.phone=d.phone});
+  S.debtPays.forEach(p=>{const x=get(p.key,p);x.paid+=p.amount+(p.disc||0);if(p.t>=x.last){x.last=p.t;x.le={k:'toʻlov',a:p.amount+(p.disc||0)}}});
   Object.values(m).forEach(x=>{const c=x.clientId&&client(x.clientId);if(c){x.name=c.name;x.phone=c.phone;x.login=c.login}x.left=x.debt-x.paid});
   return m;
 }
@@ -1256,11 +1352,12 @@ function debtPayModal(key){
     <div class="row2"><label class="ck"><input type="checkbox" id="dp-dc"${dd.on?' checked':''}>Chegirma qoʻllash</label><label>Chegirma, %<input id="dp-p" type="number" min="0" max="100" value="${dd.pct}"></label></div>
     <div class="sumbox" id="dp-s"></div><div class="note">Qisman toʻlash mumkin — qolgan qismi daftarda qoladi.</div><div class="err" id="dp-e"></div></div>`,
     actions:[{label:'Bekor qilish'},{label:'Toʻlovni qabul qilish',cls:'pri',run:()=>{const r=calc(),m=v('dp-m');if(!r.a)return $('#dp-e').textContent='Summani kiriting',false;
-      const lid=uid(),now=Date.now();S.ledger.push({id:lid,t:now,kind:'debtpay',amount:r.a,method:m,clientId:x.clientId});
+      const doPay=()=>{const lid=uid(),now=Date.now();S.ledger.push({id:lid,t:now,kind:'debtpay',amount:r.a,method:m,clientId:x.clientId});
       S.debtPays.push({id:uid(),key,clientId:x.clientId,name:x.name,t:now,amount:r.a,disc:r.disc,pct:r.disc?r.p:0,method:m,ledgerId:lid});
       const nl=left-r.ded;
       addLog('info',`Qarz toʻlandi: ${x.name} ${som(r.a)} (${METHODS[m]})${r.disc?` + chegirma ${r.p}% (${som(r.disc)}) → qarzdan ${som(r.ded)} ayrildi`:''}${nl>0?` · qoldiq ${som(nl)}`:' · qarz yopildi'}`,0,{in:r.a,m});
-      commit();toast(nl>0?'Qisman toʻlov qabul qilindi':'Qarz toʻliq yopildi')}}],
+      commit();toast(nl>0?'Qisman toʻlov qabul qilindi':'Qarz toʻliq yopildi')};
+      if(r.disc&&!can('chegirma')){guard('chegirma','Qarz toʻlovida chegirma berish',doPay);return}doPay()}}],
     onMount:ov=>{const u=()=>{const r=calc();$('#dp-p').disabled=!$('#dp-dc').checked;
       $('#dp-s').innerHTML=`<div class="ln"><span>Mijoz beradi</span><span>${som(r.a)}</span></div>${r.p?`<div class="ln"><span>Chegirma ${r.p}%</span><span>+${som(r.disc)}</span></div>`:''}<div class="ln big"><span>Qarzdan ayriladi</span><span>${som(r.ded)}</span></div><div class="ln muted"><span>Qolgan qarz</span><span>${som(left-r.ded)}</span></div>${r.g>r.a?`<div class="ln" style="color:var(--warn)"><span>Qarzni yopish uchun ${som(r.a)} yetarli</span></div>`:''}`;$('#dp-e').textContent=''};
       ov.addEventListener('input',u);ov.addEventListener('change',u);u()}});
@@ -1280,7 +1377,7 @@ function debtHist(key){
   const x=debtors()[key];if(!x)return;
   const ev=[...S.debts.filter(d=>debtKey(d)===key).map(d=>({k:'d',t:d.t,id:d.id,amt:d.amount,o:d})),...S.debtPays.filter(p=>p.key===key).map(p=>({k:'p',t:p.t,id:p.id,amt:-(p.amount+(p.disc||0)),o:p}))].sort((a,b)=>a.t-b.t);
   let bal=0;ev.forEach(e=>{bal+=e.amt;e.bal=bal});
-  const ed=can('debtDelete');
+  const ed=true;
   const h=modal({title:`${x.name} — tarix`,wide:true,body:`<p style="margin:0 0 12px">${x.phone?esc(x.phone)+' ':''}· qoldiq <b>${som(x.left)}</b></p>
     <div class="box"><div class="tbl"><table class="t"><thead><tr><th>Sana</th><th>Harakat</th><th class="r">Summa</th><th class="r">Qoldiq</th>${ed?'<th></th>':''}</tr></thead><tbody>
     ${ev.slice().reverse().map(e=>`<tr><td>${dmy(e.t)}</td><td>${e.k==='d'?esc(e.o.note||'Qoʻlda yozildi'):`Toʻlov (${METHODS[e.o.method]||'—'})${e.o.disc?`<small>${num(e.o.amount)} + chegirma ${e.o.pct||Math.round(e.o.disc/e.o.amount*100)}% (${num(e.o.disc)})</small>`:''}`}</td>
@@ -1289,11 +1386,21 @@ function debtHist(key){
     </tbody></table></div></div>`,actions:[{label:'Bekor qilish'},{label:'Yopish',cls:'pri'}],
     onMount:ov=>{
       const again=()=>{h.close();debtHist(key)};
-      $$('[data-he]',ov).forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.he.split(':');k==='d'?debtEditModal(id,again):payEditModal(id,again)});
-      $$('[data-hx]',ov).forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.hx.split(':');
+      $$('[data-he]',ov).forEach(b=>b.onclick=()=>guard('debtDelete','Qarz yozuvini tahrirlash',()=>{const [k,id]=b.dataset.he.split(':');k==='d'?debtEditModal(id,again):payEditModal(id,again)}));
+      $$('[data-hx]',ov).forEach(b=>b.onclick=()=>guard('debtDelete','Qarz yozuvini oʻchirish',()=>{const [k,id]=b.dataset.hx.split(':');
         if(k==='d'){const d=S.debts.find(y=>y.id===id);confirmM('Yozuvni oʻchirish',`${dmy(d.t)} — ${som(d.amount)} qarz yozuvi oʻchirilsinmi?`,()=>{S.debts=S.debts.filter(y=>y!==d);addLog('warn',`Qarz yozuvi oʻchirildi: ${x.name} ${som(d.amount)} (${me().name})`);commit();again()},'Oʻchirish')}
-        else{const p=S.debtPays.find(y=>y.id===id);confirmM('Toʻlovni oʻchirish',`${dmy(p.t)} — ${som(p.amount)} toʻlov oʻchirilsinmi? Kassa hisobidan ham olib tashlanadi.`,()=>{S.debtPays=S.debtPays.filter(y=>y!==p);if(p.ledgerId)S.ledger=S.ledger.filter(l=>l.id!==p.ledgerId);addLog('warn',`Qarz toʻlovi oʻchirildi: ${x.name} ${som(p.amount)} (${me().name})`);commit();again()},'Oʻchirish')}});
+        else{const p=S.debtPays.find(y=>y.id===id);confirmM('Toʻlovni oʻchirish',`${dmy(p.t)} — ${som(p.amount)} toʻlov oʻchirilsinmi? Kassa hisobidan ham olib tashlanadi.`,()=>{S.debtPays=S.debtPays.filter(y=>y!==p);if(p.ledgerId)S.ledger=S.ledger.filter(l=>l.id!==p.ledgerId);addLog('warn',`Qarz toʻlovi oʻchirildi: ${x.name} ${som(p.amount)} (${me().name})`);commit();again()},'Oʻchirish')}}));
     }});
+}
+function debtorEditModal(key){const x=debtors()[key];if(!x)return;const c=x.clientId&&client(x.clientId);
+  modal({title:'Qarzdorni tahrirlash',body:`<div class="frm"><label>Ism<input id="dr-n" value="${esc(x.name)}"></label><label>Telefon<input id="dr-p" value="${esc(x.phone||'')}" inputmode="tel" placeholder="+998 __ ___ __ __"></label>
+    ${c?`<div class="note">Bu qarzdor mijoz akkaunti (@${esc(c.login)}) bilan bogʻlangan — mijoz maʼlumotlari ham yangilanadi.</div>`:''}<div class="err" id="dr-e"></div></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'dark',run:()=>{const n=v('dr-n').trim(),ph=v('dr-p').trim();if(!n)return $('#dr-e').textContent='Ismni kiriting',false;
+      if(c){c.name=n;c.phone=ph;S.debts.forEach(d=>{if(debtKey(d)===key){d.name=n;d.phone=ph}})}
+      else{const nk='n:'+n.toLowerCase();const merge=nk!==key&&debtors()[nk];
+        S.debts.forEach(d=>{if(debtKey(d)===key){d.name=n;d.phone=ph}});S.debtPays.forEach(p=>{if(p.key===key){p.key=nk;p.name=n}});
+        if(merge)toast(`«${n}» nomli qarzdor bor edi — hisoblar birlashtirildi`)}
+      addLog('info',`Qarzdor maʼlumoti oʻzgartirildi: ${x.name} → ${n}${ph?' · '+ph:''} — ${me().name}`);commit()}}]});
 }
 function debtEditModal(id,done){const d=S.debts.find(y=>y.id===id);
   modal({title:'Qarz yozuvini tahrirlash',body:`<div class="frm"><label>Summa (soʻm)<input id="de-a" type="number" min="1" step="500" value="${d.amount}"></label><label>Izoh<input id="de-t" value="${esc(d.note||'')}"></label><div class="err" id="de-e"></div></div>`,
@@ -1335,18 +1442,22 @@ function vDebts(m){
     <div class="ph"><h1>Qarz daftari</h1><input type="search" id="dq" placeholder="Ism yoki telefon boʻyicha qidirish" value="${esc(ui.dq||'')}" aria-label="Qarzdorni qidirish">
       <label class="ck2"><input type="checkbox" id="dall"${ui.dAll?' checked':''}>Toʻlanganlarni ham koʻrsatish</label>
       <button class="btn" type="button" id="d-xls">Excelga eksport</button><button class="btn pri" type="button" id="d-new">Qarz yozish</button></div>
-    <div class="box"><div class="tbl"><table class="t"><thead><tr><th>Qarzdor</th><th>Telefon</th><th class="r">Jami qarz</th><th class="r">Toʻlangan</th><th class="r">Qoldiq</th><th>Oxirgi harakat</th><th>Holat</th><th></th></tr></thead><tbody id="dtb"></tbody></table></div></div>
+    <div class="box"><div class="tbl"><table class="t"><thead><tr><th>Ism</th><th>Telefon</th><th class="r">Qarz qoldigʻi</th><th>Oxirgi harakat</th><th></th></tr></thead><tbody id="dtb"></tbody></table></div></div>
     <div class="note">Bir kishining barcha qarz va toʻlovlari bitta hisobda yuritiladi. Qarz ikki yoʻl bilan yoziladi: seansni yakunlashda «Qarzga yozish» orqali yoki oldindan toʻlangan vaqt tugaganda bar xaridi toʻlanmagan boʻlsa avtomatik.</div></div>`;
   const filt=()=>{const q=(ui.dq||'').trim().toLowerCase(),qd=q.replace(/\D/g,'');
     return all.filter(x=>(ui.dAll||x.left>0)&&(!q||x.name.toLowerCase().includes(q)||(x.login||'').toLowerCase().includes(q)||(qd.length>=2&&(x.phone||'').replace(/\D/g,'').includes(qd)))).sort((a,b)=>b.left-a.left||b.last-a.last)};
   const body=()=>{const list=filt();
-    $('#dtb').innerHTML=list.map(x=>`<tr><td><b>${esc(x.name)}</b><small>${x.login?'@'+esc(x.login):'akkauntsiz'} · ${x.n} ta yozuv</small></td><td>${esc(x.phone||'—')}</td>
-      <td class="r">${num(x.debt)}</td><td class="r">${num(x.paid)}</td><td class="r"><b>${num(x.left)}</b></td><td>${x.last?dmy(x.last):'—'}</td>
-      <td>${x.left<=0?'<span class="pill p-free">Yopilgan</span>':x.paid?'<span class="pill p-pause">Qisman</span>':'<span class="pill p-off">Toʻlanmagan</span>'}</td>
-      <td class="act">${x.left>0?`<button class="btn sm pri" type="button" data-pay="${esc(x.key)}">Toʻlash</button>`:''}<button class="btn sm" type="button" data-add="${esc(x.key)}">+ Qarz</button><button class="btn sm" type="button" data-dh="${esc(x.key)}">Tarix</button></td></tr>`).join('')
-      ||`<tr><td colspan="8" class="empty">${ui.dq?'Qidiruv boʻyicha topilmadi':'Ochiq qarz yoʻq'}</td></tr>`;
+    const today=sod(Date.now()),when=t=>t>=today?hm(t):dmy(t);
+    $('#dtb').innerHTML=list.map(x=>`<tr><td><b>${esc(x.name)}</b>${x.login?`<small>@${esc(x.login)}</small>`:''}</td><td>${esc(x.phone||'—')}</td>
+      <td class="r"><span class="${x.left>0?'dleft':'muted'}">${num(x.left)}</span></td><td>${x.last?`${when(x.last)} · ${x.le?x.le.k+' '+num(x.le.a):''}`:'—'}</td>
+      <td class="act">${x.left>0?`<button class="btn sm dark" type="button" data-pay="${esc(x.key)}">Toʻlash</button>`:''}<button class="btn sm" type="button" data-add="${esc(x.key)}">Qarz qoʻshish</button><button class="btn sm" type="button" data-dh="${esc(x.key)}">Tarix</button><button class="btn sm" type="button" data-dm="${esc(x.key)}" aria-label="${esc(x.name)} — amallar" aria-haspopup="menu">···</button></td></tr>`).join('')
+      ||`<tr><td colspan="5" class="empty">${ui.dq?'Qidiruv boʻyicha topilmadi':'Ochiq qarz yoʻq'}</td></tr>`;
     $$('[data-pay]',m).forEach(b=>b.onclick=()=>debtPayModal(b.dataset.pay));
     $$('[data-add]',m).forEach(b=>b.onclick=()=>debtNewModal(b.dataset.add));
+    $$('[data-dm]',m).forEach(b=>b.onclick=()=>{const k=b.dataset.dm,x=debtors()[k];
+      popMenu(b,[{icon:MI.hist,label:'Tarix (yozuvlarni tahrirlash)',run:()=>debtHist(k)},{icon:MI.edit,label:'Tahrirlash (ism, telefon)',run:()=>debtorEditModal(k)},'-',
+        {icon:MI.del,label:'Oʻchirib tashlash',danger:true,run:()=>guard('debtDelete','Qarzdorni oʻchirish',()=>confirmM('Qarzdorni oʻchirish',`${esc(x.name)} — barcha qarz va toʻlov yozuvlari (${x.n+S.debtPays.filter(p=>p.key===k).length} ta) oʻchiriladi. Qoldiq: ${som(x.left)}. Kassaga tushgan toʻlovlar hisobotda qoladi.`,()=>{
+          S.debts=S.debts.filter(d=>debtKey(d)!==k);S.debtPays=S.debtPays.filter(p=>p.key!==k);addLog('warn',`Qarzdor oʻchirildi: ${x.name} (qoldiq ${som(x.left)}) — ${me().name}`);commit();toast('Qarzdor oʻchirildi')},'Oʻchirish'))}])});
     $$('[data-dh]',m).forEach(b=>b.onclick=()=>debtHist(b.dataset.dh));};
   $('#dq').oninput=e=>{ui.dq=e.target.value;body()};
   $('#dall').onchange=e=>{ui.dAll=e.target.checked;body()};
@@ -1421,10 +1532,10 @@ function vReport(m){
       <div class="kpi"><div class="l">Qarz boʻldi</div><div class="v">${num(sum(dN,d=>d.amount))}</div><div class="s">${new Set(dN.map(debtKey)).size} kishi</div></div>
       <div class="kpi"><div class="l">Qarz toʻlandi</div><div class="v">${num(sum(dP,p=>p.amount))}</div><div class="s">${dP.length} ta toʻlov${sum(dP,p=>p.disc||0)?` · chegirma ${num(sum(dP,p=>p.disc||0))}`:''}</div></div>
       <div class="kpi"><div class="l">Kassadan chiqim</div><div class="v">${num(outCash+outOther)}</div><div class="s">${out.length} ta chiqim</div></div>
-      <div class="kpi"><div class="l">Kassada naqd</div><div class="v">${num(khTot)}</div><div class="s">karta: +${num(cardIn)} / −${num(outOther)}</div></div></div>
+      <div class="kpi"><div class="l">Kassada naqd</div><div class="v">${can('kassa')?num(khTot):`<span class="hid">••••••</span> <button class="btn sm" type="button" data-unhide>Koʻrsatish</button>`}</div><div class="s">karta: +${num(cardIn)} / −${num(outOther)}</div></div></div>
     <div class="box kh"><h2>Kassa harakati (naqd)<small>${shAt?`smena: ${esc((S.users.find(u=>u.login===shAt.user)||{name:shAt.user}).name)}, ${dmy(shAt.openAt)} dan`:'davrda smena ochilmagan'}</small></h2><div class="tbl"><table class="t"><tbody>
-      ${kh.map(r=>`<tr><td>${r[0]}</td><td class="r"${r[2]==='+'&&r[1]>0?' style="color:var(--ok)"':r[2]==='-'&&r[1]<0?' style="color:var(--off)"':''}>${num(Math.abs(r[1]))}</td></tr>`).join('')}
-      <tr class="tot"><td><b>Kassada boʻlishi kerak</b></td><td class="r"><b>${num(khTot)}</b></td></tr></tbody></table></div></div>
+      ${!can('kassa')?`<tr><td colspan="2" class="empty">Kassa summasi yashirin. ${`<span class="hid">••••••</span> <button class="btn sm" type="button" data-unhide>Koʻrsatish</button>`}</td></tr>`:kh.map(r=>`<tr><td>${r[0]}</td><td class="r"${r[2]==='+'&&r[1]>0?' style="color:var(--ok)"':r[2]==='-'&&r[1]<0?' style="color:var(--off)"':''}>${num(Math.abs(r[1]))}</td></tr>`).join('')}
+      ${can('kassa')?`<tr class="tot"><td><b>Kassada boʻlishi kerak</b></td><td class="r"><b>${num(khTot)}</b></td></tr>`:''}</tbody></table></div></div>
     <div class="box"><h2>${hourly?'Soatlar boʻyicha tushum':'Kunlik tushum'}<small><span class="legend" style="margin:0"><span><i style="background:var(--c1)"></i>Kompyuter</span><span><i style="background:var(--c2)"></i>Bar</span></span></small></h2><div class="boxb">${rows.length?stackChart(rows,['var(--c1)','var(--c2)'],compact):'<div class="empty">Bu davr hali boshlanmagan</div>'}</div></div>
     ${out.length?`<div class="box"><h2>Kassadan chiqimlar<small>${out.length} ta</small></h2><div class="tbl"><table class="t"><thead><tr><th>Sana</th><th>Turi</th><th>Izoh</th><th>Qayerdan</th><th class="r">Summa</th></tr></thead><tbody>${out.slice().sort((a,b)=>b.t-a.t).map(e=>`<tr><td>${dmy(e.t)}</td><td>${esc(e.cat)}</td><td class="muted">${esc(e.note)}</td><td>${METHODS[e.method]||'—'}</td><td class="r">${num(e.amount)}</td></tr>`).join('')}</tbody></table></div></div>`:''}
     <div class="box"><h2>Soatlar boʻyicha oʻrtacha bandlik<small>qaysi soatlarda zal toʻla</small></h2><div class="boxb">${stackChart(hrows,['var(--c3)'],x=>Math.round(x)+'%')}</div></div>
@@ -1434,6 +1545,7 @@ function vReport(m){
         <div class="legend">${Object.keys(mm).map(k=>`<span><i style="background:${mc[k]}"></i>${METHODS[k]} · ${num(mm[k])} (${Math.round(mm[k]/mt*100)}%)</span>`).join('')}</div></div></div></div>
     <div class="note">Oʻtgan kunlar uchun raqamlar namuna maʼlumot. «Kassada naqd» — smena boshidagi kassa + davr ichida naqd kelgan pul (kompyuter, bar, akkaunt toʻldirish, qarz toʻlovi) − naqd chiqimlar.</div></div>`;
   $$('[data-rp]',m).forEach(b=>b.onclick=()=>{ui.rp=repRange(b.dataset.rp);vReport(m)});
+  $$('[data-unhide]',m).forEach(b=>b.onclick=()=>guard('kassa','Kassa summasini koʻrish',()=>vReport(m)));
   $('#r-go').onclick=()=>{const f=new Date(v('rf-d')+'T'+(v('rf-t')||'00:00')).getTime(),t=new Date(v('rt-d')+'T'+(v('rt-t')||'23:59')).getTime();
     if(!f||!t)return toast('Sanani toʻliq kiriting','err');if(f>t)return toast('«Dan» sanasi «Gacha» dan keyin boʻlmasligi kerak','err');ui.rp={pre:'custom',f,t};vReport(m)};
 }
@@ -1488,17 +1600,17 @@ function tariffModal(id){
     onMount:ov=>{const u=()=>{const pk=v('tf-t')==='package';$('#tf-mw').hidden=!pk;$('#tf-pl').firstChild.textContent=pk?'Paket narxi (soʻm)':'Soatiga narx (soʻm)'};ov.addEventListener('change',u);u()}});
 }
 function vTariffs(m){
-  const adm=can('tarifEdit'),now=new Date();
+  const adm=true,now=new Date();
   m.innerHTML=`<div class="page"><div class="ph"><h1>Tariflar</h1>${adm?'<button class="btn pri" type="button" id="tf-new">Yangi tarif</button>':''}</div>
     <div class="box"><div class="tbl"><table class="t"><thead><tr><th>Tarif</th><th>Turi</th><th class="r">Narx</th><th>Davomiylik</th><th>Kunlar</th><th>Vaqt</th><th>Holat</th><th></th></tr></thead><tbody>
     ${S.tariffs.map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${t.type==='hour'?'Soatbay':'Paket'}</td><td class="r">${t.price?som(t.price)+(t.type==='hour'?' / soat':''):'<span class="pill p-pause">Narx kiritilmagan</span>'}</td>
       <td>${t.type==='package'?durTxt(t.minutes):'—'}</td><td>${t.days.length===7?'Har kuni':[1,2,3,4,5,6,0].filter(d=>t.days.includes(d)).map(d=>WD[d]).join(', ')}</td><td>${t.from&&t.to?t.from+' – '+t.to:'Kun boʻyi'}</td>
       <td>${!t.active?'<span class="pill p-mut">Oʻchirilgan</span>':applies(t,now)?'<span class="pill p-free">Hozir amal qiladi</span>':'<span class="pill p-mut">Hozir emas</span>'}</td>
       <td class="act">${adm?`<button class="btn sm" type="button" data-te="${t.id}">Tahrirlash</button><button class="btn sm dng" type="button" data-tx="${t.id}">Oʻchirish</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>
-    <div class="note">Narxi kiritilmagan yoki hozirgi vaqtga toʻgʻri kelmaydigan tariflar Start oynasida tanlab boʻlmaydi. ${adm?'':'Tariflarni oʻzgartirishga ruxsatingiz yoʻq.'}</div></div>`;
-  if($('#tf-new'))$('#tf-new').onclick=()=>tariffModal(null);
-  $$('[data-te]',m).forEach(b=>b.onclick=()=>tariffModal(b.dataset.te));
-  $$('[data-tx]',m).forEach(b=>b.onclick=()=>{const t=tariff(b.dataset.tx);confirmM('Tarifni oʻchirish',`«${esc(t.name)}» tarifi oʻchirilsinmi? Ochiq seanslar eski narxda davom etadi.`,()=>{S.tariffs=S.tariffs.filter(x=>x!==t);commit()},'Oʻchirish')});
+    <div class="note">Narxi kiritilmagan yoki hozirgi vaqtga toʻgʻri kelmaydigan tariflar Start oynasida tanlab boʻlmaydi.</div></div>`;
+  $('#tf-new').onclick=()=>guard('tarifEdit','Tarif qoʻshish',()=>tariffModal(null));
+  $$('[data-te]',m).forEach(b=>b.onclick=()=>guard('tarifEdit','Tarifni tahrirlash',()=>tariffModal(b.dataset.te)));
+  $$('[data-tx]',m).forEach(b=>b.onclick=()=>guard('tarifEdit','Tarifni oʻchirish',()=>{const t=tariff(b.dataset.tx);confirmM('Tarifni oʻchirish',`«${esc(t.name)}» tarifi oʻchirilsinmi? Ochiq seanslar eski narxda davom etadi.`,()=>{S.tariffs=S.tariffs.filter(x=>x!==t);commit()},'Oʻchirish')}));
 }
 
 /* =================== SOZLAMALAR =================== */
@@ -1506,12 +1618,12 @@ const SSEC=[['pcs','Kompyuterlar'],['lock','Qulf ekrani'],['klub','Klub'],['user
 function vSettings(m){
   if(!can('sozlamalar'))return vZal(m);
   let sec=SSEC.find(x=>x[0]===ui.setSec)||SSEC[0];
-  if(sec[2]&&!isAdmin())sec=SSEC[0];
+  if(sec[2]&&!adminish())sec=SSEC[0];
   ui.setSec=sec[0];
   m.innerHTML=`<div class="page"><div class="ph"><h1>Sozlamalar</h1></div><div class="set">
-    <nav class="set-nav box" aria-label="Sozlamalar boʻlimlari">${SSEC.map(([k,l,a])=>`<button type="button" data-ss="${k}" class="${ui.setSec===k?'on':''}"${a&&!isAdmin()?' disabled title="Faqat admin uchun"':''}>${l}</button>`).join('')}</nav>
+    <nav class="set-nav box" aria-label="Sozlamalar boʻlimlari">${SSEC.map(([k,l,a])=>`<button type="button" data-ss="${k}" class="${ui.setSec===k?'on':''}"${a&&!adminish()?' data-lock="1" title="Administrator paroli soʻraladi"':''}>${l}</button>`).join('')}</nav>
     <div class="set-body" id="setb"></div></div></div>`;
-  $$('[data-ss]',m).forEach(b=>b.onclick=()=>{ui.setSec=b.dataset.ss;vSettings(m)});
+  $$('[data-ss]',m).forEach(b=>b.onclick=()=>{const g=()=>{ui.setSec=b.dataset.ss;vSettings(m)};b.dataset.lock?guard(null,'Sozlamalar › '+b.textContent,g):g()});
   ({pcs:setPcs,lock:setLock,klub:setKlub,users:setUsers,disc:setDisc,tarif:setTarif,ui:setUi,data:setData,clean:setClean}[ui.setSec])($('#setb'));
 }
 const sw=(id,on,label)=>`<span class="sw"><input type="checkbox" id="${id}"${on?' checked':''}${label?` aria-label="${esc(label)}"`:''}></span>`;
@@ -1590,7 +1702,7 @@ function pcsServer(b,tabs){
       <div class="scard"><div class="l">Port</div><input class="big-in mono" id="sv-port" type="number" min="1" max="65535" value="${sv.port}" style="max-width:140px" aria-label="Port"><div class="s">Windows Firewall shu portga ruxsat berishi kerak</div></div>
       <div class="scard"><div class="l">Server holati</div><div class="big ok-t">Ishlayapti</div><div class="s">Ulangan: <b class="bn">${con}</b> · juftlangan: <b class="bn">${par}</b> / ${S.pcs.length}</div></div>
       <div class="scard hl"><div class="l">Ulanish kodi</div><div class="big mono">${sv.code.slice(0,3)} ${sv.code.slice(3)}</div><div class="qk"><button class="btn sm" type="button" id="sv-new">Yangi kod</button><button class="btn sm" type="button" id="sv-copy">Nusxalash</button></div></div>
-      <div class="scard"><div class="l">Klient xizmat paroli</div><div class="big ${sv.svcPass?'ok-t':'bad-t'}">${sv.svcPass?'Oʻrnatilgan':'Oʻrnatilmagan'}</div><div class="s">Qulfni ochish <kbd>Ctrl+Alt+K</kbd> va klientdagi sozlamalar uchun · <button class="btn sm" type="button" id="sv-pw">Oʻzgartirish</button></div></div>
+      <div class="scard"><div class="l">Klient xizmat paroli</div><div class="big ${sv.svcPass?'ok-t':'bad-t'}">${sv.svcPass?'Oʻrnatilgan':'Oʻrnatilmagan'}</div><div class="s">Qulfni ochish <kbd>${esc(sv.hotkey||'Ctrl+Alt+K')}</kbd> va ulanish sozlamalari uchun · <button class="btn sm" type="button" id="sv-pw">Oʻzgartirish</button></div></div>
     </div>
     <div class="scard sync"><div><div class="l">Admin kompyuter vaqti</div><div class="big mono" id="srv-clk">${hms(now)}</div><div class="s">${dstr(now)}</div></div>
       <div class="sync-t"><label class="ck">${sw('sv-sync',sv.sync,'Vaqt sinxronizatsiyasi')}<b>Vaqt sinxronizatsiyasi ${sv.sync?'yoqilgan':'oʻchirilgan'}</b></label>
@@ -1602,9 +1714,22 @@ function pcsServer(b,tabs){
   $('#sv-port').onchange=e=>{const x=Math.round(+e.target.value);if(!(x>=1&&x<=65535)){e.target.classList.add('bad');return toast('Port 1 dan 65535 gacha boʻlishi kerak','err')}e.target.classList.remove('bad');sv.port=x;save();toast('Port saqlandi')};
   $('#sv-new').onclick=()=>confirmM('Yangi ulanish kodi','Yangi kod yaratilsinmi? Allaqachon juftlangan kompyuterlar ulanishda davom etadi, yangi kompyuterlar faqat yangi kod bilan ulanadi.',()=>{sv.code=String(100000+Math.floor(Math.random()*900000));addLog('info','Yangi ulanish kodi yaratildi');save();again()},'Yaratish');
   $('#sv-copy').onclick=()=>{const c=sv.code;try{navigator.clipboard.writeText(c).then(()=>toast('Kod nusxalandi: '+c),()=>toast('Nusxalab boʻlmadi — kod: '+c,'err'))}catch(e){toast('Nusxalab boʻlmadi — kod: '+c,'err')}};
-  $('#sv-pw').onclick=()=>modal({title:'Klient xizmat paroli',body:`<div class="frm"><label>Yangi parol<input id="sp-1" type="password" autocomplete="new-password"></label><label>Takrorlang<input id="sp-2" type="password" autocomplete="new-password"></label><div class="note">Bu parol klient kompyuterda qulfni vaqtincha ochish (<kbd>Ctrl+Alt+K</kbd>) va klient sozlamalarini oʻzgartirish uchun soʻraladi.</div><div class="err" id="sp-e"></div></div>`,
-    actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'pri',run:()=>{const a=v('sp-1');if(a.length<4)return $('#sp-e').textContent='Kamida 4 ta belgi',false;if(a!==v('sp-2'))return $('#sp-e').textContent='Parollar mos kelmadi',false;
-      sv.svcPass=a;addLog('info','Klient xizmat paroli oʻzgartirildi');save();again();toast('Parol saqlandi va kompyuterlarga yuborildi')}}]});
+  $('#sv-pw').onclick=()=>{let hk=sv.hotkey||'Ctrl+Alt+K';
+    modal({title:'Klient xizmat paroli',body:`<div class="frm"><p style="margin:0">Klient kompyuterda qulfni qoʻlda ochish va ulanish sozlamalarini ochish uchun soʻraladi. Agentda saqlanadi, shuning uchun admin dasturi oʻchiq boʻlsa ham ishlaydi.</p>
+      <label>Yangi parol<input id="sp-1" type="password" autocomplete="new-password"${sv.svcPass?' placeholder="Oʻzgartirmaslik uchun boʻsh qoldiring"':''}></label>
+      <label>Parolni takrorlang<input id="sp-2" type="password" autocomplete="new-password"></label>
+      <label>Qulfni ochish kombinatsiyasi<input id="sp-k" readonly value="${esc(hk)}" placeholder="Ctrl+Alt+P"></label>
+      <div class="note">Maydonni bosib, tugmalarni birga bosing — masalan Ctrl+Alt+P.</div><div class="err" id="sp-e"></div></div>`,
+      actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'dark',run:()=>{const a=v('sp-1'),er=$('#sp-e');
+        if(a||!sv.svcPass){if(a.length<4)return er.textContent='Parol kamida 4 ta belgi boʻlishi kerak',false;if(a!==v('sp-2'))return er.textContent='Parollar mos kelmadi',false}
+        const ch=[];if(a){sv.svcPass=a;ch.push('parol')}if(hk!==sv.hotkey){sv.hotkey=hk;ch.push('kombinatsiya '+hk)}
+        if(!ch.length)return toast('Oʻzgarish yoʻq');
+        addLog('info',`Klient xizmat sozlamasi oʻzgartirildi: ${ch.join(', ')} — ${me().name}`);save();again();toast('Saqlandi va kompyuterlarga yuborildi')}}],
+      onMount:ov=>{const k=$('#sp-k',ov);k.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key==='Escape')return;e.preventDefault();
+        if(['Control','Alt','Shift','Meta'].includes(e.key))return;const parts=[];if(e.ctrlKey)parts.push('Ctrl');if(e.altKey)parts.push('Alt');if(e.shiftKey)parts.push('Shift');if(e.metaKey)parts.push('Win');
+        if(!parts.length||(parts.length===1&&parts[0]==='Shift'))return $('#sp-e').textContent='Ctrl yoki Alt bilan birga bosing';
+        const key=/^Key[A-Z]$/.test(e.code)?e.code.slice(3):/^Digit\d$/.test(e.code)?e.code.slice(5):/^F\d+$/.test(e.key)?e.key:e.key.length===1?e.key.toUpperCase():e.key;
+        hk=parts.concat(key).join('+');k.value=hk;$('#sp-e').textContent=''})}})};
   $('#sv-sync').onchange=e=>{sv.sync=e.target.checked;save();again()};
   $('#sv-now').onclick=()=>{const n=S.pcs.filter(p=>p.status!=='off').length;sv.lastSync=Date.now();addLog('info',`Vaqt sinxronlandi: ${n} ta kompyuter (${hms(sv.lastSync)})`);save();again();toast(`${n} ta kompyuter soati sinxronlandi`)};
 }
@@ -1748,36 +1873,48 @@ function setKlub(b){
 }
 
 /* ---------- Foydalanuvchilar va huquqlar ---------- */
+const permPills=u=>{const l=PERMS.filter(x=>u.perms&&u.perms[x[0]]);return l.length?`<div class="pills">${l.map(x=>`<span class="pill p-busy">${x[3]}</span>`).join('')}</div>`:'<span class="muted">—</span>'};
 function setUsers(b){
-  b.innerHTML=`<div class="box"><h2>Foydalanuvchilar</h2><div class="tbl"><table class="t"><thead><tr><th>Ism</th><th>Login</th><th>Rol</th><th></th></tr></thead><tbody>
-    ${S.users.map(u=>`<tr><td><b>${esc(u.name)}</b>${u.login===S.user?'<small>hozir tizimda</small>':''}</td><td class="mono">${esc(u.login)}</td><td>${u.role==='admin'?'<span class="pill p-acc">Admin</span>':'<span class="pill p-mut">Operator</span>'}</td>
-      <td class="act"><button class="btn sm" type="button" data-ue="${esc(u.login)}">Tahrirlash</button><button class="btn sm dng" type="button" data-ux="${esc(u.login)}">Oʻchirish</button></td></tr>`).join('')}
-    </tbody></table></div><div class="btnrow"><button class="btn pri" type="button" id="u-new">Yangi foydalanuvchi</button></div></div>
-    <div class="box"><h2>Huquqlar<small>operator nimalarni qila oladi</small></h2>
-    <div class="perm h"><span>Amal</span><span class="c">Admin</span><span class="c">Operator</span></div>
-    ${PERMS.map(([k,l,d])=>`<label class="perm"><span>${l}${d?`<small>${d}</small>`:''}</span><span class="c"><input type="checkbox" checked disabled aria-label="Admin"></span><span class="c"><input type="checkbox" data-pm="${k}"${S.perms[k]?' checked':''} aria-label="Operator: ${l}"></span></label>`).join('')}
-    <div class="btnrow"><button class="btn" type="button" id="pm-def">Standart holatga qaytarish</button><span class="note">Oʻzgarish darhol saqlanadi.</span></div></div>`;
+  const noPass=!S.users.some(u=>u.pass&&u.active!==false);
+  b.innerHTML=`<div class="box"><div class="boxh"><div><h2 class="h2i">Operatorlar va ruxsatlar</h2><p class="note" style="margin:4px 0 0">Jurnalda kim nima qilgani yoziladi. Ruxsat berilmagan amallarda administrator paroli soʻraladi.</p></div>
+      <button class="btn dark" type="button" id="u-new">Operator qoʻshish</button></div>
+    <div class="boxb"><div class="info">${noPass?'<b>Hozir hech kimda parol yoʻq — dastur parolsiz ochiladi.</b> Operator uchun parol oʻrnatsangiz, dastur ochilganda kirish ekrani chiqadi.':'<b>Parol oʻrnatilgan — dastur ochilganda kirish ekrani chiqadi.</b> Parolsiz foydalanuvchilar parol kiritmasdan kiradi.'}</div>
+    <div class="box" style="margin-top:12px"><div class="tbl"><table class="t"><thead><tr><th>Ism</th><th>Login</th><th>Rol</th><th>Parol</th><th>Ruxsatlar</th><th>Holat</th><th></th></tr></thead><tbody>
+    ${S.users.map(u=>`<tr><td><b>${esc(u.name)}</b>${u.login===S.user?' <span class="pill p-free">siz</span>':''}</td><td>${esc(u.login)}</td><td>${u.role==='admin'?'Administrator':'Operator'}</td>
+      <td><span class="pill ${u.pass?'p-free':'p-busy'}">${u.pass?'Bor':'Yoʻq'}</span></td><td>${u.role==='admin'?'<span class="muted">Hammasi</span>':permPills(u)}</td>
+      <td>${u.active===false?'<span class="pill p-off">Bloklangan</span>':'<span class="pill p-free">Faol</span>'}</td>
+      <td class="act"><button class="btn sm" type="button" data-um="${esc(u.login)}" aria-label="${esc(u.name)} — amallar" aria-haspopup="menu">···</button></td></tr>`).join('')}
+    </tbody></table></div></div></div></div>`;
   $('#u-new').onclick=()=>userModal(null);
-  $$('[data-ue]',b).forEach(x=>x.onclick=()=>userModal(x.dataset.ue));
-  $$('[data-ux]',b).forEach(x=>x.onclick=()=>{const u=S.users.find(y=>y.login===x.dataset.ux);
-    if(u.login===S.user)return toast('Oʻzingizni oʻchira olmaysiz','err');
-    if(u.role==='admin'&&S.users.filter(y=>y.role==='admin').length<2)return toast('Kamida bitta admin qolishi kerak','err');
-    confirmM('Foydalanuvchini oʻchirish',`${esc(u.name)} (${esc(u.login)}) oʻchirilsinmi?`,()=>{S.users=S.users.filter(y=>y!==u);commit()},'Oʻchirish')});
-  $$('[data-pm]',b).forEach(x=>x.onchange=()=>{S.perms[x.dataset.pm]=x.checked;save();renderNav();toast('Huquq saqlandi')});
-  $('#pm-def').onclick=()=>{S.perms=Object.assign({},DEF_PERMS);save();renderNav();setUsers(b);toast('Standart huquqlar tiklandi')};
+  $$('[data-um]',b).forEach(x=>x.onclick=()=>{const u=S.users.find(y=>y.login===x.dataset.um),self=u.login===S.user,lastAdmin=u.role==='admin'&&S.users.filter(y=>y.role==='admin'&&y.active!==false).length<2;
+    popMenu(x,[{icon:MI.edit,label:u.role==='admin'?'Tahrirlash (ism, rol)':'Tahrirlash va ruxsatlar',run:()=>userModal(u.login)},
+      {icon:MI.key,label:u.pass?'Parolni oʻzgartirish':'Parol oʻrnatish',run:()=>userPwModal(u.login)},
+      ...(u.pass?[{icon:MI.key,label:'Parolni olib tashlash',disabled:u.role==='admin'&&!!S.users.find(y=>y.role!=='admin'&&y.pass),run:()=>confirmM('Parolni olib tashlash',`${esc(u.name)} parolsiz kiradigan boʻladi.`,()=>{u.pass='';addLog('warn',`Parol olib tashlandi: ${u.name} — ${me().name}`);commit()},'Olib tashlash')}]:[]),
+      {icon:MI.lock,label:u.active===false?'Faollashtirish':'Bloklash',disabled:self||(u.active!==false&&lastAdmin),run:()=>{u.active=u.active===false;addLog('warn',`${u.active?'Faollashtirildi':'Bloklandi'}: ${u.name} — ${me().name}`);commit()}},
+      '-',{icon:MI.del,label:'Oʻchirish',danger:true,disabled:self||lastAdmin,run:()=>confirmM('Foydalanuvchini oʻchirish',`${esc(u.name)} (${esc(u.login)}) oʻchirilsinmi? Jurnaldagi yozuvlar saqlanadi.`,()=>{S.users=S.users.filter(y=>y!==u);addLog('warn',`Foydalanuvchi oʻchirildi: ${u.name} — ${me().name}`);commit()},'Oʻchirish')}])});
 }
 function userModal(login){
-  const u=login?S.users.find(x=>x.login===login):{name:'',login:'',role:'operator',pass:''};
-  modal({title:login?'Foydalanuvchini tahrirlash':'Yangi foydalanuvchi',body:`<div class="frm"><label>Ism<input id="us-n" value="${esc(u.name)}"></label>
-    <div class="row2"><label>Login<input id="us-l" value="${esc(u.login)}"${login?' disabled':''} autocomplete="off"></label><label>Rol<select id="us-r"><option value="operator"${u.role==='operator'?' selected':''}>Operator</option><option value="admin"${u.role==='admin'?' selected':''}>Admin</option></select></label></div>
-    <label>${login?'Yangi parol (boʻsh qolsa oʻzgarmaydi)':'Parol'}<input id="us-p" type="text" autocomplete="off"></label><div class="err" id="us-e"></div></div>`,
-    actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'pri',run:()=>{const n=v('us-n').trim(),l=v('us-l').trim().toLowerCase(),pw=v('us-p'),r=v('us-r'),e=$('#us-e');
+  const u=login?S.users.find(x=>x.login===login):{name:'',login:'',role:'operator',pass:'',perms:Object.assign({},DEF_PERMS)};
+  const pp=u.perms||DEF_PERMS;
+  modal({title:login?`${u.name} — tahrirlash`:'Operator qoʻshish',wide:true,body:`<div class="frm"><div class="row2"><label>Ism<input id="us-n" value="${esc(u.name)}"></label>
+    <label>Rol<select id="us-r"><option value="operator"${u.role==='operator'?' selected':''}>Operator</option><option value="admin"${u.role==='admin'?' selected':''}>Administrator</option></select></label></div>
+    <div class="row2"><label>Login<input id="us-l" value="${esc(u.login)}"${login?' disabled':''} autocomplete="off"></label>${login?'':'<label>Parol (ixtiyoriy)<input id="us-p" type="password" autocomplete="new-password"></label>'}</div>
+    <div class="flabel" id="us-pw">Ruxsatlar<div class="pgrid">${PERMS.map(([k,l,d])=>`<label><input type="checkbox" data-up="${k}"${pp[k]?' checked':''}><span>${l}${d?`<small>${d}</small>`:''}</span></label>`).join('')}</div>
+    <span class="note">Belgilanmagan amallarni bajarishda administrator paroli soʻraladi.</span></div><div class="err" id="us-e"></div></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'dark',run:ov=>{const n=v('us-n').trim(),l=v('us-l').trim().toLowerCase(),r=v('us-r'),e=$('#us-e');
       if(!n||!l)return e.textContent='Ism va login majburiy',false;
-      if(!login&&!pw)return e.textContent='Parolni kiriting',false;
       if(!login&&S.users.some(x=>x.login===l))return e.textContent='Bu login band',false;
-      if(login&&u.role==='admin'&&r!=='admin'&&S.users.filter(x=>x.role==='admin').length<2)return e.textContent='Oxirgi adminning rolini oʻzgartirib boʻlmaydi',false;
-      if(login){u.name=n;u.role=r;if(pw)u.pass=pw}else S.users.push({login:l,name:n,role:r,pass:pw});
-      commit();toast('Saqlandi')}}]});
+      if(login&&u.role==='admin'&&r!=='admin'&&S.users.filter(x=>x.role==='admin').length<2)return e.textContent='Oxirgi administratorning rolini oʻzgartirib boʻlmaydi',false;
+      const perms={};$$('[data-up]',ov).forEach(x=>perms[x.dataset.up]=x.checked);
+      if(login){u.name=n;u.role=r;u.perms=perms;addLog('info',`Foydalanuvchi oʻzgartirildi: ${n} — ${me().name}`)}
+      else{S.users.push({login:l,name:n,role:r,pass:v('us-p'),active:true,perms});addLog('info',`Yangi foydalanuvchi: ${n} (${r==='admin'?'administrator':'operator'}) — ${me().name}`)}
+      commit();toast('Saqlandi')}}],
+    onMount:ov=>{const t=()=>{$('#us-pw',ov).hidden=v('us-r')==='admin'};$('#us-r',ov).onchange=t;t()}});
+}
+function userPwModal(login){const u=S.users.find(x=>x.login===login);
+  modal({title:`${u.name} — parol`,body:`<div class="frm"><label>Yangi parol<input id="up-1" type="password" autocomplete="new-password"></label><label>Parolni takrorlang<input id="up-2" type="password" autocomplete="new-password"></label><div class="err" id="up-e"></div></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Saqlash',cls:'dark',run:()=>{const a=v('up-1');if(!a)return $('#up-e').textContent='Parolni kiriting',false;if(a!==v('up-2'))return $('#up-e').textContent='Parollar mos kelmadi',false;
+      u.pass=a;addLog('info',`Parol oʻrnatildi: ${u.name} — ${me().name}`);commit();toast('Parol saqlandi')}}]});
 }
 
 /* ---------- Chegirmalar: qarz toʻlovida ---------- */
@@ -1980,12 +2117,16 @@ function updateShell(){
 }
 
 /* =================== Foydalanuvchini almashtirish =================== */
-function loginModal(){
-  modal({title:'Tizimga kirish',body:`<div class="frm"><label>Foydalanuvchi<select id="lg-u">${S.users.map(u=>`<option value="${u.login}"${u.login===S.user?' selected':''}>${esc(u.name)} (${u.role==='admin'?'admin':'operator'})</option>`).join('')}</select></label>
-    <label>Parol<input id="lg-p" type="password" autocomplete="off"></label><div class="note">Prototip parollari: admin — <b>admin</b>, operator — <b>1111</b></div><div class="err" id="lg-e"></div></div>`,
-    actions:[{label:'Bekor qilish'},{label:'Kirish',cls:'pri',run:()=>{const u=S.users.find(x=>x.login===v('lg-u'));if(!u||u.pass!==v('lg-p'))return $('#lg-e').textContent='Parol notoʻgʻri',false;
-      S.user=u.login;addLog('info',`Tizimga kirdi: ${u.name}`);if(!viewOk(ui.view))ui.view='zal';commit();toast(`Xush kelibsiz, ${u.name}`)}}],
-    onMount:ov=>$('#lg-p',ov).addEventListener('keydown',e=>{if(e.key==='Enter')$('.dlg-f .pri',ov).click()})});
+function loginModal(start){
+  const us=S.users.filter(u=>u.active!==false);
+  const def=us.find(u=>u.login===S.user)||us[0];
+  const old=S.users.some(u=>u.pass==='admin'||u.pass==='1111');
+  modal({title:start?`${S.settings.name} — kirish`:'Foydalanuvchini almashtirish',locked:!!start,body:`<div class="frm"><label>Foydalanuvchi<select id="lg-u">${us.map(u=>`<option value="${esc(u.login)}"${u===def?' selected':''}>${esc(u.name)} (${u.role==='admin'?'administrator':'operator'})</option>`).join('')}</select></label>
+    <label id="lg-pw">Parol<input id="lg-p" type="password" autocomplete="off"></label>${old?'<div class="note">Prototipdagi boshlangʻich parollar: admin — <b>admin</b>, operator — <b>1111</b></div>':''}<div class="err" id="lg-e"></div></div>`,
+    actions:[...(start?[]:[{label:'Bekor qilish'}]),{label:'Kirish',cls:'pri',run:()=>{const u=us.find(x=>x.login===v('lg-u'));if(!u)return false;if((u.pass||'')!==(u.pass?v('lg-p'):''))return $('#lg-e').textContent='Parol notoʻgʻri',false;
+      S.user=u.login;ui.elev=0;addLog('info',`Tizimga kirdi: ${u.name}`);if(!viewOk(ui.view))ui.view='zal';commit();toast(`Xush kelibsiz, ${u.name}`)}}],
+    onMount:ov=>{const t=()=>{const u=us.find(x=>x.login===v('lg-u'));$('#lg-pw',ov).hidden=!(u&&u.pass)};$('#lg-u',ov).onchange=t;t();
+      $('#lg-p',ov).addEventListener('keydown',e=>{if(e.key==='Enter')$('.dlg-f .pri',ov).click()})}});
 }
 
 /* =================== Ishga tushirish =================== */
@@ -1999,6 +2140,7 @@ $('#nav2').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(
 $('#meBtn').onclick=loginModal;
 $('#themeBtn').onclick=()=>{const cur=S.settings.theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):S.settings.theme;S.settings.theme=cur==='dark'?'light':'dark';applyTheme();save();renderNav()};
 save();renderNav();render();
+if(S.users.some(u=>u.active!==false&&u.pass))loginModal(true);
 
 setInterval(()=>{
   const now=Date.now();let ch=false;
