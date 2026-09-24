@@ -645,10 +645,13 @@ function finishSession(n,method,auto,debtTo){
   const m=due>0?method:'none';
   if(s.mode==='post')led('pc',pcCost,m,{pc:n,clientId:s.clientId});
   s.bar.forEach(b=>led('bar',b.price*b.qty,m,{pid:b.pid,qty:b.qty,cost:b.cost*b.qty,pc:n,clientId:s.clientId}));
-  if(m==='debt')S.debts.push({id:uid(),clientId:debtTo?debtTo.clientId:s.clientId,name:debtTo?debtTo.name:who(s),phone:debtTo&&debtTo.phone||'',amount:due,t:now,note:`Seans: PC ${n}`+(auto?' (vaqt tugadi, avtomatik)':'')});
+  let part=0;
+  if(m==='debt'){const dd={id:uid(),clientId:debtTo?debtTo.clientId:s.clientId,name:debtTo?debtTo.name:who(s),phone:debtTo&&debtTo.phone||'',amount:due,t:now,note:`Seans: PC ${n}`+(auto?' (vaqt tugadi, avtomatik)':'')};S.debts.push(dd);
+    if(debtTo&&debtTo.payNow>0){part=Math.min(debtTo.payNow,due);const lid=uid();S.ledger.push({id:lid,t:now,kind:'debtpay',amount:part,method:debtTo.payMethod,clientId:dd.clientId});
+      S.debtPays.push({id:uid(),key:debtKey(dd),clientId:dd.clientId,name:dd.name,t:now,amount:part,disc:0,pct:0,method:debtTo.payMethod,ledgerId:lid,note:'Seans yakunida qisman'})}}
   S.history.push({id:uid(),pc:n,clientId:s.clientId,start:s.start,end:now,minutes:mins,pcCost,barCost:bt,total:pcCost+bt,method:m,mode:s.mode});
   pc.status='free';pc.session=null;
-  const tail=due>0?(m==='debt'?`Qarz daftariga yozildi ${som(due)}${debtTo&&debtTo.name!==who(s)?' → '+debtTo.name:''}`:`Mijozdan olindi ${som(due)} (${METHODS[m]})`):(back?'':'Qoʻshimcha toʻlov yoʻq');
+  const tail=due>0?(m==='debt'?(part?`Hozir toʻlandi ${som(part)} (${METHODS[debtTo.payMethod]}), qarzga yozildi ${som(due-part)}`:`Qarz daftariga yozildi ${som(due)}`)+`${debtTo&&debtTo.name!==who(s)?' → '+debtTo.name:''}`:`Mijozdan olindi ${som(due)} (${METHODS[m]})`):(back?'':'Qoʻshimcha toʻlov yoʻq');
   const ret=back?`${tail?' / ':''}Mijozga qaytarildi ${som(back)} (${METHODS[refund.method]})`:'';
   addLog(due>0||back?'warn':'info',`Seans yakunlandi PC ${n} >> ${dstr(now)} ${hms(now)} / ${s.tname} / ${who(s)} / ${som(pcCost+bt)} / ${durTxt(mins)} / ${tail}${ret}`+(auto?' / avtomatik':''),0,{in:due>0&&m!=='debt'?due:0,out:back,m:due>0&&m!=='debt'?m:back?refund.method:''});
 }
@@ -1202,12 +1205,12 @@ function stopModal(n){
   const done=r=>`PC ${n}: seans yakunlandi${unused?` · qaytarildi ${som(unused)}`:''}`;
   const acts=[{label:'Bekor qilish'},
     {label:'Qarzga yozish',cls:'dng',disabled:!due,title:'Toʻlash kerak summa yoʻq',run:()=>{debtorPick(`PC ${n}: ${som(due)} qarzga — kimga yoziladi?`,{clientId:s.clientId,name:who(s)},t=>{
-      if(!pcBy(n).session||pcBy(n).session.id!==s.id)return toast('Seans allaqachon yakunlangan','err');finishSession(n,'debt',false,t);commit();toast(`${t.name}: ${som(due)} qarz daftariga yozildi`)})}},
+      if(!pcBy(n).session||pcBy(n).session.id!==s.id)return toast('Seans allaqachon yakunlangan','err');finishSession(n,'debt',false,t);commit();toast(t.payNow?`${t.name}: ${som(t.payNow)} toʻlandi, ${som(due-t.payNow)} qarzga yozildi`:`${t.name}: ${som(due)} qarz daftariga yozildi`)},due)}},
     {label:due>0?'Toʻlandi, yakunlash':'Seansni yakunlash',cls:'pri',run:()=>{finishSession(n,due>0?v('sp-m'):'none',false);commit();toast(done())}}];
   modal({title:`Seansni yakunlash — PC ${n}`,body,actions:acts});
 }
 /* Qarzga yozishda qarzdorni tanlash: mavjud qarzdorlar, mijozlar yoki yangi odam */
-function debtorPick(title,def,cb){
+function debtorPick(title,def,cb,amount){
   const ds=Object.values(debtors()).sort((a,b)=>b.left-a.left||a.name.localeCompare(b.name));
   const dKeys=new Set(ds.map(x=>x.key)),cl=S.clients.filter(c=>!dKeys.has('c:'+c.id));
   const defKey=def.clientId?'c:'+def.clientId:'n:'+String(def.name||'').trim().toLowerCase();
@@ -1218,15 +1221,23 @@ function debtorPick(title,def,cb){
   modal({title,wide:true,body:`<div class="frm"><input id="dp-q" type="search" placeholder="Ism yoki telefon boʻyicha qidirish" aria-label="Qarzdorni qidirish">
     <div class="dpl" id="dp-l" role="listbox" aria-label="Qarzdorlar"></div>
     <details id="dp-new"><summary>Yangi qarzdor</summary><div class="row2" style="margin-top:8px"><label>Ism<input id="dp-n" placeholder="Masalan: Jamshid"></label><label>Telefon<input id="dp-ph" inputmode="tel" placeholder="+998 __ ___ __ __"></label></div></details>
+    ${amount?`<div class="row2"><label>Hozir toʻlanadigan qism (ixtiyoriy)<input id="dp-pay" type="number" min="0" max="${amount-1}" step="500" value="0" inputmode="numeric"></label><label>Toʻlov usuli<select id="dp-pm">${methodOpts('cash')}</select></label></div>
+    <div class="qk">${[.25,.5,.75].map(f=>r100(amount*f)).filter(x=>x>0&&x<amount).map(x=>`<button type="button" class="btn sm" data-pp="${x}">${num(x)}</button>`).join('')}</div>
+    <div class="sumbox" id="dp-sum"></div>`:''}
     <div class="err" id="dp-e"></div></div>`,
     actions:[{label:'Bekor qilish'},{label:'Qarzga yozish',cls:'pri',run:()=>{
-      if($('#dp-new').open&&v('dp-n').trim()){cb({clientId:null,name:v('dp-n').trim(),phone:v('dp-ph').trim()});return}
+      const pay=amount?vn('dp-pay'):0,pm=amount?v('dp-pm'):'cash';
+      if(amount&&pay>=amount)return $('#dp-e').textContent=`Toʻliq toʻlansa, «Toʻlandi, yakunlash» tugmasini bosing. Qisman summa ${som(amount)} dan kam boʻlishi kerak`,false;
+      const ex={payNow:pay,payMethod:pm};
+      if($('#dp-new').open&&v('dp-n').trim()){cb(Object.assign({clientId:null,name:v('dp-n').trim(),phone:v('dp-ph').trim()},ex));return}
       if(!pick)return $('#dp-e').textContent='Qarzdorni tanlang yoki yangi qarzdor ismini yozing',false;
-      cb({clientId:pick.clientId,name:pick.name,phone:pick.phone||''})}}],
+      cb(Object.assign({clientId:pick.clientId,name:pick.name,phone:pick.phone||''},ex))}}],
     onMount:ov=>{const draw=()=>{const q=v('dp-q').trim().toLowerCase(),qd=q.replace(/\D/g,'');
       const l=opts.filter(o=>!q||o.name.toLowerCase().includes(q)||(qd.length>=2&&(o.phone||'').replace(/\D/g,'').includes(qd)));
       $('#dp-l',ov).innerHTML=l.map(o=>`<button type="button" role="option" aria-selected="${o===pick}" class="dpo${o===pick?' on':''}" data-k="${esc(o.key)}"><span><b>${esc(o.name)}</b><small>${esc(o.phone||'—')} · ${o.tag}</small></span><span class="${o.left>0?'dleft':'muted'}">${o.left>0?num(o.left):'qarzi yoʻq'}</span></button>`).join('')||'<div class="empty">Topilmadi — «Yangi qarzdor» ni oching</div>';
       $$('.dpo',ov).forEach(b=>b.onclick=()=>{pick=opts.find(o=>o.key===b.dataset.k);$('#dp-new').open=false;draw()})};
+      const sm=()=>{if(!amount)return;const pay=Math.min(vn('dp-pay'),amount);$('#dp-sum',ov).innerHTML=`<div class="ln"><span>Jami</span><span>${som(amount)}</span></div>${pay?`<div class="ln" style="color:var(--ok)"><span>Hozir toʻlanadi (${METHODS[v('dp-pm')]})</span><span>${som(pay)}</span></div>`:''}<div class="ln big"><span>Qarzga yoziladi</span><span style="color:var(--off)">${som(Math.max(0,amount-pay))}</span></div>`;$('#dp-e',ov).textContent=''};
+      if(amount){$('#dp-pay',ov).oninput=sm;$('#dp-pm',ov).onchange=sm;$$('[data-pp]',ov).forEach(b=>b.onclick=()=>{$('#dp-pay').value=b.dataset.pp;sm()});sm()}
       $('#dp-q',ov).oninput=draw;$('#dp-new',ov).addEventListener('toggle',()=>{if($('#dp-new').open){pick=null;draw();$('#dp-n').focus()}});draw()}});
 }
 function stopMany(sel){
