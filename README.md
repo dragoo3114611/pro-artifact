@@ -24,3 +24,9 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 Namuna maʼlumotlarda parol yoʻq — dastur parolsiz ochiladi. Parol oʻrnatilsa, ochilganda kirish oynasi chiqadi.
 
 Ishga tushirish: `index.html` faylini brauzerda oching.
+
+## Windows ilovasi (.exe)
+`desktop/` papkasida Electron loyihasi bor: `index.html` oddiy Windows dasturi sifatida ochiladi (menyusiz oyna, F11 — toʻliq ekran), maʼlumotlar foydalanuvchi profilida saqlanadi.
+- Yigʻish: `cd desktop && npm install && npm run dist` → `desktop/dist/KlubPult-<versiya>-portable.exe` (oʻrnatishsiz ishlaydi).
+- Sinash: `cd desktop && npm start`.
+- GitHub Actions: `index.html` yoki `desktop/` oʻzgarganda «Windows exe» workflow exe faylni yigʻib, *Artifacts* ga qoʻyadi.

@@ -1,0 +1,25 @@
+{
+  "name": "klub-pult",
+  "productName": "Klub Pult",
+  "version": "1.0.0",
+  "description": "Kompyuter klubi boshqaruv paneli",
+  "author": "Klub Pult",
+  "main": "main.js",
+  "scripts": {
+    "prepare-app": "node -e \"require('fs').copyFileSync('../index.html','index.html')\"",
+    "start": "npm run prepare-app && electron .",
+    "dist": "npm run prepare-app && electron-builder --win portable --x64"
+  },
+  "build": {
+    "appId": "uz.klubpult.admin",
+    "productName": "Klub Pult",
+    "files": ["main.js", "index.html"],
+    "directories": { "output": "dist" },
+    "win": { "target": "portable", "signAndEditExecutable": false },
+    "portable": { "artifactName": "KlubPult-${version}-portable.exe" }
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  }
+}
