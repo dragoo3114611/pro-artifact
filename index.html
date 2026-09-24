@@ -429,6 +429,61 @@ kbd{font:600 12px "JetBrains Mono",ui-monospace,monospace;border:1px solid var(-
 .tw-t{font:600 26px/1.1 "JetBrains Mono",ui-monospace,monospace}
 .tw-t.low{color:#ff7a70}
 .tw-s{font-size:12.5px;color:#b8c6d4}
+/* ---------- Mijoz kompyuteri (klient PC prototipi) ---------- */
+.kc-mon{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px;background:#0b0d11}
+.kc-scr{position:relative;width:min(100%,calc((100vh - 76px) * 16 / 9));width:min(100%,calc((100dvh - 76px) * 16 / 9));aspect-ratio:16/9;overflow:hidden;border-radius:6px;background:#000;container-type:inline-size;color:#e6edf5;user-select:none;box-shadow:0 0 0 1px #222 inset}
+.kc-pwr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2cqw;background:#000;color:#5b6270;font-size:max(12px,1.4cqw);text-align:center;padding:0 6cqw}
+.kc-pwr b{font-size:max(16px,2.4cqw);color:#8b93a3;font-weight:600}
+.kc-pwr.boot{background:#05070c;color:#aab4c4}
+.kc-spin{width:max(22px,3cqw);height:max(22px,3cqw);border-radius:50%;border:max(3px,.35cqw) solid rgba(255,255,255,.15);border-top-color:#fff;animation:kcspin .8s linear infinite}
+@keyframes kcspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.kc-spin{animation-duration:2.4s}}
+.kc-desk{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--kc-bg)}
+.kc-desk::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55))}
+.kc-desk>*{position:relative}
+.kc-top{display:flex;align-items:center;gap:1.8cqw;padding:1.2cqw 2.2cqw;background:rgba(0,0,0,.35);font-size:max(11px,1.25cqw);color:#cdd5e3}
+.kc-top b{font-size:max(12px,1.5cqw);color:#fff;letter-spacing:.04em}
+.kc-top button{border:0;background:none;color:inherit;font:inherit;padding:.3cqw .6cqw;border-radius:.4cqw;cursor:pointer}
+.kc-top button.on{color:#fff;box-shadow:inset 0 -2px 0 var(--kc-acc)}
+.kc-grid{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1.4cqw;padding:2.4cqw 24cqw 2cqw 2.4cqw;align-content:start;overflow:hidden}
+.kc-tile{aspect-ratio:3/4;border-radius:.8cqw;border:1px solid rgba(255,255,255,.1);background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03));display:flex;flex-direction:column;justify-content:flex-end;gap:.3cqw;padding:.9cqw;color:#e6edf5;font:inherit;font-size:max(10px,1.15cqw);text-align:left;cursor:pointer;min-width:0}
+.kc-tile:hover{border-color:var(--kc-acc)}
+.kc-tile i{font-style:normal;font-size:max(18px,3cqw);line-height:1;margin-bottom:auto;opacity:.9}
+.kc-tile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kc-bar{display:flex;align-items:center;gap:1cqw;padding:0 1.4cqw;height:max(28px,3.6cqw);background:rgba(8,11,16,.9);font-size:max(10px,1.1cqw);color:#dfe7ef}
+.kc-bar .st{width:max(18px,2.2cqw);height:max(18px,2.2cqw);border-radius:.4cqw;background:var(--kc-acc);flex:none}
+.kc-bar .ap{padding:.35cqw .8cqw;border-radius:.4cqw;background:rgba(255,255,255,.1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:16cqw}
+.kc-bar .rt{margin-left:auto;display:flex;gap:1.4cqw;align-items:center;white-space:nowrap}
+.kc-bar .rt b{font-variant-numeric:tabular-nums}
+.kc-w{box-sizing:border-box;position:absolute;top:5.5cqw;right:2cqw;width:21cqw;min-width:190px;background:rgba(12,16,22,.92);border:1px solid rgba(255,255,255,.14);border-radius:1.1cqw;padding:1.3cqw 1.5cqw;box-shadow:0 1.2cqw 3cqw rgba(0,0,0,.45);font-size:max(11px,1.2cqw);cursor:grab;touch-action:none;z-index:2}
+.kc-w.drag{cursor:grabbing}
+.kc-wh{display:flex;justify-content:space-between;gap:1cqw;color:#8fa3b6;padding-right:2.6cqw}
+.kc-wh b{color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc-wt{font-size:max(22px,3.6cqw);font-weight:600;line-height:1.05;margin:.7cqw 0 .5cqw;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kc-wt.warn{color:#f0b54a}.kc-wt.end{color:#ff6b70}
+.kc-wp{height:max(3px,.4cqw);border-radius:1cqw;background:rgba(255,255,255,.12);overflow:hidden;margin-bottom:.9cqw}
+.kc-wp i{display:block;height:100%;background:var(--kc-acc)}
+.kc-wr{display:grid;gap:.25cqw}
+.kc-wr span{display:flex;justify-content:space-between;gap:1cqw;color:#8fa3b6;min-width:0;white-space:nowrap}
+.kc-wr span>b{color:#e6edf5;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.kc-wb{display:grid;grid-template-columns:1fr 1fr;gap:.6cqw;margin-top:1cqw}
+.kc-wb button{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:.6cqw;padding:.6cqw .4cqw;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+.kc-wb button:only-child{grid-column:1/-1}
+.kc-wb button:hover{border-color:var(--kc-acc)}
+.kc-wm{position:absolute;top:.9cqw;right:.9cqw;border:0;background:rgba(255,255,255,.1);color:#aab4c4;border-radius:.4cqw;width:max(20px,2.3cqw);height:max(18px,2.1cqw);cursor:pointer;font:inherit;line-height:1}
+.kc-w.mini{width:auto;min-width:0;padding:.6cqw 1.1cqw;border-radius:4cqw;display:flex;align-items:center;gap:.9cqw}
+.kc-w.mini .kc-wf{display:none}.kc-w.mini .kc-wm{position:static}
+.kc-w:not(.mini) .kc-pill{display:none}
+.kc-pill{font-weight:600;font-size:max(13px,1.8cqw);font-variant-numeric:tabular-nums}
+.kc-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:5}
+.kc-box{width:40cqw;min-width:260px;background:rgba(14,18,26,.97);border:1px solid rgba(255,255,255,.16);border-left:max(4px,.5cqw) solid var(--kc-acc);border-radius:1.1cqw;padding:2.2cqw;color:#fff}
+.kc-box small{display:block;color:var(--kc-acc);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:max(10px,1.1cqw)}
+.kc-box p{margin:.8cqw 0 1.6cqw;font-size:max(13px,1.7cqw);line-height:1.35}
+.kc-box button{border:0;border-radius:.6cqw;background:var(--kc-acc);color:#111;font:inherit;font-weight:700;padding:.9cqw 2.4cqw;cursor:pointer}
+.kc-toast{position:absolute;left:50%;top:6cqw;transform:translateX(-50%);background:rgba(14,18,26,.96);border:1px solid rgba(255,255,255,.14);border-left:max(4px,.5cqw) solid var(--kc-acc);border-radius:.8cqw;padding:1cqw 1.8cqw;font-size:max(12px,1.35cqw);box-shadow:0 1cqw 3cqw rgba(0,0,0,.45);max-width:60cqw;z-index:6}
+.kc-toast b{display:block;font-size:max(13px,1.5cqw)}
+.kc-toast.red{border-left-color:#e5484d}.kc-toast.green{border-left-color:#2fa77a}
+.kc-state{margin-left:8px;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--panel2);color:var(--text)}
 .tw-b{margin-top:8px;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
 .sh-pop{position:absolute;right:24px;bottom:60px;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 48px));z-index:2}
 .sh-msg{background:#f4f7fa;color:#101820;border-radius:12px;padding:14px 16px;box-shadow:0 12px 34px rgba(0,0,0,.55);display:grid;gap:8px}
@@ -2389,92 +2444,101 @@ function setData(b){
   $('#se-r').onclick=()=>confirmM('Qayta tiklash','Barcha oʻzgarishlar oʻchib, namuna maʼlumotlar qaytadan yaratiladi (hozirgi holat arxiv nusxaga saqlanadi). Davom etasizmi?',()=>{archiveNow('Namuna tiklashdan oldin');seed();migrate();S.user='admin';applyTheme();save();ui.sel.clear();commit();toast('Namuna maʼlumotlar tiklandi')},'Tiklash');
 }
 
-/* =================== MIJOZ EKRANI (klient kompyuter simulyatsiyasi) =================== */
-const sh={n:null};
-/* «Mijoz ekrani» — DUST2 Klient (klient.html) shu yerda ochiladi va Klub Pult bilan jonli bogʻlanadi:
-   har soniyada tanlangan PC holati yuboriladi, klientdan login / vaqt soʻrash / xabar oʻqildi keladi.
-   klient.html yuklanmasa, ichki soddalashtirilgan ekran koʻrsatiladi. */
+/* =================== MIJOZ KOMPYUTERI (klient PC prototipi) ===================
+   Klub Pult ichidagi klient: har bir PC ekranida nima koʻrinishini Klub Pult maʼlumotlari
+   asosida koʻrsatadi — oʻchiq / qayta yuklanish, qulf ekrani (Sozlamalar › Qulf ekrani),
+   akkaunt bilan kirish, ish stoli + taymer, administrator xabarlari va ogohlantirishlar. */
+const sh={n:null,pos:null,mini:false,toast:null,cat:'games'};
+const KC_APPS={games:[['🎯','Counter-Strike 2'],['🛡️','Dota 2'],['🔫','Valorant'],['🪂','PUBG'],['⚽','EA FC 25'],['🚗','GTA V'],['🏗️','Minecraft'],['🚀','Rocket League'],['🗡️','Fortnite'],['🎮','Apex Legends']],
+  apps:[['💬','Discord'],['🟦','Steam'],['📨','Telegram'],['🎥','OBS Studio'],['🎵','Spotify']],web:[['🌐','Google Chrome'],['📺','YouTube'],['🦊','Firefox']]};
 function openShell(n){sh.n=n;let el=$('#shell');
-  if(!el){el=document.createElement('div');el.id='shell';el.className='shell';el.setAttribute('role','dialog');el.setAttribute('aria-label','Mijoz ekrani');document.body.appendChild(el);
-    el.innerHTML=`<div class="sh-sim"><b>Mijoz ekrani</b><span id="sh-st">DUST2 Klient · ulanmoqda…</span><select id="sh-pc" aria-label="Kompyuter"></select><button class="btn sm" type="button" id="sh-x">Yopish (Esc)</button></div>
-      <div class="sh-screen"><iframe id="kl-frame" name="kp-klient" src="klient.html?link=1" title="DUST2 Klient — kompyuter ekrani"></iframe></div>`;
-    $('#sh-x').onclick=closeShell;$('#sh-pc').onchange=e=>{sh.n=+e.target.value;klPush()};
-    sh.ready=false;sh.legacy=false;clearTimeout(sh.to);sh.to=setTimeout(()=>{if(!sh.ready&&$('#shell')){sh.legacy=true;renderShellOld()}},4000)}
-  if(sh.legacy)return renderShellOld();klPush()}
-function closeShell(){const el=$('#shell');if(el)el.remove();sh.n=null;sh.ready=false;sh.legacy=false;clearTimeout(sh.to)}
-function updateShell(){if(!$('#shell'))return;if(sh.legacy)return updateShellOld();klPush()}
-function klSnap(p){
-  const now=Date.now(),s=p.session,L=Object.assign({},LK_DEF,lockFor(p)),c=s&&s.clientId?client(s.clientId):null,un=(p.inbox||[]).find(m=>!m.seen);
-  const view=p.status==='off'||p.pwrOff?'off':(p.bootUntil||0)>now?'boot':s&&p.status==='busy'?'desk':'lock';
-  return {pc:'PC '+p2(p.n),n:p.n,view,club:S.settings.name,timer:S.settings.beh.timer!==false,
-    lock:{theme:L.theme,bg:L.bg,title:L.title||S.settings.name,sub:p.status==='pause'?'Seans pauza qilingan — davom ettirish uchun administratorga murojaat qiling':L.sub,
-      h:L.h,v:L.v,sClock:L.sClock,sTitle:L.sTitle,sSub:L.sSub,showClock:L.showClock,showLogin:L.showLogin&&!s},
-    s:s?{mode:s.mode,el:elapsed(s,now),lim:limitMs(s),tname:s.tname,who:who(s),login:c?c.login:'',rate:s.rate}:null,
-    msg:un?{t:un.t,text:un.text,from:un.from}:null}}
-function klPush(){
-  const el=$('#shell'),f=$('#kl-frame');if(!el||!f)return;const p=pcBy(sh.n);if(!p)return closeShell();
+  if(!el){el=document.createElement('div');el.id='shell';el.className='shell';el.setAttribute('role','dialog');el.setAttribute('aria-label','Mijoz kompyuteri');document.body.appendChild(el);
+    el.innerHTML=`<div class="sh-sim"><b>Mijoz kompyuteri</b><span>klient PC prototipi · Klub Pult bilan bir maʼlumotda</span><select id="sh-pc" aria-label="Kompyuter"></select><span class="kc-state" id="kc-st"></span><button class="btn sm" type="button" id="sh-x">Yopish (Esc)</button></div>
+      <div class="kc-mon"><div class="kc-scr" id="kc-scr"></div></div>`;
+    $('#sh-x').onclick=closeShell;$('#sh-pc').onchange=e=>{sh.n=+e.target.value;sh.toast=null;renderShell()};
+    const scr=$('#kc-scr');
+    scr.addEventListener('click',kcClick);
+    scr.addEventListener('submit',e=>{if(e.target.id!=='lk-lf')return;e.preventDefault();const p=pcBy(sh.n),r=klLogin(p,v('lk-l'),v('lk-p'));
+      if(r.err){$('#lk-e').textContent=r.err;$('#lk-p').value='';$('#lk-p').focus();return}
+      addLog('info',`PC ${p.n}: mijoz qulf ekranidan akkaunt bilan kirdi (${r.name})`);save();renderNav();if(ui.view==='zal'){renderGrid();updateToolbar()}
+      kcToast(`Xush kelibsiz, ${r.name}`,`Balans: ${som(r.balance)}`,'green');renderShell()})}
+  renderShell()}
+function closeShell(){const el=$('#shell');if(el)el.remove();sh.n=null;sh.toast=null}
+function kcView(p,now){return p.status==='off'||p.pwrOff?'off':(p.bootUntil||0)>now?'boot':p.session&&p.status==='busy'?'desk':'lock'}
+function shSig(p){const now=Date.now(),un=(p.inbox||[]).find(m=>!m.seen);
+  return [p.n,kcView(p,now),p.status,p.session?p.session.id:'',S.settings.lockSentAt||0,S.settings.beh.timer,un?un.t:'',p.lastEnd&&now-p.lastEnd.t<3*MIN?p.lastEnd.t:'',sh.mini,sh.cat,sh.toast?sh.toast.t:''].join('|')}
+function kcToast(title,text,color){sh.toast={t:Date.now(),title,text,color};clearTimeout(sh.tt);sh.tt=setTimeout(()=>{sh.toast=null;updateShell()},4500)}
+function kcTimer(p,now){const s=p.session,L=limitMs(s),e=elapsed(s,now),left=L!=null?L-e:null;
+  return {L,e,left,txt:durS(left!=null?left:e),cls:left==null?'':left<=MIN?'end':left<=5*MIN?'warn':'',prog:left==null?100:Math.max(0,Math.min(100,left/L*100)),end:left!=null&&!s.pausedAt?hm(now+left):'—'}}
+function renderShell(){
+  const el=$('#shell');if(!el)return;const p=pcBy(sh.n);if(!p)return closeShell();
+  const now=Date.now(),s=p.session,view=kcView(p,now),L=Object.assign({},LK_DEF,lockFor(p)),th=LKTH[L.theme]||LKTH.dust2;
   const opts=S.pcs.map(x=>`<option value="${x.n}"${x.n===p.n?' selected':''}>PC ${x.n} — ${STATUS[x.status]}${x.pwrOff?' · oʻchiq':''}</option>`).join('');
   const sel=$('#sh-pc');if(sel.dataset.o!==opts){sel.innerHTML=opts;sel.dataset.o=opts}
-  $('#sh-st').textContent=sh.ready?'DUST2 Klient · Klub Pult bilan jonli bogʻlangan':'DUST2 Klient · ulanmoqda…';
-  if(sh.ready&&f.contentWindow)f.contentWindow.postMessage({kp:'state',s:klSnap(p)},'*')}
+  $('#kc-st').textContent={off:'Oʻchiq',boot:'Qayta yuklanmoqda',desk:'Ish stoli — mijoz oʻynamoqda',lock:p.status==='pause'?'Qulflangan — pauza':'Qulf ekrani'}[view];
+  let h;
+  if(view==='off')h=`<div class="kc-pwr"><b>PC ${p2(p.n)}</b>Kompyuter oʻchiq${s?' · seans pauzada, qolgan vaqt saqlangan':''}<span style="opacity:.7">${p.mac?'Zalda «Yoqish» bosilsa yoki vaqt ochilsa, Wake-on-LAN orqali yonadi':'MAC manzil kiritilmagan — Wake-on-LAN ishlamaydi'}</span></div>`;
+  else if(view==='boot')h=`<div class="kc-pwr boot"><span class="kc-spin"></span><b>Qayta yuklanmoqda…</b>PC ${p2(p.n)} · klient agenti Windows bilan birga oʻzi ishga tushadi</div>`;
+  else if(view==='lock'){const le=!s&&p.lastEnd&&now-p.lastEnd.t<3*MIN?p.lastEnd:null;
+    const sub=p.status==='pause'?'Seans pauza qilingan — davom ettirish uchun administratorga murojaat qiling':le?`Vaqtingiz tugadi${le.due?` · toʻlanmagan ${som(le.due)} — administratorga toʻlang`:''}`:null;
+    h=lockHTML(L,{n:p.n,interactive:!s,sub})}
+  else{const T=kcTimer(p,now),apps=KC_APPS[sh.cat],run=procList(p).filter(x=>!x.sys).slice(0,4);
+    const c=s.clientId?client(s.clientId):null;
+    const rows=[s.mode==='balance'?['Akkaunt',who(s)]:['Mijoz',who(s)],s.mode==='balance'?['Balans',som(Math.max(0,creditLeft(s,now)))]:s.mode==='post'?['Hisob',som(accrued(s,now))]:['Toʻlangan',som(s.paid)],...(T.left!=null?[['Tugaydi',T.end]]:[]),['Tarif',`${som(s.rate)}/soat`]];
+    h=`<div class="kc-desk" style="--kc-bg:${th.bg};--kc-acc:${th.acc}">
+      <div class="kc-top"><b>${esc(S.settings.name)}</b>${[['games','Oʻyinlar'],['apps','Dasturlar'],['web','Internet']].map(([k,l])=>`<button type="button" data-kc="cat" data-v="${k}" class="${sh.cat===k?'on':''}">${l}</button>`).join('')}</div>
+      <div class="kc-grid">${apps.map(a=>`<button type="button" class="kc-tile" data-kc="run" data-v="${esc(a[1])}"><i aria-hidden="true">${a[0]}</i><span>${esc(a[1])}</span></button>`).join('')}</div>
+      <div class="kc-bar"><span class="st" aria-hidden="true"></span>${run.map(x=>`<span class="ap">${esc(x.name)}</span>`).join('')}
+        <span class="rt"><span>${L2(s)} <b id="kc-bt">${T.txt}</b></span><span>PC ${p2(p.n)}</span><b id="kc-clk">${hm(now)}</b></span></div>
+      ${S.settings.beh.timer?`<div class="kc-w${sh.mini?' mini':''}" id="kc-w" role="region" aria-label="Seans taymeri" style="${sh.pos?`left:${sh.pos.x}%;top:${sh.pos.y}%;right:auto`:''}">
+        <span class="kc-pill" id="kc-pill">${T.txt}</span>
+        <div class="kc-wf"><div class="kc-wh"><b>PC ${p2(p.n)} · ${esc(s.tname)}</b><span>${s.pausedAt?'Pauza':'Onlayn'}</span></div>
+          <div class="kc-wt ${T.cls}" id="kc-wt">${T.txt}</div><div class="kc-wp"><i id="kc-wp" style="width:${T.prog}%"></i></div>
+          <div class="kc-wr" id="kc-wr">${rows.map(r=>`<span>${r[0]} <b title="${esc(r[1])}">${esc(r[1])}</b></span>`).join('')}</div>
+          <div class="kc-wb"><button type="button" data-kc="req">Vaqt soʻrash</button>${s.mode==='balance'?'<button type="button" data-kc="out">Chiqish</button>':''}</div></div>
+        <button type="button" class="kc-wm" data-kc="mini" aria-label="${sh.mini?'Kattalashtirish':'Kichraytirish'}">${sh.mini?'▢':'–'}</button></div>`:''}
+    </div>`}
+  const un=(p.inbox||[]).find(m=>!m.seen);
+  if(un&&view!=='off'&&view!=='boot')h+=`<div class="kc-modal" style="--kc-acc:${th.acc}"><div class="kc-box" role="alertdialog" aria-label="Administrator xabari"><small>${esc(un.from==='Avtomatik'?'Ogohlantirish':un.from==='Tizim'?'Tizim':'Administrator xabari')}</small><p>${esc(un.text)}</p><button type="button" data-kc="ok" data-v="${un.t}">Tushunarli</button></div></div>`;
+  if(sh.toast)h+=`<div class="kc-toast ${sh.toast.color||''}" style="--kc-acc:${th.acc}" role="status"><b>${esc(sh.toast.title)}</b>${esc(sh.toast.text)}</div>`;
+  const scr=$('#kc-scr'),lv=$('#lk-l')?$('#lk-l').value:null,fo=document.activeElement&&scr.contains(document.activeElement)?document.activeElement.id:null;
+  scr.innerHTML=h;el.dataset.sig=shSig(p);
+  if(lv!=null&&$('#lk-l'))$('#lk-l').value=lv;
+  if(fo&&document.getElementById(fo))document.getElementById(fo).focus();else if($('#lk-l')&&!un)$('#lk-l').focus();else{const b=$('.kc-box button',scr);if(b)b.focus()}
+  kcDrag();
+}
+const L2=s=>limitMs(s)!=null?'Qoldi':'Oʻtdi';
+function updateShell(){
+  const el=$('#shell');if(!el)return;const p=pcBy(sh.n);if(!p)return closeShell();
+  if(el.dataset.sig!==shSig(p))return renderShell();
+  const now=Date.now(),c=$('#kc-clk');if(c)c.textContent=hm(now);
+  if(p.session&&kcView(p,now)==='desk'){const T=kcTimer(p,now);
+    const bt=$('#kc-bt');if(bt)bt.textContent=T.txt;const wt=$('#kc-wt');if(wt){wt.textContent=T.txt;wt.className='kc-wt '+T.cls;$('#kc-pill').textContent=T.txt;$('#kc-wp').style.width=T.prog+'%'}}
+}
+function kcClick(e){const b=e.target.closest('[data-kc]');if(!b)return;const p=pcBy(sh.n),s=p&&p.session,k=b.dataset.kc;
+  if(k==='ok'){(p.inbox||[]).forEach(m=>{if(String(m.t)===b.dataset.v)m.seen=true});save();return renderShell()}
+  if(k==='cat'){sh.cat=b.dataset.v;return renderShell()}
+  if(k==='mini'){sh.mini=!sh.mini;return renderShell()}
+  if(k==='run'){kcToast(`${b.dataset.v} ishga tushmoqda…`,'Prototip — oʻyin oʻrniga shu xabar chiqadi','');return renderShell()}
+  if(!s)return;
+  if(k==='req'){S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s.clientId,name:who(s),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);save();
+    kcToast('Soʻrov yuborildi','Administrator ekranida xabar chiqdi','green');return renderShell()}
+  if(k==='out'){if(barTotal(s)>0){kcToast('Bar uchun toʻlov bor','Seansni administrator yakunlaydi','red');return renderShell()}
+    finishSession(p.n,'none');addLog('info',`PC ${p.n}: mijoz akkauntdan chiqdi`);commit();kcToast('Seans yakunlandi','Akkauntdan chiqdingiz','green');renderShell()}
+}
+function kcDrag(){const w=$('#kc-w');if(!w)return;let d=null;
+  w.onpointerdown=e=>{if(e.target.closest('button'))return;const r=w.getBoundingClientRect(),sr=$('#kc-scr').getBoundingClientRect();d={dx:e.clientX-r.left,dy:e.clientY-r.top,sr,w:r.width,h:r.height};w.setPointerCapture(e.pointerId);w.classList.add('drag')};
+  w.onpointermove=e=>{if(!d)return;const x=Math.max(0,Math.min(d.sr.width-d.w,e.clientX-d.sr.left-d.dx)),y=Math.max(0,Math.min(d.sr.height-d.h,e.clientY-d.sr.top-d.dy));
+    sh.pos={x:x/d.sr.width*100,y:y/d.sr.height*100};w.style.left=sh.pos.x+'%';w.style.top=sh.pos.y+'%';w.style.right='auto'};
+  w.onpointerup=()=>{d=null;w.classList.remove('drag')}}
 function klLogin(p,login,pass){
   if(active(p))return {err:'Kompyuter band'};
-  const c=S.clients.find(x=>x.login===login.trim().toLowerCase());
+  const c=S.clients.find(x=>x.login===String(login).trim().toLowerCase());
   if(!c||c.pass!==pass)return {err:'Login yoki parol notoʻgʻri'};
   const other=S.pcs.find(x=>x.session&&x.session.clientId===c.id);if(other)return {err:`Siz PC ${other.n} da oʻynayapsiz`};
   const t=S.tariffs.find(x=>x.type==='hour'&&applies(x)&&grpAllows(p.group,x));if(!t)return {err:'Hozir amal qiladigan tarif yoʻq — administratorga murojaat qiling'};
   if(c.balance<t.price/60)return {err:`Balans yetarli emas (${som(c.balance)}). Administratorda toʻldiring.`};
-  startSession(p.n,{clientId:c.id,mode:'balance',tariffId:t.id,note:'Qulf ekranidan kirdi'});return {err:'',name:c.name,balance:c.balance}}
-window.addEventListener('message',e=>{const f=$('#kl-frame');if(!f||e.source!==f.contentWindow)return;const d=e.data||{};if(d.kp!=='act')return;
-  const p=pcBy(sh.n);if(!p)return;const reply=o=>f.contentWindow.postMessage(o,'*');
-  if(d.type==='ready'){sh.ready=true;clearTimeout(sh.to);return klPush()}
-  if(d.type==='esc')return closeShell();
-  if(d.type==='login'){const r=klLogin(p,String(d.login||''),String(d.pass||''));if(!r.err){save();renderNav();if(ui.view==='zal'){renderGrid();updateToolbar()}}reply(Object.assign({kp:'loginResult'},r));return klPush()}
-  const s=p.session;if(!s)return;
-  if(d.type==='seen'){(p.inbox||[]).forEach(m=>{if(m.t===d.t)m.seen=true});save();return klPush()}
-  if(d.type==='request'){S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s.clientId,name:who(s),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);save();return klPush()}
-  if(d.type==='logout'){
-    if(s.mode!=='balance')return reply({kp:'toast',title:'Chiqib boʻlmaydi',text:'Seansni administrator yakunlaydi',color:'red'});
-    if(barTotal(s)>0)return reply({kp:'toast',title:'Bar uchun toʻlov bor',text:'Seansni administrator yakunlaydi',color:'red'});
-    finishSession(p.n,'none');addLog('info',`PC ${p.n}: mijoz akkauntdan chiqdi`);commit();return klPush()}
-});
-function shSig(p){return p.status+'|'+(p.session?p.session.id:'')+'|'+(S.settings.lockSentAt||0)+'|'+S.settings.beh.timer+'|'+p.mac}
-function renderShellOld(){
-  const el=$('#shell');if(!el)return;const p=pcBy(sh.n);if(!p)return closeShell();
-  const s=p.session;let body;
-  if(p.status==='off')body=`<div class="sh-lock sh-offs"><div class="sh-big">PC ${p.n}</div><p>Kompyuter oʻchiq.${p.mac?' Zalda «Yoqish» bosilsa yoki vaqt ochilsa, Wake-on-LAN orqali yonadi.':' MAC manzil kiritilmagan — Wake-on-LAN ishlamaydi.'}</p></div>`;
-  else if(!s||p.status==='pause')body=lockHTML(lockFor(p),{n:p.n,interactive:!s,sub:p.status==='pause'?'Seans pauza qilingan — davom ettirish uchun administratorga murojaat qiling':null});
-  else body=`<div class="dk"><div class="dk-note">Kompyuter ochiq — mijoz oʻynamoqda</div>
-      ${S.settings.beh.timer?`<div class="tw"><div class="tw-h">PC ${p2(p.n)} · ${esc(s.tname)}</div><div class="tw-l" id="tw-ll"></div><div class="tw-t" id="sh-tl"></div><div class="tw-s">${esc(who(s))}</div><button type="button" class="tw-b" id="tw-req">Vaqt soʻrash</button></div>`:''}
-      <div class="dk-bar"><i></i><i></i><i></i><span class="mono" id="dk-clk"></span></div></div>`;
-  el.innerHTML=`<div class="sh-sim"><b>Mijoz ekrani</b><span>klient kompyuter simulyatsiyasi</span><select id="sh-pc" aria-label="Kompyuter">${S.pcs.map(x=>`<option value="${x.n}"${x.n===p.n?' selected':''}>PC ${x.n} — ${STATUS[x.status]}</option>`).join('')}</select><button class="btn sm" type="button" id="sh-x">Yopish (Esc)</button></div>
-    <div class="sh-screen">${body}<div class="sh-pop" id="sh-pop"></div></div>`;
-  el.dataset.sig=shSig(p);el.dataset.pop='';
-  $('#sh-x').onclick=closeShell;
-  $('#sh-pc').onchange=e=>{sh.n=+e.target.value;renderShellOld()};
-  const lf=$('#lk-lf');
-  if(lf)lf.onsubmit=e=>{e.preventDefault();const er=$('#lk-e');
-    const c=S.clients.find(x=>x.login===v('lk-l').trim().toLowerCase());
-    if(!c||c.pass!==v('lk-p'))return er.textContent='Login yoki parol notoʻgʻri';
-    const other=S.pcs.find(x=>x.session&&x.session.clientId===c.id);if(other)return er.textContent=`Siz PC ${other.n} da oʻynayapsiz`;
-    const t=S.tariffs.find(x=>x.type==='hour'&&applies(x)&&grpAllows(p.group,x));if(!t)return er.textContent='Hozir amal qiladigan tarif yoʻq — administratorga murojaat qiling';
-    if(c.balance<t.price/60)return er.textContent=`Balans yetarli emas (${som(c.balance)}). Administratorda toʻldiring.`;
-    startSession(p.n,{clientId:c.id,mode:'balance',tariffId:t.id,note:'Qulf ekranidan kirdi'});save();renderNav();if(ui.view==='zal')renderGrid();renderShellOld()};
-  if($('#tw-req'))$('#tw-req').onclick=()=>{S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s.clientId,name:who(s),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);save();pushInbox(p,'Soʻrovingiz administratorga yuborildi.','Tizim');updateShellOld()};
-  updateShellOld();
-}
-function updateShellOld(){
-  const el=$('#shell');if(!el)return;const p=pcBy(sh.n);if(!p)return closeShell();
-  if(el.dataset.sig!==shSig(p))return renderShellOld();
-  const s=p.session,now=Date.now();
-  const dk=$('#dk-clk');if(dk)dk.textContent=hm(now);
-  if(s){const L=limitMs(s),e2=elapsed(s,now),tl=$('#sh-tl');
-    if(tl){tl.textContent=L!=null?durS(L-e2):durS(e2);tl.classList.toggle('low',L!=null&&L-e2<5*MIN);$('#tw-ll').textContent=L!=null?'Qolgan vaqt':'Oʻtgan vaqt'}}
-  const un=(p.inbox||[]).filter(m=>!m.seen),key=un.map(m=>m.t).join(',');
-  if(el.dataset.pop!==key){el.dataset.pop=key;const pop=$('#sh-pop');
-    pop.innerHTML=un.slice(-3).map(m=>`<div class="sh-msg" role="alert"><b>${esc(m.from)}</b><span>${esc(m.text)}</span><button class="btn sm pri" type="button" data-ok="${m.t}">OK</button></div>`).join('');
-    $$('[data-ok]',pop).forEach(x=>x.onclick=()=>{p.inbox.forEach(m=>{if(String(m.t)===x.dataset.ok)m.seen=true});save();updateShellOld()})}
-}
+  startSession(p.n,{clientId:c.id,mode:'balance',tariffId:t.id,note:'Qulf ekranidan kirdi'});p.lastEnd=null;return {err:'',name:c.name,balance:c.balance}}
 
 /* =================== Foydalanuvchini almashtirish =================== */
 function loginModal(start){
@@ -2507,7 +2571,7 @@ setInterval(()=>{
   const w=S.settings.warn;
   S.pcs.forEach(p=>{const s=p.session;if(!s||p.status!=='busy')return;const L=limitMs(s);if(L==null)return;
     const left=L-elapsed(s,now);
-    if(left<=0){finishSession(p.n,barTotal(s)>0?'debt':'none',true);ch=true;const be=S.settings.beh;
+    if(left<=0){finishSession(p.n,barTotal(s)>0?'debt':'none',true);p.lastEnd={t:now,due:barTotal(s)};ch=true;const be=S.settings.beh;
       if(be.end==='off'){p.status='off';addLog('info',`PC ${p.n}: vaqt tugadi — kompyuter oʻchirildi`)}
       else if(be.end==='lockoff'){p.offAt=now+be.offMin*MIN;addLog('info',`PC ${p.n}: vaqt tugadi — qulflandi, ${be.offMin} daqiqadan soʻng oʻchadi`)}
       return}
