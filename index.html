@@ -908,7 +908,7 @@ function vZal(m){
     <div class="subbar">
       <div class="tabs"><button type="button" data-zm="table">Kompyuterlar</button><button type="button" data-zm="cards">Kartalar</button></div>
       <div class="chips" id="stchips"></div>
-      <span class="note kbd-h">Shift/Ctrl bilan belgilang · <kbd>Enter</kbd> vaqt qoʻshish · <kbd>Delete</kbd> oʻchirish</span>
+      <span class="note kbd-h">Shift/Ctrl bilan belgilang · <kbd>Enter</kbd> seansni boshlash · <kbd>Delete</kbd> seansni yakunlash</span>
       <input id="pcq" type="search" placeholder="PC raqami yoki mijoz…" value="${esc(ui.pcq)}" aria-label="Qidirish">
     </div>
     <div class="gridwrap" id="grid"></div>
@@ -1131,18 +1131,25 @@ document.addEventListener('keydown',e=>{
   if(ui.view!=='zal'||modals.length||popEl||$('#shell'))return;
   const tg=e.target;if(tg&&(/INPUT|SELECT|TEXTAREA|BUTTON|A/.test(tg.tagName)||tg.isContentEditable))return;
   const sel=selPcs();if(!sel.length)return;
-  if(e.key==='Enter'){e.preventDefault();bulkTimeModal(sel)}
-  else if(e.key==='Delete'){e.preventDefault();guard('pcPower','Kompyuterlarni oʻchirish',()=>bulkOffModal(sel))}
+  if(e.key==='Enter'){e.preventDefault();
+    const fr=sel.filter(p=>p.status==='free'||(p.status==='off'&&S.settings.beh.autoWake&&p.mac));
+    if(!fr.length)return toast(sel.length>1?'Tanlanganlar orasida boʻsh kompyuter yoʻq':`PC ${sel[0].n} ${STATUS[sel[0].status].toLowerCase()} — seans ochib boʻlmaydi`,'err');
+    startModal(fr[0].n,fr.slice(1).map(p=>p.n))}
+  else if(e.key==='Delete'){e.preventDefault();
+    const ac=sel.filter(active);
+    if(!ac.length)return toast(sel.length>1?'Tanlanganlar orasida ochiq seans yoʻq':`PC ${sel[0].n} da ochiq seans yoʻq`,'err');
+    ac.length===1?stopModal(ac[0].n):stopMany(ac)}
 });
 
 /* ---------- Start ---------- */
-function startModal(n){
+function startModal(n,more){
+  const nums=[n,...(more||[])],multi=nums.length>1;
   const now=new Date();
   const ts=S.tariffs.filter(t=>t.active&&t.price>0&&grpAllows(pcBy(n).group,t));
   if(!ts.length)return toast(`${grpName(pcBy(n).group)} guruhi uchun narxi kiritilgan tarif yoʻq — Tariflar boʻlimini tekshiring`,'err');
   const busyClients=new Set(S.pcs.filter(p=>p.session&&p.session.clientId).map(p=>p.session.clientId));
   const body=`<div class="frm">
-    <div class="row2"><label>Mijoz<select id="st-c"><option value="">Mehmon (akkauntsiz)</option>${S.clients.map(c=>`<option value="${c.id}"${busyClients.has(c.id)?' disabled':''}>${esc(c.name)} · @${esc(c.login)} · ${som(c.balance)}${busyClients.has(c.id)?' (oʻynamoqda)':''}</option>`).join('')}</select></label>
+    <div class="row2"><label>Mijoz<select id="st-c"><option value="">Mehmon (akkauntsiz)</option>${S.clients.map(c=>`<option value="${c.id}"${busyClients.has(c.id)||multi?' disabled':''}>${esc(c.name)} · @${esc(c.login)} · ${som(c.balance)}${busyClients.has(c.id)?' (oʻynamoqda)':''}</option>`).join('')}</select></label>
     <label>Toʻlov turi<select id="st-m"><option value="pre">Oldindan toʻlov</option><option value="post">Keyin toʻlov</option><option value="balance">Balansdan</option></select></label></div>
     <label id="st-gw">Mehmon ismi (ixtiyoriy)<input id="st-g" placeholder="Masalan: Ali"></label>
     <label>Tarif<select id="st-t">${ts.map(t=>{const ok=applies(t,now);return `<option value="${t.id}"${ok?'':' disabled'}>${esc(t.name)} — ${t.type==='hour'?som(t.price)+' / soat':durTxt(t.minutes)+' · '+som(t.price)}${ok?'':' (hozir amal qilmaydi)'}</option>`}).join('')}</select></label>
@@ -1155,7 +1162,7 @@ function startModal(n){
     <label>Izoh<input id="st-note" placeholder="Masalan: turnir, doʻsti bilan"></label>
     <div class="sumbox" id="st-sum"></div><div class="err" id="st-err"></div></div>`;
   let src='min';
-  modal({title:`Seansni boshlash — PC ${n}`,body,actions:[{label:'Bekor qilish'},{label:'Boshlash',cls:'pri',run:()=>{
+  modal({title:multi?`Seansni boshlash — ${nums.length} ta PC (${rangeTxt(nums)})`:`Seansni boshlash — PC ${n}`,body:(multi?`<div class="note" style="margin-bottom:10px">Bir xil tarif va vaqt har bir kompyuterga alohida seans boʻlib ochiladi. Mijoz akkaunti faqat bitta PC uchun tanlanadi.</div>`:'')+body,actions:[{label:'Bekor qilish'},{label:'Boshlash',cls:'pri',run:()=>{
     const c=client(v('st-c')),mode=v('st-m'),t=tariff(v('st-t'));const err=$('#st-err');
     if(!t||!applies(t))return err.textContent='Tarifni tanlang',false;
     if(mode==='balance'&&!c)return err.textContent='Balansdan toʻlash uchun mijoz akkauntini tanlang',false;
@@ -1163,8 +1170,10 @@ function startModal(n){
     if(mode==='balance'&&c.balance<t.price/60)return err.textContent='Mijoz balansi yetarli emas — avval balansni toʻldiring',false;
     const mins=t.type==='package'?t.minutes:vn('st-min');if(mode==='pre'&&mins<1)return err.textContent='Vaqtni kiriting',false;
     const amount=t.type==='package'?t.price:(src==='amt'?vn('st-amt'):r100(t.price*mins/60));
-    startSession(n,{clientId:c?c.id:null,guest:v('st-g').trim(),mode,tariffId:t.id,minutes:mins,amount,method:v('st-pm'),note:v('st-note').trim()});
-    ui.sel=new Set([n]);commit();toast(`PC ${n}: seans boshlandi`);
+    const okN=nums.filter(x=>{const q=pcBy(x);return q&&!q.session&&grpAllows(q.group,t)});
+    if(!okN.length)return err.textContent='Tanlangan kompyuterlarda bu tarifni ochib boʻlmaydi',false;
+    okN.forEach(x=>startSession(x,{clientId:c?c.id:null,guest:v('st-g').trim(),mode,tariffId:t.id,minutes:mins,amount,method:v('st-pm'),note:v('st-note').trim()}));
+    ui.sel=new Set(okN);commit();toast(okN.length>1?`${okN.length} ta kompyuterda seans boshlandi${mode==='pre'?' · jami '+som(amount*okN.length):''}`:`PC ${okN[0]}: seans boshlandi`);
   }}],onMount:(ov)=>{
     const upd=()=>{
       const c=client(v('st-c')),t=tariff(v('st-t'));const mSel=$('#st-m');
