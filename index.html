@@ -70,6 +70,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .tb:active:not(:disabled){transform:translateY(1px)}
 .tb:disabled{opacity:.38;cursor:default}
 .tb svg{width:30px;height:30px}
+.tb.tbm{min-width:0;width:20px;padding:0;justify-content:center;font-size:12px;color:var(--muted);margin-left:-2px}
+.tb.tbm:hover,.tb.tbm[aria-expanded="true"]{color:var(--text);background:var(--panel);border-color:var(--tool-b)}
 .tb-sep{width:1px;background:var(--tool-b);margin:4px 6px}
 .ico-scr{fill:var(--panel2);stroke:var(--muted)}
 .clock{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;padding:0 4px}
@@ -654,7 +656,7 @@ function finishSession(n,method,auto,debtTo){
     if(debtTo&&debtTo.payNow>0){part=Math.min(debtTo.payNow,due);const lid=uid();S.ledger.push({id:lid,t:now,kind:'debtpay',amount:part,method:debtTo.payMethod,clientId:dd.clientId});
       S.debtPays.push({id:uid(),key:debtKey(dd),clientId:dd.clientId,name:dd.name,t:now,amount:part,disc:0,pct:0,method:debtTo.payMethod,ledgerId:lid,note:'Seans yakunida qisman'})}}
   S.history.push({id:uid(),pc:n,clientId:s.clientId,start:s.start,end:now,minutes:mins,pcCost,barCost:bt,total:pcCost+bt,method:m,mode:s.mode});
-  pc.status='free';pc.session=null;
+  pc.status=pc.pwrOff?'off':'free';pc.session=null;pc.pwrOff=false;
   const tail=due>0?(m==='debt'?(part?`Hozir toʻlandi ${som(part)} (${METHODS[debtTo.payMethod]}), qarzga yozildi ${som(due-part)}`:`Qarz daftariga yozildi ${som(due)}`)+`${debtTo&&debtTo.name!==who(s)?' → '+debtTo.name:''}`:`Mijozdan olindi ${som(due)} (${METHODS[m]})`):(back?'':'Qoʻshimcha toʻlov yoʻq');
   const ret=back?`${tail?' / ':''}Mijozga qaytarildi ${som(back)} (${METHODS[refund.method]})`:'';
   addLog(due>0||back?'warn':'info',`Seans yakunlandi PC ${n} >> ${dstr(now)} ${hms(now)} / ${s.tname} / ${who(s)} / ${som(pcCost+bt)} / ${durTxt(mins)} / ${tail}${ret}`+(auto?' / avtomatik':''),0,{in:due>0&&m!=='debt'?due:0,out:back,m:due>0&&m!=='debt'?m:back?refund.method:''});
@@ -780,8 +782,8 @@ function migrate(){
 }
 function pushInbox(p,text,from){p.inbox=p.inbox||[];p.inbox.push({t:Date.now(),text,from:from||'Administrator',seen:false});if(p.inbox.length>20)p.inbox.shift()}
 function wake(list){
-  const off=list.filter(p=>p.status==='off'),ok=off.filter(p=>p.mac),nm=off.filter(p=>!p.mac);
-  ok.forEach(p=>{p.status='free';addLog('info',`Wake-on-LAN paketi yuborildi → PC ${p.n} (MAC ${p.mac})`)});
+  const off=list.filter(p=>p.status==='off'||p.pwrOff),ok=off.filter(p=>p.mac),nm=off.filter(p=>!p.mac);
+  ok.forEach(p=>{if(p.pwrOff)p.pwrOff=false;else p.status='free';addLog('info',`Wake-on-LAN paketi yuborildi → PC ${p.n} (MAC ${p.mac})`)});
   if(nm.length)toast(`${nm.map(p=>'PC '+p.n).join(', ')}: MAC manzil yoʻq — Sozlamalar › Kompyuterlar boʻlimida kiriting`,'err');
   if(ok.length)toast(`${ok.length} ta kompyuterga yoqish signali yuborildi`);
   save();renderNav();
@@ -896,7 +898,7 @@ const IC={
   shell:'<path d="M7.5 7h3.6v3.3H7.5zM12.9 7h3.6v3.3h-3.6zM7.5 11.6h3.6v3H7.5zM12.9 11.6h3.6v3h-3.6z" fill="var(--c3)"/>',
   bar:'<path d="M9 6.5h6l-.8 8.5h-4.4z" stroke="var(--c2)" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M9.3 9.5h5.4" stroke="var(--c2)" stroke-width="1.5"/>'
 };
-const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['shutdown','Oʻchirish'],['wake','Yoqish'],0,['msg','Xabar'],['bar','Bar xizmati'],['procs','Jarayonlar'],['shell','Mijoz ekrani']];
+const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['shutdown','Oʻchirish'],['wake','Yoqish'],['pmenu',''],0,['msg','Xabar'],['bar','Bar xizmati'],['procs','Jarayonlar'],['shell','Mijoz ekrani']];
 const LOGI={info:'<svg class="li" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="var(--busy)"/><path d="M8 7v4.5M8 4.6v.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
   warn:'<svg class="li" viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="var(--warn)"/><path d="M8 6v4M8 12v.2" stroke="#1a1a1a" stroke-width="1.7" stroke-linecap="round"/></svg>',
   msg:'<svg class="li" viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="1.5" fill="var(--c3)"/><path d="M2.5 4.5 8 8.5l5.5-4" stroke="#fff" stroke-width="1.4" fill="none"/></svg>'};
@@ -904,7 +906,7 @@ const LOGI={info:'<svg class="li" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7
 function vZal(m){
   m.innerHTML=`<div class="zal">
     <div class="toolbar" role="toolbar" aria-label="Kompyuter amallari">
-      ${TB.map(b=>b?`<button class="tb" type="button" data-act="${b[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC.mon}${IC[b[0]]}</svg>${b[1]}</button>`:'<span class="tb-sep"></span>').join('')}
+      ${TB.map(b=>b&&b[0]==='pmenu'?'<button class="tb tbm" type="button" data-act="pmenu" title="Barcha kompyuterlar: oʻchirish, qayta yuklash, yoqish" aria-label="Barcha kompyuterlar quvvati" aria-haspopup="menu">▾</button>':b?`<button class="tb" type="button" data-act="${b[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC.mon}${IC[b[0]]}</svg>${b[1]}</button>`:'<span class="tb-sep"></span>').join('')}
       <div class="clock"><div class="crow"><button type="button" class="bkb off" id="bkb"></button><div class="t" id="clk"></div></div><div class="d" id="clkd"></div></div>
     </div>
     <div class="subbar">
@@ -925,7 +927,7 @@ function vZal(m){
       <div class="log" id="log" tabindex="0"></div>
     </div></div>`;
   $('#lgf').value=ui.logF;
-  $$('.tb',m).forEach(b=>b.onclick=()=>zalAction(b.dataset.act));
+  $$('.tb',m).forEach(b=>b.onclick=()=>zalAction(b.dataset.act,b));
   $$('[data-zm]',m).forEach(b=>b.onclick=()=>{ui.zalMode=b.dataset.zm;saveUI();renderZalTabs();renderGrid()});
   $('#pcq').oninput=e=>{ui.pcq=e.target.value;renderGrid()};
   const grid=$('#grid');
@@ -980,11 +982,11 @@ function renderGrid(){
     const cols=ordered(ZCOLS,S.settings.ui.order,S.settings.ui.cols);
     g.innerHTML=`<table class="pcs" style="font-size:${S.settings.ui.font}px"><thead><tr><th data-k="n">№ ${ar('n')}</th><th data-k="st" colspan="2">Holat ${ar('st')}</th>${cols.map(c=>`<th${c[2]?` data-k="${c[2]}"`:''}>${c[1]}${c[2]?' '+ar(c[2]):''}</th>`).join('')}</tr></thead><tbody>${
       list.map(p=>{const s=p.session;const sel=ui.sel.has(p.n)?' sel':'';
-        return `<tr data-pc="${p.n}" class="s-${p.status}${sel}"><td class="n">${p.n}</td><td class="stc"><span class="st st-${p.status}"></span></td><td>${STATUS[p.status]}</td>${cols.map(c=>{const [h,cl]=zcell(c[0],p,s,now);return `<td${cl?` class="${cl}"`:''}>${h}</td>`}).join('')}</tr>`}).join('')}</tbody></table>`;
+        return `<tr data-pc="${p.n}" class="s-${p.status}${sel}"><td class="n">${p.n}</td><td class="stc"><span class="st st-${p.status}"></span></td><td>${STATUS[p.status]}${p.pwrOff?' · oʻchiq':''}</td>${cols.map(c=>{const [h,cl]=zcell(c[0],p,s,now);return `<td${cl?` class="${cl}"`:''}>${h}</td>`}).join('')}</tr>`}).join('')}</tbody></table>`;
   }else{
     const rows=ordered(CROWS,S.settings.ui.corder,S.settings.ui.crows);
     g.innerHTML=`<div class="cards" style="font-size:${Math.max(13,S.settings.ui.font-1)}px">${list.map(p=>{const s=p.session;const sel=ui.sel.has(p.n)?' sel':'';
-      const head=`<div class="top"><span class="pn">${p2(p.n)}</span><span class="pill p-${p.status}">${STATUS[p.status]}</span></div>`;
+      const head=`<div class="top"><span class="pn">${p2(p.n)}</span><span class="pill p-${p.status}">${STATUS[p.status]}${p.pwrOff?' · oʻchiq':''}</span></div>`;
       if(!s)return `<div class="card s-${p.status}${sel}" data-pc="${p.n}">${head}<div class="ct muted">${p.status==='off'?'--:--':'00:00'}</div><div class="cm">${p.status==='off'?'Kompyuter oʻchiq':'Boʻsh — mijoz kutilmoqda'}</div></div>`;
       const L=limitMs(s),el=elapsed(s,now),left=L!=null?L-el:null,pct=L?Math.min(100,el/L*100):0,e=endAt(s,now);
       const val={open:[hm(s.start)],end:[e?hm(e):'—'],sum:[som(accrued(s,now))],vaqt:[hhmm(el),'blue'],played:[som(played(s,now)),'blue'],
@@ -1032,13 +1034,14 @@ function selPcs(){return [...ui.sel].map(n=>pcBy(n)).filter(Boolean)}
 function updateToolbar(){
   const sel=selPcs(),one=sel.length===1?sel[0]:null;
   const en={start:one&&(one.status==='free'||(one.status==='off'&&S.settings.beh.autoWake)),add:one&&active(one),stop:sel.length>0&&sel.every(active),move:one&&active(one),pause:one&&active(one),
-    restart:sel.some(p=>p.status!=='off'),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),procs:sel.some(p=>p.status!=='off'),shell:!!one};
+    restart:sel.some(p=>p.status!=='off'&&!p.pwrOff),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'||p.pwrOff),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),procs:sel.some(p=>p.status!=='off'),shell:!!one,pmenu:true};
   $$('.tb').forEach(b=>{b.disabled=!en[b.dataset.act]});
   const pb=$('.tb[data-act="pause"]');if(pb&&one)pb.lastChild.textContent=one.status==='pause'?'Davom etish':'Pauza';
 }
 function updateClock(){bkBadge();const c=$('#clk');if(!c)return;const now=Date.now();c.textContent=hms(now);$('#clkd').textContent=dstr(now)+', '+['yakshanba','dushanba','seshanba','chorshanba','payshanba','juma','shanba'][new Date(now).getDay()]}
 function primary(n){const p=pcBy(n);if(p.status==='free'||(p.status==='off'&&S.settings.beh.autoWake&&p.mac))startModal(n);else if(active(p))stopModal(n);else if(p.status==='off')zalAction('wake')}
-function zalAction(a){
+function zalAction(a,btn){
+  if(a==='pmenu')return powerMenu(btn||$('.tb[data-act="pmenu"]'));
   const sel=selPcs();if(!sel.length)return toast('Avval jadvaldan kompyuterni tanlang','err');
   const one=sel[0];
   if(a==='start'){if(one.status==='off'&&!one.mac)return toast(`PC ${one.n} oʻchiq va MAC manzili yoʻq — avtomatik yoqib boʻlmaydi`,'err');return startModal(one.n)}
@@ -1052,9 +1055,9 @@ function zalAction(a){
   if(a==='procs')return procsModal(sel);
   if(a==='pause'){const s=one.session,now=Date.now();
     if(one.status==='busy'){one.status='pause';s.pausedAt=now;addLog('info',`Seans pauza qilindi PC ${one.n} / ${who(s)}`)}
-    else{s.pausedTotal+=now-s.pausedAt;s.pausedAt=null;one.status='busy';addLog('info',`Seans davom ettirildi PC ${one.n} / ${who(s)}`)}
+    else{s.pausedTotal+=now-s.pausedAt;s.pausedAt=null;one.status='busy';one.pwrOff=false;addLog('info',`Seans davom ettirildi PC ${one.n} / ${who(s)}`)}
     return commit()}
-  if(a==='restart'){const l=sel.filter(p=>p.status!=='off');addLog('info',`Qayta yuklash buyrugʻi yuborildi → ${l.map(p=>'PC '+p.n).join(', ')}`);toast(`${l.length} ta kompyuter qayta yuklanmoqda`);return commit()}
+  if(a==='restart'){const l=sel.filter(p=>p.status!=='off'&&!p.pwrOff);addLog('info',`Qayta yuklash buyrugʻi yuborildi → ${l.map(p=>'PC '+p.n).join(', ')}`);toast(`${l.length} ta kompyuter qayta yuklanmoqda`);return commit()}
   if(a==='shutdown'){const l=sel.filter(p=>p.status==='free');const skip=sel.length-l.length;
     l.forEach(p=>p.status='off');if(l.length)addLog('info',`Oʻchirildi → ${l.map(p=>'PC '+p.n).join(', ')}`);
     if(skip)toast(`${skip} ta kompyuterda seans ochiq — avval seansni yakunlang`,'err');return commit()}
@@ -1130,6 +1133,36 @@ function bulkTimeModal(sel){
       $('#bt-l').innerHTML=plan.map(x=>{const a=x.act==='skip'?0:r100(x.rate*m/60);tot+=a;return `<tr><td><b>PC ${x.p.n}</b></td><td>${x.act==='start'?(x.p.status==='off'?'Yoqiladi va seans ochiladi':'Yangi seans ochiladi'):x.act==='add'?`Qoʻshiladi · ${esc(who(x.p.session))}`:`<span class="muted">Oʻtkazib yuboriladi — ${x.why}</span>`}</td><td class="r">${a?som(a):''}</td></tr>`}).join('');
       $('#bt-s').innerHTML=`<div class="ln big"><span>Jami (${ok.length} ta PC × ${durTxt(m)})</span><span>${som(tot)}</span></div>`};
       $$('[data-qm]',ov).forEach(b=>b.onclick=()=>{$('#bt-m').value=b.dataset.qm;u()});ov.addEventListener('input',u);u()}});
+}
+/* ---------- Barcha kompyuterlar quvvati (▾ menyu) ---------- */
+function powerMenu(anchor){
+  const all=S.pcs,free=all.filter(p=>p.status==='free'),on=all.filter(p=>p.status!=='off'&&!p.pwrOff),off=all.filter(p=>p.status==='off'||p.pwrOff),busy=all.filter(active);
+  const G=fn=>()=>guard('pcPower','Kompyuter quvvatini boshqarish',fn);
+  popMenu(anchor,[
+    {label:`Boʻsh PClarni oʻchirish (${free.length})`,icon:'⏻',disabled:!free.length,run:G(()=>offAllModal(false))},
+    {label:`Hammasini oʻchirish (${on.length})`,icon:'⏻',danger:true,disabled:!on.length,run:G(()=>offAllModal(true))},
+    '-',
+    {label:`Hammasini qayta yuklash (${on.length})`,icon:'↻',disabled:!on.length,run:G(()=>modal({title:`Hammasini qayta yuklash — ${on.length} ta`,
+      body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Qayta yuklanadi</span><b>PC ${rangeTxt(on.map(p=>p.n))}</b></div>${busy.length?`<div class="ln" style="color:var(--warn)"><span>Seans ochiq (vaqt saqlanadi)</span><span>PC ${rangeTxt(busy.map(p=>p.n))}</span></div>`:''}</div></div>`,
+      actions:[{label:'Bekor qilish'},{label:`Qayta yuklash (${on.length})`,cls:'pri',run:()=>{const l=S.pcs.filter(p=>p.status!=='off'&&!p.pwrOff);addLog('info',`Qayta yuklash buyrugʻi yuborildi → PC ${rangeTxt(l.map(p=>p.n))} — ${me().name}`);toast(`${l.length} ta kompyuter qayta yuklanmoqda`);commit()}}]}))},
+    {label:`Hammasini yoqish (${off.length})`,icon:'⚡',disabled:!off.length,run:G(()=>{wake(S.pcs);commit()})}
+  ]);
+}
+function offAllModal(withBusy){
+  const free=S.pcs.filter(p=>p.status==='free'),busy=S.pcs.filter(p=>active(p)&&!p.pwrOff);
+  if(!withBusy||!busy.length){if(!free.length)return toast('Oʻchiriladigan boʻsh kompyuter yoʻq','err');
+    return modal({title:`${withBusy?'Hammasini':'Boʻsh PClarni'} oʻchirish — ${free.length} ta`,body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Oʻchiriladi</span><b>PC ${rangeTxt(free.map(p=>p.n))}</b></div>${!withBusy&&busy.length?`<div class="ln muted"><span>Seans ochiq — tegilmaydi</span><span>PC ${rangeTxt(busy.map(p=>p.n))}</span></div>`:''}</div></div>`,
+      actions:[{label:'Bekor qilish'},{label:`Oʻchirish (${free.length})`,cls:'dngf',run:()=>{free.forEach(p=>p.status='off');addLog('info',`Oʻchirildi → PC ${rangeTxt(free.map(p=>p.n))} — ${me().name}`);commit();toast(`${free.length} ta kompyuter oʻchirildi`)}}]})}
+  modal({title:`Hammasini oʻchirish — ${free.length+busy.length} ta`,body:`<div class="frm"><div class="sumbox">
+      ${free.length?`<div class="ln"><span>Boʻsh — oʻchiriladi</span><b>PC ${rangeTxt(free.map(p=>p.n))}</b></div>`:''}
+      <div class="ln" style="color:var(--warn)"><span>Seans ochiq</span><b>PC ${rangeTxt(busy.map(p=>p.n))}</b></div></div>
+      <label style="margin-top:10px;display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="offBusy" style="margin-top:3px"> <span>Seans ochiq kompyuterlarni ham oʻchirish — seans <b>pauzaga</b> olinadi, qolgan vaqt saqlanadi (keyin “Davom etish” bilan qaytariladi)</span></label></div>`,
+    actions:[{label:'Bekor qilish'},{label:'Oʻchirish',cls:'dngf',run:()=>{const nb=$('#offBusy').checked,now=Date.now();
+      free.forEach(p=>p.status='off');
+      if(nb)busy.forEach(p=>{p.pwrOff=true;if(p.status==='busy'){p.status='pause';p.session.pausedAt=now}});
+      const n=free.length+(nb?busy.length:0);if(!n){toast('Hech narsa oʻchirilmadi','err');return false}
+      addLog('info',`Oʻchirish buyrugʻi yuborildi → PC ${rangeTxt([...free,...(nb?busy:[])].map(p=>p.n))}${nb?` (seanslar pauzada: PC ${rangeTxt(busy.map(p=>p.n))})`:''} — ${me().name}`);
+      commit();toast(`${n} ta kompyuter oʻchirildi`+(!nb&&busy.length?` · ${busy.length} ta seans ochiq qoldi`:''))}}]});
 }
 function bulkOffModal(sel){
   const free=sel.filter(p=>p.status==='free'),busy=sel.filter(active),off=sel.filter(p=>p.status==='off');
@@ -1292,7 +1325,7 @@ function addTimeModal(n){
 function moveModal(n){
   const free=S.pcs.filter(p=>p.status==='free');if(!free.length)return toast('Boʻsh kompyuter yoʻq','err');
   modal({title:`Seansni koʻchirish — PC ${n}`,body:`<div class="frm"><label>Qaysi kompyuterga<select id="mv-t">${free.map(p=>`<option value="${p.n}">PC ${p.n}</option>`).join('')}</select></label><div class="note">Vaqt, toʻlov va bar hisobi yangi kompyuterga oʻtadi.</div></div>`,
-    actions:[{label:'Bekor qilish'},{label:'Koʻchirish',cls:'pri',run:()=>{const to=+v('mv-t'),a=pcBy(n),b=pcBy(to);b.session=a.session;b.status=a.status;a.session=null;a.status='free';
+    actions:[{label:'Bekor qilish'},{label:'Koʻchirish',cls:'pri',run:()=>{const to=+v('mv-t'),a=pcBy(n),b=pcBy(to);b.session=a.session;b.status=a.status;a.session=null;a.status=a.pwrOff?'off':'free';a.pwrOff=false;
       addLog('info',`Seans koʻchirildi PC ${n} → PC ${to} / ${who(b.session)}`);ui.sel=new Set([to]);commit();toast(`PC ${n} → PC ${to}`)}}]});
 }
 function msgModal(list){
@@ -2235,7 +2268,7 @@ const CLEAN=[
   {k:'req',t:'Klient soʻrovlari',d:'Kompyuterlardan kelgan soʻrovlar roʻyxati',n:()=>S.requests.length,run:()=>{S.requests=[]}},
   {k:'profit',t:'Foyda hisob-kitobi',d:'Xarajat yozuvlari (ijara, internet, ish haqi va boshqalar)',n:()=>S.expenses.filter(e=>e.src!=='kassa').length,run:()=>{S.expenses=S.expenses.filter(e=>e.src==='kassa')}},
   {k:'sess',t:'Ochiq seanslar',d:'Hamma band kompyuterlar pul hisoblanmasdan boʻshatiladi',danger:1,n:()=>S.pcs.filter(p=>p.session).length,
-    run:()=>{S.pcs.forEach(p=>{if(p.session){p.session=null;p.status='free';p.offAt=null}});ui.sel.clear()}},
+    run:()=>{S.pcs.forEach(p=>{if(p.session){p.session=null;p.status='free';p.offAt=null;p.pwrOff=false}});ui.sel.clear()}},
   {k:'cli',t:'Mijoz akkauntlari',d:'Barcha mijozlar va ularning balansi oʻchiriladi',danger:1,n:()=>S.clients.length,
     run:()=>{S.pcs.forEach(p=>{const s=p.session;if(s&&s.clientId){s.guest=who(s);if(s.mode==='balance'){s.mode='post'}s.clientId=null}});S.clients=[]}}
 ];
