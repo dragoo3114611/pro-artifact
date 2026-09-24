@@ -9,7 +9,7 @@ Kompyuter klubi (game club) uchun admin/operator paneli prototipi. Bitta `index.
 - **Mijozlar** — akkaunt (login/parol), balans, bonus darajalari, tashriflar tarixi.
 - **Bar** — ikki yorliq. *Sotuv*: mahsulot kartalari, savat, «Kimga yoziladi» (kassa yoki PC seansi), Chiqim kiritish, Mahsulot sotish. *Ombor*: tan narxi, sotuv narxidagi qiymat, foyda/dona, qoldiq va chegara, Tovar kirimi (yetkazuvchi, kassadan toʻlash), Sanash, kirim va sanash tarixi.
 - **Qarz daftari** — har bir qarzdor bitta hisobda (qarzlar va toʻlovlar), qidiruv (ism yoki telefon), toʻlanganlarni koʻrsatish, Excelga eksport, qarzdor tarixi (har bir yozuvni tahrirlash va oʻchirish), toʻlovda chegirma.
-- **Smena** — ochish va yopish, kassa sanash, toʻlov usullari (naqd, karta, Click, Payme).
+- **Smena** — ochish va yopish, kassa sanash, toʻlov usullari (naqd, karta, Click, Payme). Smena yopilganda yangisi avtomatik ochiladi (xodim va qoldiriladigan naqd tanlanadi, qolgani «topshirildi»).
 - **Hisobot** — davr (Bugun, Kecha, Shu hafta, Shu oy yoki Dan–Gacha sana va vaqt); kartalar: Jami ishlandi, Kompyuterlar, Bar, Qarz boʻldi, Qarz toʻlandi, Kassadan chiqim, Kassada naqd; «Kassa harakati (naqd)» jadvali; grafiklar va toplar.
 - **Foyda hisob-kitobi** (faqat admin) — xarajatlar va sof foyda.
 - **Tariflar** — soatbay va paket tariflari, kun va vaqt boʻyicha. CYBER tarifi: 10 000 soʻm/soat.

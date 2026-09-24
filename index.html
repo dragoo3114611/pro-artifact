@@ -1481,16 +1481,32 @@ function vShift(m){
   else cur=`<div class="box"><div class="empty"><p style="margin:0 0 10px">Hozir ochiq smena yoʻq. Toʻlovlarni qabul qilishdan oldin smenani oching.</p><button class="btn pri" type="button" id="sh-open">Smenani ochish</button></div></div>`;
   const hist=S.shifts.filter(s=>s.closeAt).slice(-14).reverse();
   m.innerHTML=`<div class="page"><div class="ph"><h1>Smena</h1>${sh?'<button class="btn pri" type="button" id="sh-close">Smenani yopish</button>':''}</div>${cur}
-    <div class="box"><h2>Oldingi smenalar</h2><div class="tbl"><table class="t"><thead><tr><th>Xodim</th><th>Ochildi</th><th>Yopildi</th><th class="r">Tushum</th><th class="r">Naqd kutilgan</th><th class="r">Sanalgan</th><th class="r">Farq</th></tr></thead><tbody>
-    ${hist.map(s=>{const st=shiftStats(s.openAt,s.closeAt),df=s.counted-s.expected;return `<tr><td>${esc(uname(s.user))}</td><td>${dshort(s.openAt)} ${hm(s.openAt)}</td><td>${dshort(s.closeAt)} ${hm(s.closeAt)}</td><td class="r">${som(st.total)}</td><td class="r">${som(s.expected)}</td><td class="r">${som(s.counted)}</td><td class="r">${df?`<span class="pill ${df<0?'p-off':'p-pause'}">${df>0?'+':''}${num(df)}</span>`:'<span class="pill p-free">0</span>'}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Hali yopilgan smena yoʻq</td></tr>'}</tbody></table></div></div></div>`;
+    <div class="box"><h2>Oldingi smenalar</h2><div class="tbl"><table class="t"><thead><tr><th>Xodim</th><th>Ochildi</th><th>Yopildi</th><th class="r">Tushum</th><th class="r">Naqd kutilgan</th><th class="r">Sanalgan</th><th class="r">Farq</th><th class="r">Topshirildi</th></tr></thead><tbody>
+    ${hist.map(s=>{const st=shiftStats(s.openAt,s.closeAt),df=s.counted-s.expected;return `<tr><td>${esc(uname(s.user))}</td><td>${dshort(s.openAt)} ${hm(s.openAt)}</td><td>${dshort(s.closeAt)} ${hm(s.closeAt)}</td><td class="r">${som(st.total)}</td><td class="r">${som(s.expected)}</td><td class="r">${som(s.counted)}</td><td class="r">${df?`<span class="pill ${df<0?'p-off':'p-pause'}">${df>0?'+':''}${num(df)}</span>`:'<span class="pill p-free">0</span>'}</td><td class="r">${s.handed?som(s.handed):'—'}</td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Hali yopilgan smena yoʻq</td></tr>'}</tbody></table></div></div></div>`;
   if($('#sh-open'))$('#sh-open').onclick=()=>modal({title:'Smenani ochish',body:`<div class="frm"><label>Xodim<input value="${esc(me().name)}" disabled></label><label>Kassadagi naqd pul (soʻm)<input id="so-c" type="number" min="0" step="1000" value="500000"></label></div>`,
     actions:[{label:'Bekor qilish'},{label:'Ochish',cls:'pri',run:()=>{S.shifts.push({id:uid(),user:S.user,openAt:Date.now(),openCash:vn('so-c'),closeAt:null});addLog('info',`Smena ochildi: ${me().name}, kassa ${som(vn('so-c'))}`);commit();toast('Smena ochildi')}}]});
   if($('#sh-close'))$('#sh-close').onclick=()=>{const st=shiftStats(sh.openAt,Date.now()+1),exp=sh.openCash+st.m.cash-st.outCash;
     modal({title:'Smenani yopish',body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Boshlangʻich kassa</span><span>${som(sh.openCash)}</span></div>${can('kassa')?`<div class="ln"><span>Naqd tushum</span><span>${som(st.m.cash)}</span></div>${st.outCash?`<div class="ln"><span>Kassadan chiqim</span><span>−${som(st.outCash)}</span></div>`:''}<div class="ln big"><span>Kutilgan naqd</span><span>${som(exp)}</span></div>`:'<div class="ln muted"><span>Kutilgan summa yashirin — kassani sanab kiriting</span></div>'}</div>
       <label>Kassada sanalgan naqd pul<input id="sc-c" type="number" min="0" step="1000" value="${can('kassa')?exp:''}"></label><div class="sumbox" id="sc-d"></div>
+      <div class="flabel" style="margin-top:4px">Yangi smena avtomatik ochiladi</div>
+      <div class="row2"><label>Keyingi smena xodimi<select id="sc-u">${S.users.filter(u=>u.active!==false).map(u=>`<option value="${esc(u.login)}"${u.login===S.user?' selected':''}>${esc(u.name)}</option>`).join('')}</select></label>
+      <label>Keyingi smenaga qoldiriladigan naqd<input id="sc-l" type="number" min="0" step="1000" value="${can('kassa')?exp:''}"></label></div>
+      <div class="note" id="sc-t"></div>
       ${S.pcs.some(active)?`<div class="note">${S.pcs.filter(active).length} ta seans ochiq — ular keyingi smenaga oʻtadi.</div>`:''}</div>`,
-      actions:[{label:'Bekor qilish'},{label:'Yopish',cls:'pri',run:()=>{sh.closeAt=Date.now();sh.counted=vn('sc-c');sh.expected=exp;addLog(sh.counted===exp?'info':'warn',`Smena yopildi: ${uname(sh.user)} · tushum ${som(st.total)} · farq ${num(sh.counted-exp)}`);commit();toast('Smena yopildi')}}],
-      onMount:ov=>{const u=()=>{if(!can('kassa'))return $('#sc-d').hidden=true;const df=vn('sc-c')-exp;$('#sc-d').innerHTML=`<div class="ln big"><span>Farq</span><span style="color:${df<0?'var(--off)':df>0?'var(--warn)':'var(--ok)'}">${df>0?'+':''}${som(df)}</span></div>`};ov.addEventListener('input',u);u()}})};
+      actions:[{label:'Bekor qilish'},{label:'Yopish va yangi smena ochish',cls:'pri',run:()=>{
+        if(v('sc-c')==='')return $('#sc-d').hidden=false,$('#sc-d').innerHTML='<div class="ln" style="color:var(--off)"><span>Kassadagi naqd pulni sanab kiriting</span></div>',false;
+        const counted=vn('sc-c'),left=v('sc-l')===''?counted:Math.min(vn('sc-l'),counted),nu=v('sc-u'),now=Date.now();
+        sh.closeAt=now;sh.counted=counted;sh.expected=exp;sh.handed=counted-left;
+        addLog(counted===exp?'info':'warn',`Smena yopildi: ${uname(sh.user)} · tushum ${som(st.total)} · farq ${num(counted-exp)}${counted-left?` · topshirildi ${som(counted-left)}`:''}`);
+        S.shifts.push({id:uid(),user:nu,openAt:now,openCash:left,closeAt:null,auto:true});
+        addLog('info',`Yangi smena avtomatik ochildi: ${uname(nu)}, kassa ${som(left)}`);
+        if(nu!==S.user&&S.users.find(u=>u.login===nu&&u.pass)){commit();toast('Smena yopildi va yangisi ochildi');loginModal(true);return}
+        if(nu!==S.user){S.user=nu;ui.elev=0}
+        commit();toast(`Smena yopildi · yangi smena ochildi (${uname(nu)})`)}}],
+      onMount:ov=>{let lTouched=false;$('#sc-l',ov).addEventListener('input',()=>{lTouched=true});
+        const u=()=>{const c=vn('sc-c');if(!lTouched)$('#sc-l').value=v('sc-c');const l=Math.min(vn('sc-l'),c);
+        $('#sc-t').textContent=v('sc-c')===''?'':`Yangi smena ${som(l)} bilan boshlanadi${c-l>0?` · ${som(c-l)} topshiriladi (kassadan olinadi)`:''}.`;
+        if(!can('kassa'))return $('#sc-d').hidden=true;const df=vn('sc-c')-exp;$('#sc-d').innerHTML=`<div class="ln big"><span>Farq</span><span style="color:${df<0?'var(--off)':df>0?'var(--warn)':'var(--ok)'}">${df>0?'+':''}${som(df)}</span></div>`};ov.addEventListener('input',u);u()}})};
   $$('[data-unhide]',m).forEach(b=>b.onclick=()=>guard('kassa','Kassa summasini koʻrish',()=>render()));
 }
 
