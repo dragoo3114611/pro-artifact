@@ -223,6 +223,8 @@ svg.chart .gl{stroke:var(--line2)}
 .pl tr.sub td{font-weight:600}
 
 .kpi.hl{background:var(--accent-soft);border-color:var(--accent)}
+.kpi.kbtn{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.h4m{margin:16px 0 8px;font-size:14px}
 .dpl{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow:auto;border:1px solid var(--line2);border-radius:10px;padding:6px}
 .dpo{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--text);font:inherit}
 .dpo:hover{background:var(--hover)}
@@ -1569,6 +1571,23 @@ function debtHist(key){
         else{const p=S.debtPays.find(y=>y.id===id);confirmM('Toʻlovni oʻchirish',`${dmy(p.t)} — ${som(p.amount)} toʻlov oʻchirilsinmi? Kassa hisobidan ham olib tashlanadi.`,()=>{S.debtPays=S.debtPays.filter(y=>y!==p);if(p.ledgerId)S.ledger=S.ledger.filter(l=>l.id!==p.ledgerId);addLog('warn',`Qarz toʻlovi oʻchirildi: ${x.name} ${som(p.amount)} (${me().name})`);commit();again()},'Oʻchirish')}}));
     }});
 }
+/* Bugun kim qancha qarz boʻldi / toʻladi */
+function debtToday(kind){
+  const today=sod(Date.now()),ds=debtors();
+  const rows=kind==='qarz'?S.debts.filter(d=>d.t>=today).map(d=>({t:d.t,key:debtKey(d),a:d.amount,note:d.note||'Qoʻlda yozildi'}))
+    :S.debtPays.filter(p=>p.t>=today).map(p=>({t:p.t,key:p.key,a:p.amount,disc:p.disc||0,m:p.method,note:p.note||''}));
+  rows.sort((a,b)=>b.t-a.t);
+  const nm=k=>ds[k]?ds[k].name:'—',g={};rows.forEach(r=>{const x=g[r.key]||(g[r.key]={key:r.key,a:0,n:0,disc:0});x.a+=r.a;x.n++;x.disc+=r.disc||0});
+  const grp=Object.values(g).sort((a,b)=>b.a-a.a),tot=rows.reduce((a,r)=>a+r.a,0),q=kind==='qarz';
+  const h=modal({title:q?'Bugun qarz boʻlganlar':'Bugun toʻlaganlar',wide:true,body:`<div class="kpis"><div class="kpi hl"><div class="l">${q?'Jami qarz boʻldi':'Jami toʻlandi'}</div><div class="v">${num(tot)}</div></div><div class="kpi"><div class="l">Kishi</div><div class="v">${grp.length}</div></div><div class="kpi"><div class="l">Yozuvlar</div><div class="v">${rows.length}</div></div></div>
+    ${rows.length?`<h4 class="h4m">Kim qancha</h4><div class="box"><div class="tbl"><table class="t"><thead><tr><th>Ism</th><th>Telefon</th><th class="r">Soni</th><th class="r">${q?'Qarz boʻldi':'Toʻladi'}</th>${q?'':'<th class="r">Chegirma</th>'}<th class="r">Hozirgi qoldiq</th><th></th></tr></thead><tbody>
+      ${grp.map(x=>`<tr><td><b>${esc(nm(x.key))}</b></td><td>${esc(ds[x.key]&&ds[x.key].phone||'—')}</td><td class="r">${x.n}</td><td class="r" style="color:${q?'var(--off)':'var(--ok)'};font-weight:700">${q?'+':'−'}${num(x.a)}</td>${q?'':`<td class="r">${x.disc?num(x.disc):'—'}</td>`}<td class="r">${num(ds[x.key]?ds[x.key].left:0)}</td><td class="act"><button class="btn sm" type="button" data-th="${esc(x.key)}">Tarix</button></td></tr>`).join('')}</tbody></table></div></div>
+    <h4 class="h4m">Barcha yozuvlar</h4><div class="box"><div class="tbl"><table class="t"><thead><tr><th>Vaqt</th><th>Ism</th><th class="r">Summa</th>${q?'<th>Izoh</th>':'<th>Usul</th><th class="r">Chegirma</th>'}</tr></thead><tbody>
+      ${rows.map(r=>`<tr><td>${hm(r.t)}</td><td>${esc(nm(r.key))}</td><td class="r">${num(r.a)}</td>${q?`<td class="muted">${esc(r.note)}</td>`:`<td>${METHODS[r.m]||'—'}</td><td class="r">${r.disc?num(r.disc):'—'}</td>`}</tr>`).join('')}</tbody></table></div></div>`
+    :`<div class="empty">${q?'Bugun hech kim qarz boʻlmadi':'Bugun hech kim qarz toʻlamadi'}</div>`}`,
+    actions:[{label:'Yopish',cls:'pri'}],
+    onMount:ov=>$$('[data-th]',ov).forEach(b=>b.onclick=()=>{h.close();debtHist(b.dataset.th)})});
+}
 function debtorEditModal(key){const x=debtors()[key];if(!x)return;const c=x.clientId&&client(x.clientId);
   modal({title:'Qarzdorni tahrirlash',body:`<div class="frm"><label>Ism<input id="dr-n" value="${esc(x.name)}"></label><label>Telefon<input id="dr-p" value="${esc(x.phone||'')}" inputmode="tel" placeholder="+998 __ ___ __ __"></label>
     ${c?`<div class="note">Bu qarzdor mijoz akkaunti (@${esc(c.login)}) bilan bogʻlangan — mijoz maʼlumotlari ham yangilanadi.</div>`:''}<div class="err" id="dr-e"></div></div>`,
@@ -1614,8 +1633,8 @@ function vDebts(m){
   m.innerHTML=`<div class="page">
     <div class="kpis"><div class="kpi hl"><div class="l">Jami qarz</div><div class="v">${num(open.reduce((a,x)=>a+x.left,0))}</div></div>
       <div class="kpi"><div class="l">Qarzdorlar</div><div class="v">${open.length}</div></div>
-      <div class="kpi"><div class="l">Bugun qarz boʻldi</div><div class="v">${num(tNew)}</div></div>
-      <div class="kpi"><div class="l">Bugun toʻlandi</div><div class="v">${num(tPaid)}</div></div></div>
+      <div class="kpi kbtn"><div><div class="l">Bugun qarz boʻldi</div><div class="v">${num(tNew)}</div></div><button class="btn sm" type="button" id="d-tn" aria-label="Bugun kim qancha qarz boʻldi">Koʻrish</button></div>
+      <div class="kpi kbtn"><div><div class="l">Bugun toʻlandi</div><div class="v">${num(tPaid)}</div></div><button class="btn sm" type="button" id="d-tp" aria-label="Bugun kim qancha toʻladi">Koʻrish</button></div></div>
     <div class="ph"><h1>Qarz daftari</h1><input type="search" id="dq" placeholder="Ism yoki telefon boʻyicha qidirish" value="${esc(ui.dq||'')}" aria-label="Qarzdorni qidirish">
       <label class="ck2"><input type="checkbox" id="dall"${ui.dAll?' checked':''}>Toʻlanganlarni ham koʻrsatish</label>
       <button class="btn" type="button" id="d-xls">Excelga eksport</button><button class="btn pri" type="button" id="d-new">Qarz yozish</button></div>
@@ -1639,6 +1658,7 @@ function vDebts(m){
   $('#dq').oninput=e=>{ui.dq=e.target.value;body()};
   $('#dall').onchange=e=>{ui.dAll=e.target.checked;body()};
   $('#d-new').onclick=()=>debtNewModal(null);
+  $('#d-tn').onclick=()=>debtToday('qarz');$('#d-tp').onclick=()=>debtToday('pay');
   $('#d-xls').onclick=()=>{const l=filt();if(!l.length)return toast('Eksport uchun qarzdor yoʻq','err');debtExport(l)};
   body();
 }
