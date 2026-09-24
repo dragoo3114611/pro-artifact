@@ -898,7 +898,7 @@ const IC={
   shell:'<path d="M7.5 7h3.6v3.3H7.5zM12.9 7h3.6v3.3h-3.6zM7.5 11.6h3.6v3H7.5zM12.9 11.6h3.6v3h-3.6z" fill="var(--c3)"/>',
   bar:'<path d="M9 6.5h6l-.8 8.5h-4.4z" stroke="var(--c2)" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M9.3 9.5h5.4" stroke="var(--c2)" stroke-width="1.5"/>'
 };
-const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['shutdown','Oʻchirish'],['wake','Yoqish'],['pmenu',''],0,['msg','Xabar'],['bar','Bar xizmati'],['procs','Jarayonlar'],['shell','Mijoz ekrani']];
+const TB=[['start','Start'],['add','Qoʻshimcha'],['stop','Stop'],['move','Koʻchirish'],0,['pause','Pauza'],['restart','Qayta yuklash'],['m:restart',''],['shutdown','Oʻchirish'],['m:shutdown',''],['wake','Yoqish'],['m:wake',''],0,['msg','Xabar'],['bar','Bar xizmati'],['procs','Jarayonlar'],['shell','Mijoz ekrani']];
 const LOGI={info:'<svg class="li" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="var(--busy)"/><path d="M8 7v4.5M8 4.6v.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
   warn:'<svg class="li" viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="var(--warn)"/><path d="M8 6v4M8 12v.2" stroke="#1a1a1a" stroke-width="1.7" stroke-linecap="round"/></svg>',
   msg:'<svg class="li" viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="1.5" fill="var(--c3)"/><path d="M2.5 4.5 8 8.5l5.5-4" stroke="#fff" stroke-width="1.4" fill="none"/></svg>'};
@@ -906,7 +906,7 @@ const LOGI={info:'<svg class="li" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7
 function vZal(m){
   m.innerHTML=`<div class="zal">
     <div class="toolbar" role="toolbar" aria-label="Kompyuter amallari">
-      ${TB.map(b=>b&&b[0]==='pmenu'?'<button class="tb tbm" type="button" data-act="pmenu" title="Barcha kompyuterlar: oʻchirish, qayta yuklash, yoqish" aria-label="Barcha kompyuterlar quvvati" aria-haspopup="menu">▾</button>':b?`<button class="tb" type="button" data-act="${b[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC.mon}${IC[b[0]]}</svg>${b[1]}</button>`:'<span class="tb-sep"></span>').join('')}
+      ${TB.map(b=>b&&b[0].startsWith('m:')?`<button class="tb tbm" type="button" data-act="${b[0]}" title="${PMT[b[0].slice(2)]} — boshqa variantlar" aria-label="${PMT[b[0].slice(2)]} variantlari" aria-haspopup="menu">▾</button>`:b?`<button class="tb" type="button" data-act="${b[0]}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC.mon}${IC[b[0]]}</svg>${b[1]}</button>`:'<span class="tb-sep"></span>').join('')}
       <div class="clock"><div class="crow"><button type="button" class="bkb off" id="bkb"></button><div class="t" id="clk"></div></div><div class="d" id="clkd"></div></div>
     </div>
     <div class="subbar">
@@ -1034,14 +1034,14 @@ function selPcs(){return [...ui.sel].map(n=>pcBy(n)).filter(Boolean)}
 function updateToolbar(){
   const sel=selPcs(),one=sel.length===1?sel[0]:null;
   const en={start:one&&(one.status==='free'||(one.status==='off'&&S.settings.beh.autoWake)),add:one&&active(one),stop:sel.length>0&&sel.every(active),move:one&&active(one),pause:one&&active(one),
-    restart:sel.some(p=>p.status!=='off'&&!p.pwrOff),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'||p.pwrOff),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),procs:sel.some(p=>p.status!=='off'),shell:!!one,pmenu:true};
+    restart:sel.some(p=>p.status!=='off'&&!p.pwrOff),shutdown:sel.some(p=>p.status==='free'),wake:sel.some(p=>p.status==='off'||p.pwrOff),msg:sel.some(p=>p.status!=='off'),bar:one&&active(one),procs:sel.some(p=>p.status!=='off'),shell:!!one,'m:restart':true,'m:shutdown':true,'m:wake':true};
   $$('.tb').forEach(b=>{b.disabled=!en[b.dataset.act]});
   const pb=$('.tb[data-act="pause"]');if(pb&&one)pb.lastChild.textContent=one.status==='pause'?'Davom etish':'Pauza';
 }
 function updateClock(){bkBadge();const c=$('#clk');if(!c)return;const now=Date.now();c.textContent=hms(now);$('#clkd').textContent=dstr(now)+', '+['yakshanba','dushanba','seshanba','chorshanba','payshanba','juma','shanba'][new Date(now).getDay()]}
 function primary(n){const p=pcBy(n);if(p.status==='free'||(p.status==='off'&&S.settings.beh.autoWake&&p.mac))startModal(n);else if(active(p))stopModal(n);else if(p.status==='off')zalAction('wake')}
 function zalAction(a,btn){
-  if(a==='pmenu')return powerMenu(btn||$('.tb[data-act="pmenu"]'));
+  if(a.startsWith('m:'))return powerMenu(a.slice(2),btn||$(`.tb[data-act="${a}"]`));
   const sel=selPcs();if(!sel.length)return toast('Avval jadvaldan kompyuterni tanlang','err');
   const one=sel[0];
   if(a==='start'){if(one.status==='off'&&!one.mac)return toast(`PC ${one.n} oʻchiq va MAC manzili yoʻq — avtomatik yoqib boʻlmaydi`,'err');return startModal(one.n)}
@@ -1135,18 +1135,27 @@ function bulkTimeModal(sel){
       $$('[data-qm]',ov).forEach(b=>b.onclick=()=>{$('#bt-m').value=b.dataset.qm;u()});ov.addEventListener('input',u);u()}});
 }
 /* ---------- Barcha kompyuterlar quvvati (▾ menyu) ---------- */
-function powerMenu(anchor){
-  const all=S.pcs,free=all.filter(p=>p.status==='free'),on=all.filter(p=>p.status!=='off'&&!p.pwrOff),off=all.filter(p=>p.status==='off'||p.pwrOff),busy=all.filter(active);
+const PMT={restart:'Qayta yuklash',shutdown:'Oʻchirish',wake:'Yoqish'};
+function powerMenu(kind,anchor){
+  const all=S.pcs,sel=selPcs(),isOn=p=>p.status!=='off'&&!p.pwrOff,isOff=p=>p.status==='off'||p.pwrOff,free=all.filter(p=>p.status==='free'),on=all.filter(isOn),off=all.filter(isOff),busy=all.filter(p=>active(p)&&!p.pwrOff);
   const G=fn=>()=>guard('pcPower','Kompyuter quvvatini boshqarish',fn);
-  popMenu(anchor,[
-    {label:`Boʻsh PClarni oʻchirish (${free.length})`,icon:'⏻',disabled:!free.length,run:G(()=>offAllModal(false))},
-    {label:`Hammasini oʻchirish (${on.length})`,icon:'⏻',danger:true,disabled:!on.length,run:G(()=>offAllModal(true))},
-    '-',
-    {label:`Hammasini qayta yuklash (${on.length})`,icon:'↻',disabled:!on.length,run:G(()=>modal({title:`Hammasini qayta yuklash — ${on.length} ta`,
-      body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Qayta yuklanadi</span><b>PC ${rangeTxt(on.map(p=>p.n))}</b></div>${busy.length?`<div class="ln" style="color:var(--warn)"><span>Seans ochiq (vaqt saqlanadi)</span><span>PC ${rangeTxt(busy.map(p=>p.n))}</span></div>`:''}</div></div>`,
-      actions:[{label:'Bekor qilish'},{label:`Qayta yuklash (${on.length})`,cls:'pri',run:()=>{const l=S.pcs.filter(p=>p.status!=='off'&&!p.pwrOff);addLog('info',`Qayta yuklash buyrugʻi yuborildi → PC ${rangeTxt(l.map(p=>p.n))} — ${me().name}`);toast(`${l.length} ta kompyuter qayta yuklanmoqda`);commit()}}]}))},
-    {label:`Hammasini yoqish (${off.length})`,icon:'⚡',disabled:!off.length,run:G(()=>{wake(S.pcs);commit()})}
-  ]);
+  const rst=(list,title)=>modal({title:`${title} — ${list.length} ta`,
+      body:`<div class="frm"><div class="sumbox"><div class="ln"><span>Qayta yuklanadi</span><b>PC ${rangeTxt(list.map(p=>p.n))}</b></div>${list.some(active)?`<div class="ln" style="color:var(--warn)"><span>Seans ochiq (vaqt saqlanadi)</span><span>PC ${rangeTxt(list.filter(active).map(p=>p.n))}</span></div>`:''}</div></div>`,
+      actions:[{label:'Bekor qilish'},{label:`Qayta yuklash (${list.length})`,cls:'pri',run:()=>{addLog('info',`Qayta yuklash buyrugʻi yuborildi → PC ${rangeTxt(list.map(p=>p.n))} — ${me().name}`);toast(`${list.length} ta kompyuter qayta yuklanmoqda`);commit()}}]});
+  const items={
+    restart:[
+      {label:`Tanlanganlarni qayta yuklash (${sel.filter(isOn).length})`,icon:'↻',disabled:!sel.some(isOn),run:G(()=>zalAction('restart'))},
+      {label:`Boʻsh PClarni qayta yuklash (${free.length})`,icon:'↻',disabled:!free.length,run:G(()=>rst(free,'Boʻsh PClarni qayta yuklash'))},
+      {label:`Hammasini qayta yuklash (${on.length})`,icon:'↻',disabled:!on.length,run:G(()=>rst(on,'Hammasini qayta yuklash'))}],
+    shutdown:[
+      {label:`Tanlanganlarni oʻchirish (${sel.filter(p=>p.status==='free').length})`,icon:'⏻',disabled:!sel.some(p=>p.status==='free'),run:G(()=>bulkOffModal(sel))},
+      {label:`Boʻsh PClarni oʻchirish (${free.length})`,icon:'⏻',disabled:!free.length,run:G(()=>offAllModal(false))},
+      {label:`Hammasini oʻchirish (${on.length})`,icon:'⏻',danger:true,disabled:!on.length,run:G(()=>offAllModal(true))}],
+    wake:[
+      {label:`Tanlanganlarni yoqish (${sel.filter(isOff).length})`,icon:'⚡',disabled:!sel.some(isOff),run:G(()=>{wake(sel);commit()})},
+      {label:`Hammasini yoqish (${off.length})`,icon:'⚡',disabled:!off.length,run:G(()=>{wake(S.pcs);commit()})}]
+  }[kind];
+  popMenu(anchor,items);
 }
 function offAllModal(withBusy){
   const free=S.pcs.filter(p=>p.status==='free'),busy=S.pcs.filter(p=>active(p)&&!p.pwrOff);
