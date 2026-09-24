@@ -1214,12 +1214,13 @@ function debtorPick(title,def,cb,amount){
   const ds=Object.values(debtors()).sort((a,b)=>b.left-a.left||a.name.localeCompare(b.name));
   const dKeys=new Set(ds.map(x=>x.key)),cl=S.clients.filter(c=>!dKeys.has('c:'+c.id));
   const defKey=def.clientId?'c:'+def.clientId:'n:'+String(def.name||'').trim().toLowerCase();
-  const opts=[{key:defKey,name:def.name,phone:(def.clientId&&client(def.clientId)?client(def.clientId).phone:''),clientId:def.clientId||null,left:(ds.find(x=>x.key===defKey)||{left:0}).left,tag:'shu seans'},
-    ...ds.filter(x=>x.key!==defKey).map(x=>({key:x.key,name:x.name,phone:x.phone,clientId:x.clientId,left:x.left,tag:'qarzdor'})),
+  const anon=x=>!x.clientId&&!x.phone&&/^mehmon/i.test(String(x.name||'').trim());
+  const opts=[...(def.clientId?[{key:defKey,name:def.name,phone:(client(def.clientId)?client(def.clientId).phone:''),clientId:def.clientId,left:(ds.find(x=>x.key===defKey)||{left:0}).left,tag:'shu seans'}]:[]),
+    ...ds.filter(x=>x.key!==defKey&&!anon(x)).map(x=>({key:x.key,name:x.name,phone:x.phone,clientId:x.clientId,left:x.left,tag:'qarzdor'})),
     ...cl.filter(c=>'c:'+c.id!==defKey).map(c=>({key:'c:'+c.id,name:c.name,phone:c.phone,clientId:c.id,left:0,tag:'mijoz'}))];
-  let pick=opts[0];
+  let pick=def.clientId?opts[0]:null;
   modal({title,wide:true,body:`<div class="frm"><input id="dp-q" type="search" placeholder="Ism yoki telefon boʻyicha qidirish" aria-label="Qarzdorni qidirish">
-    <div class="dpl" id="dp-l" role="listbox" aria-label="Qarzdorlar"></div>
+    <div class="note" style="margin:-4px 0 0">Qarz aniq odamga yoziladi — roʻyxatdan tanlang yoki yangi qarzdor qoʻshing.</div><div class="dpl" id="dp-l" role="listbox" aria-label="Qarzdorlar"></div>
     <details id="dp-new"><summary>Yangi qarzdor</summary><div class="row2" style="margin-top:8px"><label>Ism<input id="dp-n" placeholder="Masalan: Jamshid"></label><label>Telefon<input id="dp-ph" inputmode="tel" placeholder="+998 __ ___ __ __"></label></div></details>
     ${amount?`<div class="row2"><label>Hozir toʻlanadigan qism (ixtiyoriy)<input id="dp-pay" type="number" min="0" max="${amount-1}" step="500" value="0" inputmode="numeric"></label><label>Toʻlov usuli<select id="dp-pm">${methodOpts('cash')}</select></label></div>
     <div class="qk">${[.25,.5,.75].map(f=>r100(amount*f)).filter(x=>x>0&&x<amount).map(x=>`<button type="button" class="btn sm" data-pp="${x}">${num(x)}</button>`).join('')}</div>
@@ -1229,8 +1230,9 @@ function debtorPick(title,def,cb,amount){
       const pay=amount?vn('dp-pay'):0,pm=amount?v('dp-pm'):'cash';
       if(amount&&pay>=amount)return $('#dp-e').textContent=`Toʻliq toʻlansa, «Toʻlandi, yakunlash» tugmasini bosing. Qisman summa ${som(amount)} dan kam boʻlishi kerak`,false;
       const ex={payNow:pay,payMethod:pm};
-      if($('#dp-new').open&&v('dp-n').trim()){cb(Object.assign({clientId:null,name:v('dp-n').trim(),phone:v('dp-ph').trim()},ex));return}
-      if(!pick)return $('#dp-e').textContent='Qarzdorni tanlang yoki yangi qarzdor ismini yozing',false;
+      if($('#dp-new').open&&v('dp-n').trim()){const nm=v('dp-n').trim();if(/^mehmon/i.test(nm))return $('#dp-e').textContent='Qarzdorning haqiqiy ismini yozing',false;
+        const ex2=opts.find(o=>!o.clientId&&o.name.trim().toLowerCase()===nm.toLowerCase());cb(Object.assign({clientId:null,name:ex2?ex2.name:nm,phone:v('dp-ph').trim()||(ex2?ex2.phone:'')},ex));return}
+      if(!pick)return $('#dp-e').textContent='Qarzdorni roʻyxatdan tanlang yoki «Yangi qarzdor»ga ism yozing',false;
       cb(Object.assign({clientId:pick.clientId,name:pick.name,phone:pick.phone||''},ex))}}],
     onMount:ov=>{const draw=()=>{const q=v('dp-q').trim().toLowerCase(),qd=q.replace(/\D/g,'');
       const l=opts.filter(o=>!q||o.name.toLowerCase().includes(q)||(qd.length>=2&&(o.phone||'').replace(/\D/g,'').includes(qd)));
@@ -1544,6 +1546,7 @@ function debtNewModal(key){
     actions:[{label:'Bekor qilish'},{label:'Yozish',cls:'pri',run:()=>{const a=vn('dn-a');let c=null,n,ph='';
       if(pre){c=pre.clientId?client(pre.clientId):null;n=pre.name;ph=pre.phone}else{c=client(v('dn-c'));n=c?c.name:v('dn-n').trim();ph=c?'':v('dn-ph').trim()}
       if(!n||!a)return $('#dn-e').textContent='Kim va qancha — ikkalasi majburiy',false;
+      if(!pre&&!c&&/^mehmon/i.test(n))return $('#dn-e').textContent='Qarzdorning haqiqiy ismini yozing',false;
       S.debts.push({id:uid(),clientId:c?c.id:null,name:n,phone:ph,amount:a,t:Date.now(),note:v('dn-t').trim()||'Qoʻlda yozildi'});addLog('warn',`Qarz daftariga yozildi: ${n} ${som(a)}`);commit();toast('Qarz yozildi')}}],
     onMount:ov=>{if(pre)return;const u=()=>{$('#dn-nw').hidden=!!v('dn-c')};ov.addEventListener('change',u);u()}});
 }
