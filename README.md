@@ -25,6 +25,29 @@ Namuna maʼlumotlarda parol yoʻq — dastur parolsiz ochiladi. Parol oʻrnatils
 
 Ishga tushirish: `index.html` faylini brauzerda oching.
 
+## DUST2 klient agentiga moslik (shared/protocol.md)
+Klub Pult Server endi haqiqiy **DUST2 Klient** agenti (o-zimni-prototipim-game-club, `agent/`) bilan
+`shared/protocol.md` protokoli boʻyicha gaplashadi. Server `ws://<ip>:<port>/agent` manzilida tinglaydi,
+xabarlar konverti `{v,type,id,ts,payload}`.
+- **Juftlash:** agent `pair.request {name, code, ip, mac, version, fastStartup}` yuboradi. Nom `PC <raqam>`
+  ga (masalan «PC 5») mos boʻlishi va kod Sozlamalar › Kompyuterlar › Server boʻlimidagi kodga teng boʻlishi
+  kerak. Toʻgʻri boʻlsa `pair.ok {token}` va toʻliq `sync`, aks holda `pair.denied {reason}` (bad_code / unknown_pc).
+- **Qayta ulanish:** `hello {token}` → `hello.ok` (token SHA-256 hash boʻlib saqlanadi).
+- **Server → agent:** `sync`, `session.start/pause/resume/lock`, `lock.config`, `behaviour`, `message`,
+  `process.list`, `process.kill`, `power.off`, `power.reboot`, `time.sync`, `auth.ok/denied`, `lock.wallpaper`.
+- **Agent → server:** `heartbeat`, `auth.login`, `session.started/updated/ended`, `client.request_time`,
+  `client.call_admin`, `client.warning_shown`, `process.list.result`, `time.request/synced`, `message.shown`,
+  `lock.wallpaper.request`, `client.unpair`. Har biriga `ack`/`error` javob.
+- **Xizmat paroli** agentga `pbkdf2$<takror>$<salt b64>$<hash b64>` (SHA-256) formatida yuboriladi.
+- **Wake-on-LAN** haqiqiy UDP paket (255.255.255.255 va subnet broadcast, 9 va 7-port).
+
+### DUST2 Klientni Klub Pult Serverga ulash
+1. Admin kompyuterda Klub Pult Serverni oching (server 7777-portda ishga tushadi; Sozlamalar › Kompyuterlar ›
+   Server boʻlimida IP, port va 6 xonali ulanish kodi koʻrinadi).
+2. Oʻsha boʻlimda oʻyin kompyuterini **aynan «PC 5» kabi nom bilan** qoʻshing (agent yuboradigan nomga mos).
+3. Oʻyin kompyuterida DUST2 Klientni oʻrnating va ochib, admin IP, port va ulanish kodini kiriting.
+4. Juftlangach kompyuter Zal jadvalida «Boʻsh» boʻlib chiqadi; keyingi ulanishlarda kod soʻralmaydi.
+
 ## Klub Pult Server — admin kompyuter uchun Windows ilovasi
 `admin/` papkasida Electron loyihasi: `index.html` oddiy Windows dasturi sifatida ochiladi va ichida **server** ishlaydi — klient kompyuterlar LAN orqali WebSocket bilan ulanadi (standart port 7777, Sozlamalar › Kompyuterlar › Server).
 - Juftlash: klient PC raqami va ulanish kodini yuboradi → server kalit (token) beradi, keyingi safar kodsiz ulanadi. IP va MAC avtomatik yoziladi.

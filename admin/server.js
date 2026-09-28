@@ -32,7 +32,7 @@ function start(p, onEvent) {
   stop();
   port = p; lastErr = '';
   return new Promise(resolve => {
-    const s = new WebSocketServer({ host: '0.0.0.0', port: p, maxPayload: 1 << 20 });
+    const s = new WebSocketServer({ host: '0.0.0.0', port: p, path: '/agent', maxPayload: 1 << 20 });
     let done = false;
     const finish = () => { if (!done) { done = true; resolve(info()); } };
     s.on('listening', () => { wss = s; finish(); });

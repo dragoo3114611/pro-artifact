@@ -1140,7 +1140,7 @@ function procList(p){
 function mainApp(p){const g=procList(p).find(x=>!x.sys);return g?g.name:''}
 const keepList=()=>S.settings.procKeep||(S.settings.procKeep=[]);
 function cleanProcs(list){let tot=0;const kp=keepList();
-  list.forEach(p=>{const l=procList(p),k=l.filter(x=>!x.sys&&!kp.includes(x.name));tot+=k.length;if(NET){if(k.length)netSend(p.n,{t:'kill',exes:k.map(x=>x.exe)});if(net.procs[p.n])net.procs[p.n].list=l.filter(x=>x.sys||kp.includes(x.name))}else procs[p.n].list=l.filter(x=>x.sys||kp.includes(x.name));
+  list.forEach(p=>{const l=procList(p),k=l.filter(x=>!x.sys&&!kp.includes(x.name));tot+=k.length;if(NET){if(k.length)netSend(p.n,'process.kill',{pids:k.map(x=>x.pid).filter(Boolean)});if(net.procs[p.n])net.procs[p.n].list=l.filter(x=>x.sys||kp.includes(x.name))}else procs[p.n].list=l.filter(x=>x.sys||kp.includes(x.name));
     if(k.length)addLog('info',`Jarayonlar tozalandi PC ${p.n}: ${k.map(x=>x.name).join(', ')} yopildi — ${me().name}`)});
   save();if(ui.view==='zal')renderGrid();toast(tot?`${tot} ta ilova yopildi (${list.length} ta kompyuter)`:'Yopiladigan ilova yoʻq');
 }
@@ -1154,7 +1154,7 @@ function procsModal(sel){
     actions:[{label:'Yopish'},...(list.length>1?[{label:`Hammasida tozalash (${list.length} ta PC)`,cls:'dng',run:()=>{guard('procs','Jarayonlarni tozalash',()=>{cleanProcs(list);draw()});return false}}]:[]),
       {label:'Tozalash',cls:'dngf',run:()=>{guard('procs','Jarayonlarni tozalash',()=>{cleanProcs([cur]);draw()});return false}}],
     onMount:ov=>{let iv=0;draw=()=>{if(!ov.isConnected)return clearInterval(iv);
-      if(NET&&!ov.dataset.q||NET&&Date.now()-(+ov.dataset.q)>1500){ov.dataset.q=Date.now();list.forEach(p=>netSend(p.n,{t:'procs.get'}))}
+      if(NET&&!ov.dataset.q||NET&&Date.now()-(+ov.dataset.q)>1500){ov.dataset.q=Date.now();list.forEach(p=>netSend(p.n,'process.list'))}
       const kp=keepList(),l=procList(cur),j=NET?x=>x:x=>Math.max(0,x*(0.85+Math.random()*0.3));let cpu=0,mem=0;
       const rows=l.map(x=>{const c=j(x.cpu),mm=j(x.mem);cpu+=c;mem+=mm;return {x,c,mm,d:x.game?j(3):j(0.1),nt:x.game?j(4):/Chrome|Discord|Telegram/.test(x.name)?j(1.2):0}});
       const t=$('#pm-t',ov);if(t)t.innerHTML=list.map(p=>`<button type="button" role="tab" aria-selected="${p===cur}" class="${p===cur?'on':''}" data-pc="${p.n}">PC ${p.n} · ${procList(p).filter(x=>!x.sys).length}</button>`).join('');
@@ -1167,7 +1167,7 @@ function procsModal(sel){
       $$('#pm-t [data-pc]',ov).forEach(b=>b.onclick=()=>{cur=pcBy(+b.dataset.pc);draw()});
       $$('[data-keep]',ov).forEach(b=>b.onclick=()=>{const nm=b.dataset.keep,kl=keepList(),i=kl.indexOf(nm);i>=0?kl.splice(i,1):kl.push(nm);
         addLog('info',`${nm}: ${i>=0?'tozalashda yopiladigan boʻldi':'tozalashda saqlanadigan qilib belgilandi'} — ${me().name}`);save();draw()});
-      $$('[data-kill]',ov).forEach(b=>b.onclick=()=>{const nm=b.dataset.kill;guard('procs','Jarayonni tugatish',()=>{const st=NET?(net.procs[cur.n]||{list:[]}):procs[cur.n],x=st.list.find(y=>y.name===nm);st.list=st.list.filter(y=>y.name!==nm);if(NET&&x)netSend(cur.n,{t:'kill',exes:[x.exe],pids:[x.pid]});
+      $$('[data-kill]',ov).forEach(b=>b.onclick=()=>{const nm=b.dataset.kill;guard('procs','Jarayonni tugatish',()=>{const st=NET?(net.procs[cur.n]||{list:[]}):procs[cur.n],x=st.list.find(y=>y.name===nm);st.list=st.list.filter(y=>y.name!==nm);if(NET&&x&&x.pid)netSend(cur.n,'process.kill',{pids:[x.pid]});
         addLog('info',`Jarayon tugatildi PC ${cur.n}: ${nm}${x?` (${x.exe})`:''} — ${me().name}`);save();draw();if(ui.view==='zal')renderGrid()})});
     };draw();iv=setInterval(draw,2000)}});
 }
@@ -2556,95 +2556,151 @@ function loginModal(start){
       $('#lg-p',ov).addEventListener('keydown',e=>{if(e.key==='Enter')$('.dlg-f .pri',ov).click()})}});
 }
 
-/* =================== TARMOQ: haqiqiy klient kompyuterlar (Windows ilovasi) ===================
-   Klub Pult Server ilovasida (admin/) window.kpNet mavjud: klient kompyuterlar LAN orqali
-   WebSocket bilan ulanadi. Brauzerda ochilganda kpNet yoʻq — prototip simulyatsiyasi ishlaydi.
-   Protokol (JSON):
-     klient → server: hello{pc,code|token,ip,mac,host,ver} · login{rid,login,pass} · request · seen{mt} · logout
-                      procs{list} · service{action} · timesync{drift,ok}
-     server → klient: welcome{token,pc,club,svc,time,sync} · denied{reason} · state{s} · lock{L,club}
-                      loginResult{rid,err,name,balance} · toast{title,text,color} · power{what} · procs.get · kill{exes} */
+/* =================== TARMOQ: haqiqiy DUST2 klient agentlari ===================
+   Klub Pult Server (admin/) window.kpNet orqali LAN'da WebSocket server ochadi
+   (ws://<ip>:<port>/agent). Klient agentlar shared/protocol.md dagi protokol bilan
+   ulanadi: konvert {v,type,id,ts,payload}. Brauzerda kpNet yoʻq — ichki simulyatsiya. */
 const NET=window.kpNet||null;
-const net={conn:{},byPc:{},last:{},lastAt:{},lockSig:{},prevView:{},boot:{},procs:{},info:null,svcHash:'',svcFor:''};
-const online=p=>!!(NET&&p&&net.byPc[p.n]);
-function netInit(){if(!NET)return;
-  NET.on(netEv);netStart();
+const net={conn:{},byPc:{},info:null,procs:{},lockSig:{},sess:{},prev:{},boot:{},fsw:{},svc:{for:null,hash:''}};
+const online=p=>!!(NET&&p&&net.byPc[p.n]!=null);
+const DMODE={pre:'pre',post:'open',balance:'acc'};
+function netInit(){if(!NET)return;NET.on(netEv);netStart();
   setInterval(()=>NET.info().then(i=>{net.info=i}),5000)}
 function netStart(){return NET.start(S.settings.srv.port).then(i=>{net.info=i;
   if(i.err){addLog('warn',`Server ishga tushmadi: ${i.err}`);toast('Server ishga tushmadi: '+i.err,'err')}
   else{const sv=S.settings.srv;if(i.ips.length&&!i.ips.some(x=>x.ip===sv.ip)){sv.ip=i.ips[0].ip;save()}
-    addLog('info',`Server ishga tushdi: ${i.ips.map(x=>x.ip).join(', ')||'—'} · port ${i.port}`)}
+    addLog('info',`Server ishga tushdi: ${i.ips.map(x=>x.ip).join(', ')||'—'} · port ${i.port} · yoʻl /agent`)}
   if(ui.view==='sozlamalar')render()})}
-async function netSvcHash(){const pw=S.settings.srv.svcPass||'';if(net.svcFor===pw)return net.svcHash;
-  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('klubpult:'+pw));
-  net.svcHash=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');net.svcFor=pw;return net.svcHash}
-function netSend(n,msg){const id=net.byPc[n];if(id)NET.send(id,msg)}
+/* ---- konvert va yordamchilar ---- */
+const uuidv=()=>crypto.randomUUID?crypto.randomUUID():[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,'0')).join('');
+function env(type,payload){return {v:1,type,id:uuidv(),ts:Date.now(),payload:payload||{}}}
+function netSend(n,type,payload){const id=net.byPc[n];if(id!=null)NET.send(id,env(type,payload))}
+function sendRaw(id,type,payload){NET.send(id,env(type,payload))}
+async function sha256hex(str){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const b64=u8=>btoa(String.fromCharCode(...new Uint8Array(u8)));
+async function svcHash(){const pw=S.settings.srv.svcPass||'';if(net.svc.for===pw)return net.svc.hash;
+  if(!pw){net.svc.for=pw;net.svc.hash='';return ''}
+  const it=120000,salt=crypto.getRandomValues(new Uint8Array(16));
+  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:it,hash:'SHA-256'},key,256);
+  net.svc.for=pw;net.svc.hash=`pbkdf2$${it}$${b64(salt)}$${b64(bits)}`;return net.svc.hash}
+const wphash=d=>{if(!d)return null;let h=5381;for(let i=0;i<d.length;i+=37)h=((h<<5)+h+d.charCodeAt(i))>>>0;return 'w'+d.length.toString(36)+h.toString(36)};
+const sidNum=x=>{let h=2166136261;for(const c of String(x)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+function pcByName(name){const q=String(name||'').trim().toLowerCase();
+  return S.pcs.find(p=>(p.cname&&p.cname.toLowerCase()===q)||('pc '+p.n)===q||('pc '+p2(p.n))===q||('pc'+p.n)===q||String(p.n)===q)}
+/* ---- DUST2 payloadlar ---- */
+function dSession(p,now){const s=p.session;if(!s)return null;const lim=limitMs(s),rem=lim==null?null:Math.max(0,Math.round(lim-elapsed(s,now)));
+  return {sessionId:sidNum(s.id),mode:DMODE[s.mode]||'pre',startedAt:s.start,endsAt:rem==null?null:now+rem,remainingMs:rem,rate:s.rate,
+    client:s.clientId?who(s):null,paused:p.status==='pause',due:barTotal(s)+(s.mode==='post'?timeCost(s,now):0)}}
+function dLock(p){const L=Object.assign({},LK_DEF,lockFor(p));
+  return {theme:L.theme,layout:L.h,valign:L.v,clockSize:L.sClock,titleSize:L.sTitle,textSize:L.sSub,title:L.title||S.settings.name,text:L.sub||'',
+    clock:L.showClock!==false,pcName:!!L.showPc,login:L.showLogin!==false,fit:L.fit,dim:L.dim,wallpaperHash:L.bg?wphash(L.bg):null}}
+function dBeh(){const b=S.settings.beh,w=S.settings.warn;
+  return {onExpire:b.end==='lockoff'?'delay':(b.end||'lock'),offDelay:b.offMin||5,blockInput:b.block!==false,
+    warnMin:(w&&w.on&&w.mins&&w.mins.length)?Math.max.apply(null,w.mins):5,showWidget:b.timer!==false}}
+async function dAgent(){return {servicePassHash:await svcHash(),unlockCombo:S.settings.srv.hotkey||'Ctrl+Alt+P'}}
+const sessCur=(p,sp)=>sp?{id:sp.sessionId,mode:sp.mode,paused:sp.paused,paidMin:(p.session&&p.session.paidMin)||0,due:Math.round(sp.due/1000)}:null;
+/* ---- ulanish hodisalari ---- */
 function netRefresh(){save();renderNav();if(ui.view==='zal'){renderGrid();updateToolbar()}}
+function attach(id,p,ip,mac,ver){const old=net.byPc[p.n];if(old!=null&&old!==id)NET.close(old);
+  net.conn[id].pc=p.n;net.conn[id].ver=ver||'';net.byPc[p.n]=id;
+  delete net.lockSig[p.n];delete net.sess[p.n];net.prev[p.n]='on';net.boot[p.n]=p.bootUntil||0;
+  p.paired=true;if(ip&&!p.ip)p.ip=String(ip);if(mac)p.mac=String(mac).toUpperCase().replace(/-/g,':');
+  if(p.pwrOff)p.pwrOff=false;if(p.status==='off')p.status=p.session?'busy':'free';p.bootUntil=0}
+function fastStartupWarn(p,on){if(!on||net.fsw[p.n])return;net.fsw[p.n]=1;
+  addLog('warn',`PC ${p.n}: tez ishga tushirish (fast startup) yoqilgan — oʻchirilgach masofadan yoqish ishlamasligi mumkin`)}
 function netEv(ev){
   if(ev.type==='server'){net.info=ev.info;if(ev.info.err)toast('Server: '+ev.info.err,'err');return}
-  if(ev.type==='open'){net.conn[ev.id]={ip:ev.ip,at:Date.now()};return}
+  if(ev.type==='open'){net.conn[ev.id]={ip:ev.ip,pc:null,at:Date.now()};return}
   if(ev.type==='close'){const c=net.conn[ev.id];delete net.conn[ev.id];
-    if(c&&c.pc&&net.byPc[c.pc]===ev.id){delete net.byPc[c.pc];const p=pcBy(c.pc);
-      if(p){if(p.status==='free'){p.status='off';addLog('info',`PC ${p.n}: klient uzildi — kompyuter oʻchiq`)}
-        else if(active(p))addLog('warn',`PC ${p.n}: klient bilan aloqa uzildi — seans davom etmoqda, vaqt kompyuterning oʻzida sanaladi`)}
+    if(c&&c.pc!=null&&net.byPc[c.pc]===ev.id){const p=pcBy(c.pc);delete net.byPc[c.pc];delete net.sess[c.pc];delete net.lockSig[c.pc];net.prev[c.pc]='off';
+      if(p){if(p.status==='free'){p.status='off';addLog('info',`PC ${p.n}: agent uzildi — oʻchiq deb belgilandi`)}
+        else if(active(p))addLog('warn',`PC ${p.n}: agent bilan aloqa uzildi — seans davom etmoqda, vaqt kompyuterda sanaladi`)}
       netRefresh()}return}
-  if(ev.type==='msg')try{netMsg(ev.id,ev.msg)}catch(e){console.error(e)}
+  if(ev.type==='msg')Promise.resolve(netMsg(ev.id,ev.msg)).catch(e=>console.error(e));
 }
-const rndTok=()=>[...crypto.getRandomValues(new Uint8Array(18))].map(x=>x.toString(16).padStart(2,'0')).join('');
-function netMsg(id,m){const c=net.conn[id];if(!c)return;
-  if(m.t==='hello'){
-    const n=Math.round(+m.pc),p=pcBy(n),sv=S.settings.srv;
-    if(!p)return NET.send(id,{t:'denied',reason:`PC ${m.pc} raqamli kompyuter klubda yoʻq (1–${S.pcs.length}). Sozlamalar › Kompyuterlar boʻlimida qoʻshing.`});
-    const okTok=!!(p.token&&m.token===p.token),okCode=!!m.code&&String(m.code).replace(/\s/g,'')===sv.code;
-    if(!okTok&&!okCode){addLog('warn',`PC ${n}: ulanish rad etildi (${c.ip}) — ${m.token?'kalit mos emas':'ulanish kodi notoʻgʻri'}`);
-      return NET.send(id,{t:'denied',reason:m.token?'Bu kompyuter uchun kalit eskirgan. Ulanish kodini qayta kiriting.':'Ulanish kodi notoʻgʻri. Klub Pult › Sozlamalar › Kompyuterlar › Server boʻlimidagi kodni kiriting.'})}
-    const first=!okTok;if(first)p.token=rndTok();
-    const old=net.byPc[n];if(old&&old!==id)NET.close(old);
-    c.pc=n;c.host=m.host||'';c.ver=m.ver||'';net.byPc[n]=id;delete net.last[n];delete net.lockSig[n];net.prevView[n]=null;
-    p.paired=true;if(m.ip&&!p.ip)p.ip=String(m.ip);if(m.mac&&!p.mac)p.mac=String(m.mac).toUpperCase().replace(/-/g,':');
-    if(p.pwrOff)p.pwrOff=false;if(p.status==='off')p.status='free';p.bootUntil=0;
-    netSvcHash().then(h=>NET.send(id,{t:'welcome',token:p.token,pc:n,club:S.settings.name,svc:{hash:h,hotkey:sv.hotkey||'Ctrl+Alt+K'},time:Date.now(),sync:!!sv.sync,block:S.settings.beh.block!==false}));
-    addLog('info',`PC ${n}: klient ${first?'juftlandi va ':''}ulandi — ${c.ip}${c.host?' ('+c.host+')':''}`);
-    netRefresh();return}
-  const p=c.pc&&pcBy(c.pc);if(!p)return;const s=p.session;
-  if(m.t==='login'){const r=klLogin(p,String(m.login||''),String(m.pass||''));
-    if(!r.err){addLog('info',`PC ${p.n}: mijoz qulf ekranidan akkaunt bilan kirdi (${r.name})`);netRefresh()}
-    NET.send(id,Object.assign({t:'loginResult',rid:m.rid},r));return netPushOne(p,true)}
-  if(m.t==='seen'){(p.inbox||[]).forEach(x=>{if(x.t===m.mt)x.seen=true});save();return netPushOne(p,true)}
-  if(m.t==='procs'){net.procs[p.n]={t:Date.now(),list:(Array.isArray(m.list)?m.list:[]).slice(0,150).map(x=>({name:String(x.name||x.exe||'?'),exe:String(x.exe||''),pid:+x.pid||0,mem:+x.mem||0,cpu:+x.cpu||0,game:!!x.game,sys:false}))};return}
-  if(m.t==='service'){addLog('warn',`PC ${p.n}: xizmat paroli bilan ${m.action==='unlock'?'qulf vaqtincha ochildi':m.action==='setup'?'ulanish sozlamalari ochildi':m.action==='exit'?'klient dasturi yopildi':'xizmat rejimiga kirildi'}`);return netRefresh()}
-  if(m.t==='timesync'){addLog('info',`PC ${p.n}: soat ${m.ok?'toʻgʻrilandi':'toʻgʻrilanmadi (administrator huquqi kerak)'} — farq ${Math.round((+m.drift||0)/1000)} soniya`);return}
-  if(!s)return;
-  if(m.t==='request'){S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s.clientId,name:who(s),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda (${who(s)})`);toast(`PC ${p.n}: mijoz vaqt soʻramoqda`);return netRefresh()}
-  if(m.t==='logout'){
-    if(s.mode!=='balance')return NET.send(id,{t:'toast',title:'Chiqib boʻlmaydi',text:'Seansni administrator yakunlaydi',color:'red'});
-    if(barTotal(s)>0)return NET.send(id,{t:'toast',title:'Bar uchun toʻlov bor',text:'Seansni administrator yakunlaydi',color:'red'});
-    finishSession(p.n,'none');addLog('info',`PC ${p.n}: mijoz akkauntdan chiqdi`);commit();return netPushOne(p,true)}
+async function netMsg(id,m){const c=net.conn[id];if(!c)return;
+  if(!m||m.v!==1||typeof m.type!=='string'||!m.type||typeof m.id!=='string'||!m.id){sendRaw(id,'error',{code:'bad_request',message:'Xabar formati notoʻgʻri'});return}
+  const P=m.payload&&typeof m.payload==='object'?m.payload:{};
+  if(c.pc==null){
+    if(m.type==='pair.request')return pairReq(id,m,P);
+    if(m.type==='hello')return helloReq(id,m,P);
+    return sendRaw(id,'error',{re:m.id,code:'unauthorized',message:'Avval juftlanish kerak'})}
+  const p=pcBy(c.pc);if(!p)return;const s=p.session,ok=()=>sendRaw(id,'ack',{re:m.id});
+  switch(m.type){
+    case 'heartbeat':return ok();
+    case 'time.request':return sendRaw(id,'time.sync',{serverTime:Date.now()});
+    case 'time.synced':{const d=Math.round(+(P.driftMs||0));if(Math.abs(d)>=1000)addLog('info',`PC ${p.n}: kompyuter soati toʻgʻrilandi (${Math.round(d/1000)} soniya farq)`);return ok()}
+    case 'client.request_time':S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s&&s.clientId,name:s?who(s):('PC '+p.n),text:'Vaqt soʻrash'});addLog('warn',`PC ${p.n}: mijoz vaqt soʻramoqda${s?' ('+who(s)+')':''}`);toast(`PC ${p.n}: mijoz vaqt soʻramoqda`);netRefresh();return ok();
+    case 'client.call_admin':S.requests.push({id:uid(),t:Date.now(),pc:p.n,clientId:s&&s.clientId,name:s?who(s):('PC '+p.n),text:'Administratorni chaqirdi'});addLog('warn',`PC ${p.n}: administrator chaqirilmoqda`);toast(`PC ${p.n}: administrator chaqirilmoqda`);netRefresh();return ok();
+    case 'client.warning_shown':addLog('info',`PC ${p.n}: klientga ogohlantirish koʻrsatildi (${Math.round(+(P.minutes||0))} daqiqa qoldi)`);return ok();
+    case 'session.started':case 'session.updated':return ok();
+    case 'session.ended':{const r=String(P.reason||'');if(r==='logout'&&s&&s.mode==='balance'&&barTotal(s)===0){finishSession(p.n,'none');addLog('info',`PC ${p.n}: mijoz akkauntdan chiqdi`);commit()}return ok()}
+    case 'message.shown':{(p.inbox||[]).forEach(x=>{if(!x.seen&&x.mid===P.re)x.seen=true});save();return ok()}
+    case 'lock.wallpaper.request':{const d=(Object.assign({},LK_DEF,lockFor(p)).bg)||'',mm=/^data:([^;]+);base64,(.*)$/.exec(d);
+      return sendRaw(id,'lock.wallpaper',{hash:d?wphash(d):null,mime:mm?mm[1]:'',dataBase64:mm?mm[2]:''})}
+    case 'process.list.result':net.procs[p.n]={t:Date.now(),cpu:+(P.cpu||0),ramUsed:+(P.ramUsedMb||0),ramTotal:+(P.ramTotalMb||0),
+      list:(Array.isArray(P.items)?P.items:[]).slice(0,250).map(x=>({name:String(x.name||x.exe||'?'),exe:String(x.exe||''),pid:+x.pid||0,mem:+(x.ramMb||0),cpu:+(x.cpu||0),sys:x.kind==='sys',game:x.kind==='shell',prot:!!x.protected}))};return ok();
+    case 'client.unpair':p.token='';p.paired=false;addLog('warn',`PC ${p.n}: klient oʻzini uzdi`);ok();
+      setTimeout(()=>{const cid=net.byPc[p.n];if(cid!=null){delete net.byPc[p.n];NET.close(cid)}netRefresh()},50);return;
+    case 'auth.login':return authLogin(id,p,P);
+    default:return sendRaw(id,'error',{re:m.id,code:'bad_request',message:'Nomaʼlum xabar: '+m.type})}
 }
-function netSnap(p,now){const s=p.session,un=(p.inbox||[]).find(m=>!m.seen);
-  return {pc:p.n,club:S.settings.name,view:p.status==='off'||p.pwrOff?'off':s&&p.status==='busy'?'desk':'lock',pause:p.status==='pause',
-    timer:!!S.settings.beh.timer,block:S.settings.beh.block!==false,
-    ended:!s&&p.lastEnd&&now-p.lastEnd.t<3*MIN?{due:p.lastEnd.due||0}:null,
-    s:s?{id:s.id,mode:s.mode,el:elapsed(s,now),lim:limitMs(s),tname:s.tname,who:who(s),rate:s.rate,paid:s.paid||0,bal:s.mode==='balance'?Math.max(0,creditLeft(s,now)):null,acc:accrued(s,now)}:null,
-    msg:un?{t:un.t,text:un.text,from:un.from}:null}}
-function netPushOne(p,force){if(!online(p))return;const now=Date.now(),sn=netSnap(p,now),L=Object.assign({},LK_DEF,lockFor(p));
-  const ls=[L.theme,L.fit,L.dim,L.title,L.sub,L.h,L.v,L.sClock,L.sTitle,L.sSub,L.sPc,L.showClock,L.showPc,L.showLogin,(L.bg||'').length,(L.bg||'').slice(-40),S.settings.name].join('|');
-  if(net.lockSig[p.n]!==ls){net.lockSig[p.n]=ls;netSend(p.n,{t:'lock',L,club:S.settings.name})}
-  const k=JSON.stringify(Object.assign({},sn,{s:sn.s&&Object.assign({},sn.s,{el:0,bal:0,acc:0})}));
-  if(force||k!==net.last[p.n]||now-(net.lastAt[p.n]||0)>=5000){net.last[p.n]=k;net.lastAt[p.n]=now;netSend(p.n,{t:'state',s:sn})}}
-function netTick(){if(!NET)return;
+async function pairReq(id,m,P){const sv=S.settings.srv,name=String(P.name||'').trim(),code=String(P.code||'');
+  const deny=(reason,msg)=>{sendRaw(id,'pair.denied',{reason,message:msg});addLog('warn',`Juftlash rad etildi (${reason}): "${name}"`)};
+  if(code!==sv.code)return deny('bad_code','Ulanish kodi notoʻgʻri. Admin kompyuterda koʻrsatilgan kodni kiriting.');
+  const p=pcByName(name);
+  if(!p)return deny('unknown_pc',`Bu nom bilan kompyuter roʻyxatda yoʻq: "${name}". Avval Sozlamalar › Kompyuterlar boʻlimida shu nomli kompyuter qoʻshing.`);
+  if(net.byPc[p.n]!=null){const oc=net.byPc[p.n];delete net.byPc[p.n];NET.close(oc)}
+  const tok=[...crypto.getRandomValues(new Uint8Array(32))].map(x=>x.toString(16).padStart(2,'0')).join('');
+  p.token=await sha256hex(tok);p.cname=name;
+  attach(id,p,P.ip,P.mac,P.version);
+  sendRaw(id,'pair.ok',{token:tok,pcId:p.n,name,serverTime:Date.now()});
+  fastStartupWarn(p,P.fastStartup);addLog('info',`Klient juftlandi: PC ${p.n} (${name})${P.ip?' — '+P.ip:''}`);
+  const now=Date.now(),sp=dSession(p,now);
+  sendRaw(id,'sync',{serverTime:now,session:sp,lock:dLock(p),behaviour:dBeh(),agent:await dAgent()});
+  net.sess[p.n]=sessCur(p,sp);net.lockSig[p.n]=JSON.stringify(dLock(p));netRefresh()}
+async function helloReq(id,m,P){const hash=await sha256hex(String(P.token||''));
+  const p=S.pcs.find(x=>x.token&&x.token===hash);
+  if(!p){sendRaw(id,'error',{re:m.id,code:'unauthorized',message:'Maxfiy kalit yaroqsiz — qayta juftlang'});setTimeout(()=>NET.close(id),100);return}
+  attach(id,p,P.ip,P.mac,P.version);
+  const now=Date.now(),sp=dSession(p,now),name=p.cname||('PC '+p.n);
+  sendRaw(id,'hello.ok',{pcId:p.n,name,serverTime:now,session:sp,lock:dLock(p),behaviour:dBeh(),agent:await dAgent()});
+  net.sess[p.n]=sessCur(p,sp);net.lockSig[p.n]=JSON.stringify(dLock(p));
+  fastStartupWarn(p,P.fastStartup);addLog('info',`PC ${p.n}: agent ulandi (${P.version||'?'})`);netRefresh()}
+async function authLogin(id,p,P){const deny=(reason,msg)=>sendRaw(id,'auth.denied',{reason,message:msg});
+  const r=klLogin(p,String(P.login||''),String(P.password||''));
+  if(r.err){const reason=/band|oʻynayapti/.test(r.err)?'busy':/[Bb]alans/.test(r.err)?'low_balance':'bad_credentials';return deny(reason,r.err)}
+  addLog('info',`PC ${p.n}: mijoz qulf ekranidan akkaunt bilan kirdi (${r.name})`);
+  const now=Date.now(),sp=dSession(p,now);
+  sendRaw(id,'auth.ok',{login:String(P.login||'').trim().toLowerCase(),balance:r.balance,remainingMs:sp?sp.remainingMs||0:0,rate:sp?sp.rate:0});
+  sendRaw(id,'session.start',sp);net.sess[p.n]=sessCur(p,sp);netRefresh()}
+/* ---- har soniyada: quvvat, qulf, seans oʻzgarishlari, xabarlar ---- */
+function netTick(){if(!NET)return;const now=Date.now();
   S.pcs.forEach(p=>{
-    const v=p.status==='off'||p.pwrOff?'off':'on';
-    // Zaldan oʻchirilgan (Oʻchirish, Hammasini oʻchirish, vaqt tugab oʻchish) → haqiqiy Windows oʻchirish buyrugʻi
-    if(online(p)&&net.prevView[p.n]==='on'&&v==='off'){netSend(p.n,{t:'power',what:'shutdown'});addLog('info',`PC ${p.n}: oʻchirish buyrugʻi yuborildi`)}
-    if(online(p)&&p.bootUntil&&net.boot[p.n]!==p.bootUntil&&p.bootUntil>Date.now()){net.boot[p.n]=p.bootUntil;netSend(p.n,{t:'power',what:'restart'})}
-    net.prevView[p.n]=v;netPushOne(p)})}
+    if(!online(p)){net.prev[p.n]=(p.status==='off'||p.pwrOff)?'off':'on';return}
+    const v=(p.status==='off'||p.pwrOff)?'off':'on';
+    if(net.prev[p.n]==='on'&&v==='off'){netSend(p.n,'power.off',{mode:'now'});addLog('info',`PC ${p.n}: oʻchirish buyrugʻi yuborildi`)}
+    net.prev[p.n]=v;
+    if(p.bootUntil&&net.boot[p.n]!==p.bootUntil&&p.bootUntil>now){net.boot[p.n]=p.bootUntil;netSend(p.n,'power.reboot')}
+    const lk=JSON.stringify(dLock(p));if(net.lockSig[p.n]!==lk){net.lockSig[p.n]=lk;netSend(p.n,'lock.config',dLock(p))}
+    const sp=dSession(p,now),cur=sessCur(p,sp),prev=net.sess[p.n]||null;
+    if(sp&&!prev)netSend(p.n,'session.start',sp);
+    else if(!sp&&prev)netSend(p.n,'session.lock',{due:(p.lastEnd&&now-p.lastEnd.t<3*MIN)?p.lastEnd.due:0});
+    else if(sp&&prev){
+      if(cur.paused&&!prev.paused)netSend(p.n,'session.pause',{sessionId:sp.sessionId});
+      else if(!cur.paused&&prev.paused)netSend(p.n,'session.resume',{sessionId:sp.sessionId,endsAt:sp.endsAt,remainingMs:sp.remainingMs});
+      else if(cur.paidMin!==prev.paidMin||cur.mode!==prev.mode||cur.due!==prev.due)netSend(p.n,'session.start',sp);
+    }
+    net.sess[p.n]=cur;
+    const un=(p.inbox||[]).find(x=>!x.seen&&!x.sent);
+    if(un){un.sent=true;un.mid=uuidv();const cid=net.byPc[p.n];if(cid!=null)NET.send(cid,{v:1,type:'message',id:un.mid,ts:Date.now(),payload:{text:un.text}})}
+  })}
 /* haqiqiy ilovada birinchi ishga tushishda namuna maʼlumotlar emas, toza klub */
 function realStart(){seed();migrate();CLEAN.forEach(c=>c.run());
   S.clients=[];S.products=[];S.log=[];S.requests=[];S.stockLog=[];S.shifts=S.shifts.filter(x=>!x.closeAt);S.shifts.forEach(x=>{x.openCash=0;x.openAt=Date.now();x.user='admin'});
-  S.pcs.forEach(p=>Object.assign(p,{status:'off',session:null,ip:'',mac:'',paired:false,token:'',inbox:[],pwrOff:false,offAt:null,lastEnd:null}));
+  S.pcs.forEach(p=>Object.assign(p,{status:'off',session:null,ip:'',mac:'',paired:false,token:'',cname:'',inbox:[],pwrOff:false,offAt:null,lastEnd:null}));
   S.user='admin';addLog('info','Klub Pult Server birinchi marta ishga tushdi — toza baza')}
-
 /* =================== Ishga tushirish =================== */
 S=load()||(NET?(realStart(),S):seed());
 if(!S.pcs||!S.pcs.length)seed();
