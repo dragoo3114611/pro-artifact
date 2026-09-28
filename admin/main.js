@@ -5,6 +5,10 @@ const path = require('path');
 const { execFile } = require('child_process');
 const net = require('./server');
 
+// SQLite baza — native modul yuklanmasa, dastur localStorage bilan ishlashda davom etadi.
+let db = null, dbFile = '', dbErr = '';
+try { db = require('./db'); } catch (e) { dbErr = e.message || String(e); }
+
 if (!app.requestSingleInstanceLock()) app.quit();
 
 let win, quitting = false;
@@ -39,6 +43,37 @@ ipcMain.on('net:send', (e, id, msg) => net.send(id, msg));
 ipcMain.on('net:close', (e, id) => net.close(id));
 ipcMain.handle('net:wol', (e, mac) => net.wol(mac));
 ipcMain.handle('app:version', () => app.getVersion());
+
+// ---- SQLite baza (sinxron oʻqish preload uchun, yozish debounce) ----
+let dbReady = false;
+function ensureDb() {
+  if (dbReady || !db) return dbReady;
+  try { dbFile = db.init(app.getPath('userData')); dbReady = true; }
+  catch (e) { dbErr = e.message || String(e); db = null; }
+  return dbReady;
+}
+let saveTimer = null, pendingJson = null;
+ipcMain.on('db:load', (e) => {
+  if (!ensureDb()) { e.returnValue = { ok: false, error: dbErr }; return; }
+  try { e.returnValue = { ok: true, file: dbFile, json: db.loadState() }; }
+  catch (err) { e.returnValue = { ok: false, error: err.message || String(err) }; }
+});
+ipcMain.on('db:save', (e, json) => {
+  if (!db) return;
+  pendingJson = json;
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    const j = pendingJson; pendingJson = null;
+    try { db.saveState(j); } catch (err) { /* keyingi saqlashda qayta urinadi */ }
+  }, 400);
+});
+ipcMain.handle('db:arch.add', (e, rec) => { try { db && db.archiveAdd(rec); return true; } catch { return false; } });
+ipcMain.handle('db:arch.list', () => { try { return db ? db.archiveList() : []; } catch { return []; } });
+ipcMain.handle('db:arch.get', (e, id) => { try { return db ? db.archiveGet(id) : null; } catch { return null; } });
+ipcMain.handle('db:arch.del', (e, id) => { try { db && db.archiveDel(id); return true; } catch { return false; } });
+// dastur yopilishidan oldin kutayotgan yozuvni saqlaymiz
+app.on('before-quit', () => { if (db && pendingJson != null) { try { db.saveState(pendingJson); } catch {} } });
 
 // Windows Firewall: port uchun kiruvchi qoidani qoʻshishga urinish (administrator huquqi boʻlsa ishlaydi;
 // boʻlmasa Windows oʻzi "Allow access" oynasini koʻrsatadi)

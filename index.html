@@ -624,8 +624,8 @@ const ui={view:'zal',zalMode:'table',sel:new Set(),last:null,lc:null,stf:'all',p
   logLimit:150,logF:'all',logQ:'',logSel:null,logH:220,cq:'',dq:'',dAll:false,rp:null,pm:null};
 try{const u=JSON.parse(localStorage.getItem(LS_UI)||'{}');if(u.zalMode)ui.zalMode=u.zalMode;if(u.logH)ui.logH=u.logH;}catch(e){}
 function saveUI(){try{localStorage.setItem(LS_UI,JSON.stringify({zalMode:ui.zalMode,logH:ui.logH}))}catch(e){}}
-function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}if(typeof bkSchedule==='function')bkSchedule()}
-function load(){try{const j=localStorage.getItem(LS);if(j){const s=JSON.parse(j);if(s&&s.v===1)return s}}catch(e){}return null}
+function save(){const j=JSON.stringify(S);try{localStorage.setItem(LS,j)}catch(e){}try{if(window.kpDb)window.kpDb.save(j)}catch(e){}if(typeof bkSchedule==='function')bkSchedule()}
+function load(){try{const j=(window.kpInitState!=null)?window.kpInitState:localStorage.getItem(LS);if(j){const s=JSON.parse(j);if(s&&s.v===1)return s}}catch(e){}return null}
 
 const client=id=>S.clients.find(c=>c.id===id);
 const prod=id=>S.products.find(p=>p.id===id);
@@ -2407,13 +2407,14 @@ function bkBadge(){const el=$('#bkb');if(!el)return;
   if(el.textContent!==tx){el.textContent=tx;el.className='bkb '+st;el.title=bk.dir?(bk.err?'Saqlashda xato: '+bk.err:`${bk.dir.name}/${bkName()} — har bir oʻzgarishdan keyin yangilanadi`):'Avto backup yoqilmagan — Sozlamalar › Backup'}
   if(!el.onclick)el.onclick=()=>guard(null,'Backup sozlamalari',()=>{ui.setSec='data';ui.view='sozlamalar';renderNav();render()})}
 function bkSchedule(){if(!bk.dir)return;clearTimeout(bk.timer);bk.timer=setTimeout(bkWrite,1500)}
-function bkStatus(){const el=$('#bk-st');if(!el)return;
+function bkStatus(){const el=$('#bk-st');if(!el)return;const dbn=$('#db-st');if(dbn)dbn.innerHTML=window.kpDbInfo&&window.kpDbInfo.ok?`<i class="dot ok"></i><div><b>SQLite baza faol</b><small>${esc(window.kpDbInfo.file||'klubpult.db')} — har oʻzgarish darhol saqlanadi</small></div>`:`<i class="dot"></i><div><b>Baza: localStorage</b><small>Bu koʻrinishda maʼlumot brauzer xotirasida (haqiqiy SQLite faqat Windows ilovasida)</small></div>`;
   const on=!!bk.dir,prev=S.settings.backupDir;
   el.innerHTML=`<i class="dot ${on?(bk.err?'bad':'ok'):''}"></i><div><b>${on?`Papka: ${esc(bk.dir.name)}`:prev?`Papka qayta tanlanishi kerak (${esc(prev)})`:'Papka tanlanmagan'}</b>
     <small>${on?(bk.err?`Saqlashda xato: ${esc(bk.err)}`:`${esc(bkName())} · oxirgi saqlash: ${bk.t?hms(bk.t):'—'}`):prev?'Brauzer xavfsizlik uchun papkaga ruxsatni har safar dastur ochilganda qayta soʻraydi.':'Hozircha maʼlumotlar faqat shu kompyuterdagi bazada saqlanmoqda.'}</small></div>`}
 function setData(b){
   b.innerHTML=`<div class="box"><h2>Avto backup</h2><div class="boxb">
     <p class="note" style="margin-top:0">Papkani bir marta tanlaysiz. Dastur oʻsha papkada bitta <b>${esc(bkName())}</b> fayl yaratadi va har safar ochilganda hamda har bir oʻzgarishdan keyin shu faylni yangilab boradi — yangi fayllar yaratilmaydi.</p>
+    <div class="bkst" id="db-st" style="margin-bottom:10px"></div>
     <div class="bkst" id="bk-st"></div>
     <div class="qk" style="margin-top:12px"><button class="btn pri" type="button" id="bk-pick">${bk.dir?'Boshqa papka tanlash':'Papkani tanlash'}</button>${bk.dir?'<button class="btn" type="button" id="bk-now">Hozir saqlash</button><button class="btn" type="button" id="bk-off">Avto backupni oʻchirish</button>':''}</div>
     <div class="flabel" style="margin-top:16px">Qoʻlda</div>

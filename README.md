@@ -25,6 +25,13 @@ Namuna maʼlumotlarda parol yoʻq — dastur parolsiz ochiladi. Parol oʻrnatils
 
 Ishga tushirish: `index.html` faylini brauzerda oching.
 
+## Haqiqiy SQLite baza
+Klub Pult Server (Windows ilovasi) maʼlumotni admin kompyuterda haqiqiy **SQLite** faylida saqlaydi
+(`%AppData%/Klub Pult/klubpult.db`, WAL rejimi) — brauzer `localStorage`iga bogʻliq emas, tozalansa
+yoʻqolmaydi. Har oʻzgarish darhol (debounce bilan) yoziladi; dastur qayta ochilganda shu fayldan oʻqiydi.
+Native modul (`better-sqlite3`) yuklanmasa, dastur `localStorage`ga xavfsiz qaytadi va ishlashda davom etadi.
+Sozlamalar › Backup boʻlimida baza holati (fayl yoʻli) koʻrsatiladi.
+
 ## DUST2 klient agentiga moslik (shared/protocol.md)
 Klub Pult Server endi haqiqiy **DUST2 Klient** agenti (o-zimni-prototipim-game-club, `agent/`) bilan
 `shared/protocol.md` protokoli boʻyicha gaplashadi. Server `ws://<ip>:<port>/agent` manzilida tinglaydi,
