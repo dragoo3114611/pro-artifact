@@ -387,10 +387,13 @@ kbd{font:600 12px "JetBrains Mono",ui-monospace,monospace;border:1px solid var(-
 .lk-dim{background:#000}
 .lk-in{position:absolute;inset:0;display:flex;padding:5cqw 6cqw;gap:4cqw}
 .lk-txt{display:flex;flex-direction:column;gap:.7cqw;min-width:0}
-.lk-clock{font-weight:500;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.lk-title{font-weight:800;letter-spacing:.06em;color:var(--lk-acc);text-transform:uppercase;line-height:1.1;overflow-wrap:anywhere}
+.lk-clock{font-weight:300;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.lk-pcname{font-weight:700;line-height:1;color:var(--lk-fg);margin-bottom:.2cqw}
+.lk-date{font-size:1.04cqw;color:var(--lk-sub);margin:.5cqw 0 1.8cqw}
+.lk-title{font-weight:700;color:var(--lk-acc);line-height:1.1;overflow-wrap:anywhere}
 .lk-sub{opacity:.92;line-height:1.3}
-.lk-login{display:grid;gap:.8cqw;width:min(26cqw,340px);flex:none}
+.lk-login{display:grid;gap:.8cqw;width:min(26cqw,340px);flex:none;background:rgba(14,18,26,.72);border:1px solid rgba(255,255,255,.14);border-radius:1cqw;padding:1.6cqw 1.4cqw}
+.lk-lg-h{font-weight:600;font-size:max(13px,1.4cqw);color:var(--lk-fg);margin-bottom:.4cqw}
 .lk-login input{font:inherit;font-size:max(12px,1.3cqw);padding:.8cqw 1.1cqw;border-radius:.5cqw;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.42);color:#fff;min-width:0}
 .lk-login button{font:inherit;font-size:max(12px,1.3cqw);padding:.8cqw;border:0;border-radius:.5cqw;background:var(--lk-acc);color:#111;font-weight:700;cursor:pointer}
 .lk-ph{height:1.7cqw;border-radius:.25cqw;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28)}
@@ -406,7 +409,8 @@ kbd{font:600 12px "JetBrains Mono",ui-monospace,monospace;border:1px solid var(-
 .lk-h-split.lk-v-middle .lk-in{justify-content:space-between;align-items:center}
 .lk-h-split.lk-v-bottom .lk-in{justify-content:space-between;align-items:flex-end}
 .lk-pcn{position:absolute;top:2cqw;right:2.5cqw;font-weight:700;font-size:max(11px,1.6cqw);opacity:.85}
-.lk-foot{position:absolute;left:1.2cqw;bottom:1cqw;font-size:max(10px,.95cqw);opacity:.75}
+.lk-foot{position:absolute;left:1.2cqw;bottom:1cqw;font-size:max(10px,.95cqw);opacity:.7}
+.lk-foot.lk-foot-c{left:50%;transform:translateX(-50%);opacity:.55}
 
 /* ---------- Mijoz ekrani (klient simulyatsiyasi) ---------- */
 .shell{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;background:#000}
@@ -2132,27 +2136,36 @@ function groupModal(id){
 
 /* ---------- Qulf ekrani ---------- */
 const LKTH={
-  dust2:{name:'Dust2 qum',acc:'#e8a33d',fg:'#ffffff',bg:'radial-gradient(55% 70% at 72% 42%,#6d4a22 0%,rgba(0,0,0,0) 70%),linear-gradient(135deg,#14161b,#271f16)'},
-  ct:{name:'Kontr-terror',acc:'#4fb3f0',fg:'#ffffff',bg:'radial-gradient(55% 70% at 75% 30%,#1b5585 0%,rgba(0,0,0,0) 70%),linear-gradient(135deg,#0a111d,#0e2135)'},
-  t:{name:'Terror',acc:'#ff7a2e',fg:'#ffffff',bg:'radial-gradient(55% 70% at 70% 40%,#7c2e10 0%,rgba(0,0,0,0) 70%),linear-gradient(135deg,#130c0a,#2a130b)'},
-  neon:{name:'Kiber neon',acc:'#ff3fd1',fg:'#ffffff',bg:'radial-gradient(45% 60% at 75% 35%,#7a1f8f 0%,rgba(0,0,0,0) 70%),radial-gradient(40% 55% at 18% 82%,#1d2b8f 0%,rgba(0,0,0,0) 70%),#0a0716'},
-  light:{name:'Yorugʻ minimal',acc:'#2c54d6',fg:'#1a2230',bg:'linear-gradient(135deg,#f4f6f9,#dde4ee)'}
+  dust2:{name:'Dust2 qum',acc:'#E0A84E',fg:'#ffffff',sub:'#AAB4C4',bg:'linear-gradient(135deg,#1A2233,#2D241F)'},
+  ct:{name:'Kontr-terror',acc:'#6EC3FF',fg:'#EEF6FF',sub:'#9DB4CC',bg:'linear-gradient(135deg,#08111D,#0D1B2C)'},
+  t:{name:'Terror',acc:'#FF7A3D',fg:'#FFF4EC',sub:'#CAA996',bg:'linear-gradient(135deg,#130B08,#1F120C)'},
+  neon:{name:'Kiber neon',acc:'#FF4FD8',fg:'#F5ECFF',sub:'#B7A6D6',bg:'linear-gradient(135deg,#0B0A18,#150B24)'},
+  light:{name:'Yorugʻ minimal',acc:'#2E5BD8',fg:'#172033',sub:'#5C6778',bg:'linear-gradient(135deg,#D9E2EE,#F3EFE8)'}
 };
 const LK_FIT=[['cover','Ekranni toʻldirish'],['contain','Toʻliq sigʻdirish'],['center','Markazda (asl oʻlcham)'],['stretch','Choʻzish'],['tile','Takrorlash (plitka)']];
-const LK_DEF={theme:'dust2',bg:'',fit:'cover',dim:40,title:'',sub:'Vaqt olish uchun administratorga murojaat qiling',h:'center',v:'middle',sClock:100,sTitle:100,sSub:100,sPc:100,showClock:true,showPc:false,showLogin:true};
+const LK_DEF={theme:'dust2',bg:'',fit:'cover',dim:40,title:'',sub:'Vaqt olish uchun administratorga murojaat qiling',h:'center',v:'middle',sClock:100,sTitle:100,sSub:100,showClock:true,showPc:false,showLogin:true};
 function lockFor(p){return (S.lockByGroup&&S.lockByGroup[p.group])||S.lockSent||S.settings.lock}
+const LK_WD=['yakshanba','dushanba','seshanba','chorshanba','payshanba','juma','shanba'];
+const LK_MO=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
+function lockDate(t){const d=new Date(t);return `${d.getDate()}-${LK_MO[d.getMonth()]}, ${LK_WD[d.getDay()]}`}
 function lockHTML(L,o){
+  // DUST2 klient (agent LockWindow) bilan bir xil chizadi: PC nomi soat ustida (soat oʻlchamida),
+  // sana qatori, sarlavha mavzu urgʻu rangida. Oʻlchamlar 1920px ekranga nisbatan cqw'da.
   const t=LKTH[L.theme]||LKTH.dust2;
   const fit={cover:'center/cover no-repeat',contain:'center/contain no-repeat',center:'center/auto no-repeat',stretch:'center/100% 100% no-repeat',tile:'top left/auto repeat'}[L.fit]||'center/cover no-repeat';
   const bg=L.bg?`url('${L.bg}') ${fit},#000`:t.bg;
+  const cs=L.sClock/100,ts=L.sTitle/100,xs=L.sSub/100;
   const login=!L.showLogin?'':o.interactive
-    ?`<form class="lk-login" id="lk-lf" autocomplete="off"><input id="lk-l" placeholder="Login" aria-label="Login"><input id="lk-p" type="password" placeholder="Parol" aria-label="Parol"><button type="submit">Kirish</button><div class="lk-err" id="lk-e"></div></form>`
-    :`<div class="lk-login" aria-hidden="true"><div class="lk-ph"></div><div class="lk-ph"></div><div class="lk-ph b"></div></div>`;
-  return `<div class="lk lk-h-${L.h} lk-v-${L.v}" style="--lk-acc:${t.acc};--lk-fg:${t.fg}"><div class="lk-bg" style="background:${bg}"></div><div class="lk-dim" style="opacity:${(L.dim/100).toFixed(2)}"></div>
-    <div class="lk-in"><div class="lk-txt">${L.showClock?`<div class="lk-clock" data-lkclk style="font-size:${(8*L.sClock/100).toFixed(2)}cqw">${hm(Date.now())}</div>`:''}
-      <div class="lk-title" style="font-size:${(2.6*L.sTitle/100).toFixed(2)}cqw">${esc(L.title||S.settings.name)}</div>
-      <div class="lk-sub" style="font-size:${(1.45*L.sSub/100).toFixed(2)}cqw">${esc(o.sub||L.sub)}</div></div>${login}</div>
-    ${L.showPc?`<div class="lk-pcn" style="font-size:max(11px,${(1.6*(L.sPc||100)/100).toFixed(2)}cqw)">PC ${p2(o.n)}</div>`:''}${o.preview?`<div class="lk-foot">PC ${p2(o.n)} · qulflangan</div>`:''}</div>`;
+    ?`<form class="lk-login" id="lk-lf" autocomplete="off"><div class="lk-lg-h">Akkaunt bilan kirish</div><input id="lk-l" placeholder="Login" aria-label="Login"><input id="lk-p" type="password" placeholder="Parol" aria-label="Parol"><button type="submit">Kirish</button><div class="lk-err" id="lk-e"></div></form>`
+    :`<div class="lk-login" aria-hidden="true"><div class="lk-lg-h">Akkaunt bilan kirish</div><div class="lk-ph"></div><div class="lk-ph"></div><div class="lk-ph b"></div></div>`;
+  return `<div class="lk lk-h-${L.h} lk-v-${L.v}" style="--lk-acc:${t.acc};--lk-fg:${t.fg};--lk-sub:${t.sub||'#AAB4C4'}"><div class="lk-bg" style="background:${bg}"></div><div class="lk-dim" style="opacity:${(L.dim/100).toFixed(2)}"></div>
+    <div class="lk-in"><div class="lk-txt">
+      ${L.showPc?`<div class="lk-pcname" style="font-size:${(4.69*cs).toFixed(2)}cqw">PC ${p2(o.n)}</div>`:''}
+      ${L.showClock?`<div class="lk-clock" data-lkclk style="font-size:${(6.77*cs).toFixed(2)}cqw">${hm(Date.now())}</div>`:''}
+      <div class="lk-date">${lockDate(Date.now())}</div>
+      <div class="lk-title" style="font-size:${(1.875*ts).toFixed(2)}cqw">${esc(L.title||S.settings.name)}</div>
+      <div class="lk-sub" style="font-size:${(0.885*xs).toFixed(2)}cqw">${esc(o.sub||L.sub)}</div></div>${login}</div>
+    ${o.preview?`<div class="lk-foot">PC ${p2(o.n)} · qulflangan</div><div class="lk-foot lk-foot-c">Klaviatura va sichqoncha bloklangan — faqat kirish maydoni ishlaydi</div>`:''}</div>`;
 }
 function setLock(b){
   const L=S.settings.lock;
@@ -2169,7 +2182,7 @@ function setLock(b){
       <label>Sarlavha<input id="lk-title" value="${esc(L.title)}" placeholder="${esc(S.settings.name)}"></label>
       <label>Pastki yozuv<input id="lk-sub" value="${esc(L.sub)}"></label>
       <div class="subbox"><b>Yozuvlar joylashuvi</b>${seg('h',[['center','Markazda'],['split','Chapda, kirish oʻngda'],['left','Hammasi chapda']])}${seg('v',[['top','Yuqorida'],['middle','Oʻrtada'],['bottom','Pastda']])}</div>
-      <div class="subbox"><b>Yozuvlar oʻlchami</b>${rng('sClock','Soat')}${rng('sTitle','Sarlavha')}${rng('sSub','Pastki yozuv')}${rng('sPc','Kompyuter nomi')}<div><button class="btn" type="button" id="lk-def">Standart oʻlcham va joylashuv</button></div></div>
+      <div class="subbox"><b>Yozuvlar oʻlchami</b>${rng('sClock','Soat va kompyuter nomi')}${rng('sTitle','Sarlavha')}${rng('sSub','Pastki yozuv')}<div class="note" style="margin:6px 0">Kompyuter nomi soat bilan bir xil oʻlchamda — klient shunday chizadi.</div><div><button class="btn" type="button" id="lk-def">Standart oʻlcham va joylashuv</button></div></div>
       ${ck('showClock','Soatni koʻrsatish')}${ck('showPc','Kompyuter nomini koʻrsatish (PC 01)')}${ck('showLogin','Akkaunt bilan kirish oynasini koʻrsatish')}
       <label>Qaysi kompyuterlarga<select id="lk-tg"><option value="all">Barcha kompyuterlar (${S.pcs.length})</option>${S.groups.map(g=>`<option value="${g.id}">${esc(g.name)} guruhi (${S.pcs.filter(p=>p.group===g.id).length})</option>`).join('')}</select></label>
       <div><button class="btn pri" type="button" id="lk-send">Kompyuterlarga yuborish</button></div>
@@ -2186,7 +2199,7 @@ function setLock(b){
   $$('[data-seg]',b).forEach(x=>x.onclick=()=>{L[x.dataset.seg]=x.dataset.val;$$(`[data-seg="${x.dataset.seg}"]`,b).forEach(y=>{y.classList.toggle('on',y===x);y.setAttribute('aria-checked',y===x)});ch()});
   $$('[data-sz]',b).forEach(x=>x.oninput=()=>{L[x.dataset.sz]=+x.value;$(`[data-szv="${x.dataset.sz}"]`,b).textContent=x.value+'%';ch()});
   $$('[data-lb]',b).forEach(x=>x.onchange=()=>{L[x.dataset.lb]=x.checked;ch()});
-  $('#lk-def').onclick=()=>{Object.assign(L,{h:'center',v:'middle',sClock:100,sTitle:100,sSub:100,sPc:100});save();setLock(b)};
+  $('#lk-def').onclick=()=>{Object.assign(L,{h:'center',v:'middle',sClock:100,sTitle:100,sSub:100});save();setLock(b)};
   $('#lk-pick').onclick=()=>$('#lk-file').click();
   if($('#lk-clr'))$('#lk-clr').onclick=()=>{L.bg='';save();setLock(b)};
   $('#lk-file').onchange=e=>{const f=e.target.files[0];if(!f)return;if(!/^image\//.test(f.type))return toast('Rasm fayl tanlang (JPG, PNG, WEBP)','err');
